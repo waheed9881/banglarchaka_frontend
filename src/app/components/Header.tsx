@@ -585,7 +585,7 @@ export function Header({
                 )}
               </div>
             </div>
-          ) : null}
+        ) : null}
       </div>
     </header>
   );

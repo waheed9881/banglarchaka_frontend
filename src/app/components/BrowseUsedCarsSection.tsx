@@ -256,7 +256,7 @@ export function BrowseUsedCarsSection() {
         <h2 className="text-xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Browse Used Cars</h2>
 
         <div className="flex gap-1 overflow-x-auto overscroll-x-contain border-b border-gray-200 mb-6 sm:mb-8 pb-px [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory">
-          {TABS.map(({ key, label }) => (
+          {TAB_DEFS.map(({ key, labelKey }) => (
             <button
               key={key}
               type="button"
