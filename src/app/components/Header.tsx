@@ -535,7 +535,6 @@ export function Header({
             )}
           </nav>
         ) : null}
-      </div>
     </header>
   );
 }
