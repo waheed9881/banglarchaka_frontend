@@ -710,12 +710,14 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
     }
   };
 
-  const shellClass = variant === 'admin' ? `min-h-screen ${dp.shell}` : '';
+  const isAdmin = variant === 'admin';
+  /** Admin embeds inside AdminLayout (gray-50 + sidebar); avoid dealer full-viewport gradient. */
+  const shellClass = isAdmin ? 'min-h-full bg-gray-50' : '';
 
   if (canHr === false) {
     return (
       <div className={shellClass || 'rounded-2xl'}>
-        <div className={`max-w-4xl mx-auto px-4 ${variant === 'admin' ? 'py-10' : 'py-6'}`}>
+        <div className={`max-w-4xl mx-auto px-4 ${isAdmin ? 'py-10' : 'py-6'}`}>
           <div className={`${dp.card} ${dp.cardPad} text-center`}>
             <h2 className={dp.heroTitle}>HR access required</h2>
             <p className="mt-3 text-sm text-slate-600 leading-relaxed">
@@ -733,28 +735,68 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
     );
   }
 
+  const tabBtn = (active: boolean) =>
+    isAdmin
+      ? `px-3 py-2 rounded text-sm font-medium transition-colors whitespace-nowrap ${
+          active ? 'bg-[#233D7B] text-white' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+        }`
+      : dp.tab(active);
+
   return (
     <div className={shellClass}>
-      <div className={`max-w-6xl mx-auto px-4 sm:px-0 ${variant === 'admin' ? 'py-8' : 'pb-8'}`}>
-        <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+      <div
+        className={
+          isAdmin
+            ? 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8'
+            : 'max-w-6xl mx-auto px-4 sm:px-0 pb-8'
+        }
+      >
+        <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-[#233D7B]/80 mb-1">People operations</p>
-            <h2 className={dp.heroTitle}>HR suite</h2>
-            <p className={dp.heroSubtitle}>Org structure, roster, time, leave, and payroll — scoped to your dealership.</p>
+            {isAdmin ? (
+              <>
+                <h1 className="text-2xl font-bold text-gray-900">Human resources</h1>
+                <p className="mt-1 text-sm text-gray-600 max-w-2xl leading-relaxed">
+                  Departments, employees, attendance, leave, payroll, and HR operations.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-xs font-bold uppercase tracking-wider text-[#233D7B]/80 mb-1">People operations</p>
+                <h2 className={dp.heroTitle}>HR suite</h2>
+                <p className={dp.heroSubtitle}>
+                  Org structure, roster, time, leave, and payroll — scoped to your dealership.
+                </p>
+              </>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link to={portalHref} className={dp.btnSecondary}>
+            <Link to={portalHref} className={isAdmin ? 'inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50' : dp.btnSecondary}>
               <ArrowLeft className="h-4 w-4" aria-hidden />
               {portalLabel}
             </Link>
-            <button type="button" onClick={() => load().catch(() => undefined)} className={dp.btnPrimary}>
+            <button
+              type="button"
+              onClick={() => load().catch(() => undefined)}
+              className={
+                isAdmin
+                  ? 'inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#233D7B] hover:bg-[#1a2d5a]'
+                  : dp.btnPrimary
+              }
+            >
               <RefreshCw className="h-4 w-4" aria-hidden />
               Refresh
             </button>
           </div>
         </div>
 
-        <div className={`${dp.cardMuted} mb-6 flex flex-wrap gap-1 p-1.5`}>
+        <div
+          className={
+            isAdmin
+              ? 'mb-6 bg-white rounded-lg border border-gray-200 shadow-sm p-2 flex flex-wrap gap-2'
+              : `${dp.cardMuted} mb-6 flex flex-wrap gap-1 p-1.5`
+          }
+        >
           {(
             [
               ['departments', 'Departments'],
@@ -765,13 +807,17 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
               ['operations', 'Operations'],
             ] as const
           ).map(([key, label]) => (
-            <button key={key} type="button" onClick={() => setTab(key)} className={dp.tab(tab === key)}>
+            <button key={key} type="button" onClick={() => setTab(key)} className={tabBtn(tab === key)}>
               {label}
             </button>
           ))}
         </div>
 
-        {message ? <div className={`mb-6 ${dp.alert}`}>{message}</div> : null}
+        {message ? (
+          <div className={isAdmin ? 'mb-4 px-4 py-2 rounded border border-blue-100 bg-blue-50 text-blue-900 text-sm' : `mb-6 ${dp.alert}`}>
+            {message}
+          </div>
+        ) : null}
 
         {loading ? (
           <HrSuiteLoadingSkeleton tab={tab} />
