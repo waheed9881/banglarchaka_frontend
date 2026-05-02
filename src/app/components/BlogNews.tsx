@@ -9,26 +9,21 @@ import {
   type BrandNewsArticleDto,
   type ListingDto,
 } from '@/lib/marketplace';
+import { SkeletonBox } from '@/app/components/PremiumSkeleton';
 
 const FALLBACK_COVER =
   'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1080&q=80';
 
 function BlogNewsCardSkeleton() {
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-100 animate-pulse">
-      <div className="h-48 bg-gray-200" />
-      <div className="p-5 space-y-3">
-        <div className="h-5 bg-gray-200 rounded-md w-[92%]" />
-        <div className="h-4 bg-gray-200 rounded-md w-full" />
-        <div className="h-4 bg-gray-200 rounded-md w-[70%]" />
-        <div className="flex gap-4 pt-2">
-          <div className="h-3 w-20 bg-gray-200 rounded-md" />
-          <div className="h-3 w-24 bg-gray-200 rounded-md" />
-        </div>
-        <div className="flex justify-between pt-4 border-t border-gray-100 mt-2">
-          <div className="h-3 w-16 bg-gray-200 rounded-md" />
-          <div className="h-3 w-14 bg-gray-200 rounded-md" />
-        </div>
+    <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+      <SkeletonBox className="h-56 w-full" rounded="rounded-none" />
+      <div className="space-y-3 p-6">
+        <SkeletonBox className="h-3 w-24" />
+        <SkeletonBox className="h-5 w-[92%]" />
+        <SkeletonBox className="h-4 w-full" />
+        <SkeletonBox className="h-4 w-[70%]" />
+        <SkeletonBox className="mt-4 h-3 w-28" />
       </div>
     </div>
   );
@@ -78,14 +73,14 @@ export function BlogNews() {
   };
 
   return (
-    <section className="py-12 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
+    <section className="bg-[#f8f9fa] py-16 md:py-20">
+      <div className="mx-auto max-w-7xl px-4">
+        <div className="mb-10 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">Latest News & Reviews</h2>
-            <p className="text-gray-600 mt-2">Editorial notes from brands plus fresh marketplace highlights</p>
+            <h2 className="text-3xl font-bold tracking-tight text-[#00236f] md:text-4xl">Latest News & Reviews</h2>
+            <p className="mt-2 text-slate-600">Editorial notes from brands plus fresh marketplace highlights</p>
           </div>
-          <Link to="/blog" className="text-[#233D7B] hover:underline font-semibold">
+          <Link to="/blog" className="shrink-0 text-sm font-bold text-[#ba0035] underline-offset-4 hover:underline">
             View all →
           </Link>
         </div>

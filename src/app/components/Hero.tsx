@@ -4,6 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { BD_CITIES, CITY_LABEL_KEYS } from '@/i18n/bdCities';
 import { fetchBrands, type BrandDto } from '@/lib/marketplace';
+import { SkeletonHeroCard, SkeletonLiveRegion } from '@/app/components/PremiumSkeleton';
+
+const HERO_BG =
+  'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=2000&q=80';
 
 type ListingType = 'used_car' | 'new_car' | 'used_bike' | 'auto_part';
 
@@ -195,213 +199,237 @@ export function Hero() {
   ];
 
   return (
-    <div className="relative bg-gradient-to-r from-[#233D7B] to-[#1a2d5a] text-white py-12">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold mb-2" style={{ letterSpacing: '-0.5px' }}>
-            {t('hero.headline')}
-          </h2>
-          <p className="text-base text-blue-100">{t('hero.subhead')}</p>
-        </div>
+    <section className="relative flex min-h-[min(88vh,900px)] flex-col justify-end overflow-hidden py-12 md:justify-center md:py-16">
+      <div className="absolute inset-0 z-0" aria-hidden>
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/65 via-black/40 to-black/80" />
+        <img src={HERO_BG} alt="" className="h-full w-full object-cover" fetchPriority="high" decoding="async" />
+      </div>
 
-        <div className="max-w-5xl mx-auto">
-          <div className="bg-white rounded-lg shadow-2xl p-5 text-gray-900">
-            <div className="flex gap-2 mb-5 border-b border-gray-200 overflow-x-auto">
-              {(
-                [
-                  [() => t('footer.usedCars'), 'used_car'],
-                  [() => t('footer.newCars'), 'new_car'],
-                  [() => t('hero.tabBikes'), 'used_bike'],
-                  [() => t('hero.autoParts'), 'auto_part'],
-                ] as const
-              ).map(([labelFn, value]) => (
+      <div className="relative z-20 mx-auto flex w-full max-w-7xl flex-col items-center px-4 text-center">
+        <h1 className="mb-3 text-4xl font-bold tracking-tight text-white drop-shadow-lg md:text-5xl lg:text-6xl">
+          {t('hero.headline')}
+        </h1>
+        <p className="mb-8 max-w-2xl text-base text-slate-200 md:text-lg">{t('hero.subhead')}</p>
+
+        <div className="w-full max-w-5xl">
+          {brandsLoading ? (
+            <>
+              <SkeletonLiveRegion>{t('common.loading')}</SkeletonLiveRegion>
+              <SkeletonHeroCard />
+            </>
+          ) : (
+            <>
+            <div className="rounded-2xl border border-white/30 bg-white/95 p-5 text-left text-gray-900 shadow-2xl backdrop-blur-md md:p-8">
+              <div className="mb-5 flex gap-2 overflow-x-auto border-b border-slate-200 pb-4">
+                {(
+                  [
+                    [() => t('footer.usedCars'), 'used_car'],
+                    [() => t('footer.newCars'), 'new_car'],
+                    [() => t('hero.tabBikes'), 'used_bike'],
+                    [() => t('hero.autoParts'), 'auto_part'],
+                  ] as const
+                ).map(([labelFn, value]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => submitSearch({ listingType: value })}
+                    className={`shrink-0 rounded-t-lg px-4 py-2.5 text-[13px] font-semibold transition ${
+                      type === value ? 'bg-[#ba0035] text-white' : 'text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    {labelFn()}
+                  </button>
+                ))}
+              </div>
+
+              <form
+                className="grid grid-cols-1 gap-3 md:grid-cols-4 md:items-end"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  submitSearch();
+                }}
+              >
+                <label className="block space-y-1.5 md:col-span-1">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                    {t('hero.brandLabel')}
+                  </span>
+                  <select
+                    value={brandId}
+                    onChange={(e) => setBrandId(e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] text-gray-800 outline-none focus:border-[#00236f] focus:ring-2 focus:ring-[#00236f]/20"
+                    aria-label={t('hero.brandLabel')}
+                  >
+                    <option value="">{t('hero.anyMake')}</option>
+                    {brands.map((b) => (
+                      <option value={String(b.id)} key={b.id}>
+                        {b.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block space-y-1.5 md:col-span-1">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                    {t('hero.modelKeywordPlaceholder')}
+                  </span>
+                  <input
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    placeholder={t('hero.modelKeywordPlaceholder')}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] text-gray-800 outline-none placeholder:text-slate-400 focus:border-[#00236f] focus:ring-2 focus:ring-[#00236f]/20"
+                    aria-label={t('hero.modelKeywordPlaceholder')}
+                  />
+                </label>
+                <label className="block space-y-1.5 md:col-span-1">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                    {t('hero.cityLabel')}
+                  </span>
+                  <select
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] text-gray-800 outline-none focus:border-[#00236f] focus:ring-2 focus:ring-[#00236f]/20"
+                    aria-label={t('hero.cityLabel')}
+                  >
+                    <option value="">{t('hero.anyCity')}</option>
+                    {BD_CITIES.map((c) => (
+                      <option key={c} value={c}>
+                        {t(CITY_LABEL_KEYS[c])}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <button
-                  key={value}
-                  type="button"
-                  onClick={() => submitSearch({ listingType: value })}
-                  className={`px-5 py-2.5 rounded-t-md font-semibold shrink-0 ${
-                    type === value ? 'bg-[#C4161C] text-white' : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                  style={{ fontSize: '13px' }}
+                  type="submit"
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#ba0035] px-6 text-[14px] font-bold text-white shadow-md transition hover:bg-[#9a002c] md:mt-0 md:h-[42px] md:self-end"
                 >
-                  {labelFn()}
+                  <Search className="h-4 w-4" aria-hidden />
+                  {t('hero.searchShort')}
                 </button>
-              ))}
+              </form>
+
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowAdvanced((v) => !v)}
+                  className="text-[13px] font-medium text-[#00236f] hover:underline"
+                >
+                  {showAdvanced ? t('hero.advancedFiltersHide') : t('hero.advancedFiltersShow')}
+                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="text-[13px] font-semibold text-[#00236f] hover:underline"
+                  >
+                    {t('hero.clearShort')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={saveCurrentSearch}
+                    className="text-[13px] font-semibold text-[#00236f] hover:underline"
+                  >
+                    {t('hero.saveSearch')}
+                  </button>
+                </div>
+              </div>
+
+              {showAdvanced ? (
+                <div className="mt-4 grid grid-cols-1 gap-3 border-t border-slate-200 pt-4 md:grid-cols-3">
+                  <input
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    placeholder={t('hero.placeholderMinPrice')}
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-800"
+                  />
+                  <input
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    placeholder={t('hero.placeholderMaxPrice')}
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-800"
+                  />
+                  <select
+                    value={fuelType}
+                    onChange={(e) => setFuelType(e.target.value)}
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-800"
+                  >
+                    <option value="">{t('hero.anyFuelType')}</option>
+                    <option value="petrol">{t('hero.petrol')}</option>
+                    <option value="diesel">{t('hero.diesel')}</option>
+                    <option value="hybrid">{t('hero.hybrid')}</option>
+                    <option value="electric">{t('hero.electric')}</option>
+                  </select>
+                  <input
+                    value={minYear}
+                    onChange={(e) => setMinYear(e.target.value)}
+                    placeholder={t('hero.placeholderMinYear')}
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-800"
+                  />
+                  <input
+                    value={maxYear}
+                    onChange={(e) => setMaxYear(e.target.value)}
+                    placeholder={t('hero.placeholderMaxYear')}
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-800"
+                  />
+                  <select
+                    value={transmission}
+                    onChange={(e) => setTransmission(e.target.value)}
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-800"
+                  >
+                    <option value="">{t('hero.anyTransmissionShort')}</option>
+                    <option value="manual">{t('hero.manual')}</option>
+                    <option value="automatic">{t('hero.automatic')}</option>
+                  </select>
+                  <select
+                    value={condition}
+                    onChange={(e) => setCondition(e.target.value)}
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-800"
+                  >
+                    <option value="">{t('hero.anyConditionShort')}</option>
+                    <option value="used">{t('hero.used')}</option>
+                    <option value="new">{t('hero.new')}</option>
+                    <option value="reconditioned">{t('hero.reconditioned')}</option>
+                  </select>
+                  <label className="flex items-center gap-2 text-sm text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={verifiedDealerOnly}
+                      onChange={(e) => setVerifiedDealerOnly(e.target.checked)}
+                    />
+                    {t('hero.verifiedDealersOnly')}
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-700">
+                    <input type="checkbox" checked={dealerOnly} onChange={(e) => setDealerOnly(e.target.checked)} />
+                    {t('hero.dealerListingsOnly')}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => submitSearch()}
+                    className="rounded-lg bg-[#00236f] py-2.5 text-sm font-bold text-white transition hover:bg-[#001a52] md:col-span-3"
+                  >
+                    {t('hero.applyAdvancedFilters')}
+                  </button>
+                </div>
+              ) : null}
             </div>
 
-            <form
-              className="grid grid-cols-1 md:grid-cols-4 gap-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                submitSearch();
-              }}
-            >
-              {brandsLoading ? (
-                <div
-                  className="px-3 py-2.5 border border-gray-200 rounded-md bg-gray-100 animate-pulse min-h-[42px]"
-                  role="status"
-                  aria-busy="true"
-                  aria-label={t('hero.brandLabel')}
-                />
-              ) : (
-                <select
-                  value={brandId}
-                  onChange={(e) => setBrandId(e.target.value)}
-                  className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white"
-                  style={{ fontSize: '13px' }}
-                  aria-label={t('hero.brandLabel')}
-                >
-                  <option value="">{t('hero.anyMake')}</option>
-                  {brands.map((b) => (
-                    <option value={String(b.id)} key={b.id}>
-                      {b.name}
-                    </option>
-                  ))}
-                </select>
-              )}
-              <input
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                placeholder={t('hero.modelKeywordPlaceholder')}
-                className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white"
-                style={{ fontSize: '13px' }}
-                aria-label={t('hero.modelKeywordPlaceholder')}
-              />
-              <select
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white"
-                style={{ fontSize: '13px' }}
-                aria-label={t('hero.cityLabel')}
-              >
-                <option value="">{t('hero.anyCity')}</option>
-                {BD_CITIES.map((c) => (
-                  <option key={c} value={c}>
-                    {t(CITY_LABEL_KEYS[c])}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="submit"
-                className="px-6 py-2.5 bg-[#3EB549] text-white rounded hover:bg-green-600 transition flex items-center justify-center gap-2 font-semibold shadow-sm"
-                style={{ fontSize: '14px' }}
-              >
-                <Search className="w-4 h-4" aria-hidden />
-                {t('hero.searchShort')}
-              </button>
-            </form>
-
-            <div className="mt-3 flex flex-wrap items-center gap-2">
+            <div className="mt-6 flex flex-wrap justify-center gap-2">
               {quickChips.map((chip) => (
                 <button
                   key={chip.chipKey}
                   type="button"
                   onClick={() => submitSearch(chip.patch)}
-                  className="px-3 py-1.5 rounded-full border border-gray-300 text-xs text-gray-700 hover:border-[#233D7B] hover:text-[#233D7B] hover:bg-blue-50/50 transition"
+                  className="rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-semibold text-white backdrop-blur transition hover:bg-white/20"
                 >
                   {chip.label}
                 </button>
               ))}
             </div>
-
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-              <button
-                type="button"
-                onClick={() => setShowAdvanced((v) => !v)}
-                className="text-[#233D7B] hover:underline font-medium"
-                style={{ fontSize: '13px' }}
-              >
-                {showAdvanced ? t('hero.advancedFiltersHide') : t('hero.advancedFiltersShow')}
-              </button>
-              <div className="flex items-center gap-3">
-                <button type="button" onClick={clearFilters} className="text-[13px] text-[#233D7B] font-semibold hover:underline">
-                  {t('hero.clearShort')}
-                </button>
-                <button type="button" onClick={saveCurrentSearch} className="text-[13px] text-[#233D7B] font-semibold hover:underline">
-                  {t('hero.saveSearch')}
-                </button>
-              </div>
-            </div>
-
-            {showAdvanced && (
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 pt-4 border-t border-gray-200">
-                <input
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
-                  placeholder={t('hero.placeholderMinPrice')}
-                  className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
-                />
-                <input
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  placeholder={t('hero.placeholderMaxPrice')}
-                  className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
-                />
-                <select
-                  value={fuelType}
-                  onChange={(e) => setFuelType(e.target.value)}
-                  className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
-                >
-                  <option value="">{t('hero.anyFuelType')}</option>
-                  <option value="petrol">{t('hero.petrol')}</option>
-                  <option value="diesel">{t('hero.diesel')}</option>
-                  <option value="hybrid">{t('hero.hybrid')}</option>
-                  <option value="electric">{t('hero.electric')}</option>
-                </select>
-                <input
-                  value={minYear}
-                  onChange={(e) => setMinYear(e.target.value)}
-                  placeholder={t('hero.placeholderMinYear')}
-                  className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
-                />
-                <input
-                  value={maxYear}
-                  onChange={(e) => setMaxYear(e.target.value)}
-                  placeholder={t('hero.placeholderMaxYear')}
-                  className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
-                />
-                <select
-                  value={transmission}
-                  onChange={(e) => setTransmission(e.target.value)}
-                  className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
-                >
-                  <option value="">{t('hero.anyTransmissionShort')}</option>
-                  <option value="manual">{t('hero.manual')}</option>
-                  <option value="automatic">{t('hero.automatic')}</option>
-                </select>
-                <select
-                  value={condition}
-                  onChange={(e) => setCondition(e.target.value)}
-                  className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
-                >
-                  <option value="">{t('hero.anyConditionShort')}</option>
-                  <option value="used">{t('hero.used')}</option>
-                  <option value="new">{t('hero.new')}</option>
-                  <option value="reconditioned">{t('hero.reconditioned')}</option>
-                </select>
-                <label className="flex items-center gap-2 text-sm text-gray-700">
-                  <input type="checkbox" checked={verifiedDealerOnly} onChange={(e) => setVerifiedDealerOnly(e.target.checked)} />
-                  {t('hero.verifiedDealersOnly')}
-                </label>
-                <label className="flex items-center gap-2 text-sm text-gray-700">
-                  <input type="checkbox" checked={dealerOnly} onChange={(e) => setDealerOnly(e.target.checked)} />
-                  {t('hero.dealerListingsOnly')}
-                </label>
-                <button
-                  type="button"
-                  onClick={() => submitSearch()}
-                  className="md:col-span-3 rounded-lg bg-[#233D7B] text-white text-sm font-bold py-2.5 hover:bg-[#1a2d5a] transition"
-                >
-                  {t('hero.applyAdvancedFilters')}
-                </button>
-              </div>
-            )}
-          </div>
+          </>
+          )}
         </div>
 
-        {savedSearches.length > 0 && (
-          <div className="max-w-5xl mx-auto mt-5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 px-4 py-3">
-            <div className="text-xs font-semibold text-blue-100 mb-2">{t('hero.savedSearches')}</div>
+        {savedSearches.length > 0 ? (
+          <div className="mx-auto mt-6 w-full max-w-5xl rounded-xl border border-white/20 bg-white/10 px-4 py-3 backdrop-blur-sm">
+            <div className="mb-2 text-xs font-semibold text-slate-100">{t('hero.savedSearches')}</div>
             <div className="flex flex-wrap gap-2">
               {savedSearches.map((s) => (
                 <div
@@ -427,43 +455,43 @@ export function Hero() {
               ))}
             </div>
           </div>
-        )}
+        ) : null}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8 max-w-5xl mx-auto">
+        <div className="mx-auto mt-8 grid w-full max-w-5xl grid-cols-2 gap-3 md:grid-cols-4">
           <button
             type="button"
             onClick={() => navigate('/listings?type=used_car')}
-            className="bg-white/10 backdrop-blur-sm rounded-md p-3 text-center hover:bg-white/20 transition cursor-pointer border border-transparent hover:border-white/20"
+            className="cursor-pointer rounded-xl border border-white/15 bg-white/10 p-3 text-center backdrop-blur-sm transition hover:border-white/30 hover:bg-white/20"
           >
-            <div className="text-xl font-bold">200K+</div>
-            <div className="text-xs text-blue-100">{t('hero.statCarsForSale')}</div>
+            <div className="text-xl font-bold text-white">200K+</div>
+            <div className="text-xs text-slate-200">{t('hero.statCarsForSale')}</div>
           </button>
           <button
             type="button"
             onClick={() => navigate('/listings?type=used_bike')}
-            className="bg-white/10 backdrop-blur-sm rounded-md p-3 text-center hover:bg-white/20 transition cursor-pointer border border-transparent hover:border-white/20"
+            className="cursor-pointer rounded-xl border border-white/15 bg-white/10 p-3 text-center backdrop-blur-sm transition hover:border-white/30 hover:bg-white/20"
           >
-            <div className="text-xl font-bold">50K+</div>
-            <div className="text-xs text-blue-100">{t('hero.statBikesForSale')}</div>
+            <div className="text-xl font-bold text-white">50K+</div>
+            <div className="text-xs text-slate-200">{t('hero.statBikesForSale')}</div>
           </button>
           <button
             type="button"
             onClick={() => navigate('/used-car-dealers')}
-            className="bg-white/10 backdrop-blur-sm rounded-md p-3 text-center hover:bg-white/20 transition cursor-pointer border border-transparent hover:border-white/20"
+            className="cursor-pointer rounded-xl border border-white/15 bg-white/10 p-3 text-center backdrop-blur-sm transition hover:border-white/30 hover:bg-white/20"
           >
-            <div className="text-xl font-bold">5K+</div>
-            <div className="text-xs text-blue-100">{t('hero.statDealers')}</div>
+            <div className="text-xl font-bold text-white">5K+</div>
+            <div className="text-xs text-slate-200">{t('hero.statDealers')}</div>
           </button>
           <button
             type="button"
             onClick={() => navigate('/listings?type=auto_part')}
-            className="bg-white/10 backdrop-blur-sm rounded-md p-3 text-center hover:bg-white/20 transition cursor-pointer border border-transparent hover:border-white/20"
+            className="cursor-pointer rounded-xl border border-white/15 bg-white/10 p-3 text-center backdrop-blur-sm transition hover:border-white/30 hover:bg-white/20"
           >
-            <div className="text-xl font-bold">100K+</div>
-            <div className="text-xs text-blue-100">{t('hero.statAutoPartsShort')}</div>
+            <div className="text-xl font-bold text-white">100K+</div>
+            <div className="text-xs text-slate-200">{t('hero.statAutoPartsShort')}</div>
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

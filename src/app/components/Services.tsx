@@ -90,20 +90,20 @@ const SECONDARY_HINTS: Record<string, { label: string; to: string }> = {
 
 export function Services() {
   return (
-    <section className="relative py-14 md:py-16 bg-[#f5f6f8] border-y border-gray-200/80 overflow-hidden">
+    <section className="relative overflow-hidden border-y border-slate-100 bg-white py-16 md:py-20">
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_-20%,rgba(35,61,123,0.07),transparent)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_-20%,rgba(0,35,111,0.06),transparent)]"
         aria-hidden
       />
 
-      <div className="relative max-w-7xl mx-auto px-4">
-        <div className="text-center max-w-2xl mx-auto mb-11 md:mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#233D7B] ring-1 ring-[#233D7B]/12 mb-4">
-            <Sparkles className="w-3.5 h-3.5" aria-hidden />
+      <div className="relative mx-auto max-w-7xl px-4">
+        <div className="mx-auto mb-12 max-w-2xl text-center md:mb-14">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#00236f]">
+            <Sparkles className="h-3.5 w-3.5" aria-hidden />
             Marketplace shortcuts
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">Services &amp; entry points</h2>
-          <p className="text-gray-600 mt-3 text-base leading-relaxed">
+          <h2 className="text-3xl font-bold tracking-tight text-[#00236f] sm:text-4xl">Services &amp; entry points</h2>
+          <p className="mt-3 text-base leading-relaxed text-slate-600">
             Every tile opens a{' '}
             <span className="font-semibold text-gray-800">real BanglarChaka page</span> — live listing filters, seller
             flows, or service hubs wired to the same API as search.
@@ -118,7 +118,7 @@ export function Services() {
               <div key={tile.title} className="flex flex-col h-full">
                 <Link
                   to={tile.to}
-                  className="group flex flex-col h-full rounded-2xl bg-white p-6 md:p-7 ring-1 ring-gray-200/90 shadow-sm hover:shadow-xl hover:ring-[#233D7B]/20 hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#233D7B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f5f6f8]"
+                  className="group flex h-full flex-col rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#00236f]/15 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00236f]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white md:p-7"
                 >
                   <div className="flex items-start justify-between gap-3 mb-5">
                     <div
@@ -131,12 +131,12 @@ export function Services() {
                     </span>
                   </div>
 
-                  <h3 className="font-bold text-lg text-gray-900 mb-2 group-hover:text-[#233D7B] transition-colors">
+                  <h3 className="mb-2 text-lg font-bold text-slate-900 transition-colors group-hover:text-[#00236f]">
                     {tile.title}
                   </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed flex-1 mb-5">{tile.description}</p>
+                  <p className="mb-5 flex-1 text-sm leading-relaxed text-slate-600">{tile.description}</p>
 
-                  <span className="inline-flex items-center gap-1 text-sm font-bold text-[#233D7B] group-hover:gap-2 transition-all">
+                  <span className="inline-flex items-center gap-1 text-sm font-bold text-[#ba0035] transition-all group-hover:gap-2">
                     Open
                     <ArrowUpRight className="w-4 h-4" aria-hidden />
                   </span>
@@ -145,7 +145,7 @@ export function Services() {
                 {hint ? (
                   <Link
                     to={hint.to}
-                    className="mt-2 ml-1 text-xs font-semibold text-gray-500 hover:text-[#233D7B] transition-colors"
+                    className="ml-1 mt-2 text-xs font-semibold text-slate-500 transition-colors hover:text-[#ba0035]"
                   >
                     {hint.label} →
                   </Link>
@@ -155,13 +155,13 @@ export function Services() {
           })}
         </div>
 
-        <p className="mt-10 text-center text-sm text-gray-500">
+        <p className="mt-10 text-center text-sm text-slate-500">
           Managing inventory, HR, or finance as a dealer?{' '}
-          <Link to="/dealer/portal" className="font-semibold text-[#233D7B] hover:underline">
+          <Link to="/dealer/portal" className="font-semibold text-[#00236f] hover:underline">
             Dealer portal
           </Link>{' '}
           ·{' '}
-          <Link to="/post-ad" className="font-semibold text-[#233D7B] hover:underline">
+          <Link to="/post-ad" className="font-semibold text-[#00236f] hover:underline">
             Post any listing type
           </Link>
         </p>

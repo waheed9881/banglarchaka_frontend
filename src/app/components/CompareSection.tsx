@@ -84,7 +84,10 @@ export function CompareSection() {
     'w-full appearance-none px-4 py-3.5 pr-10 rounded-xl border border-gray-200 bg-white text-gray-900 text-sm font-medium shadow-sm transition focus:outline-none focus:ring-2 focus:ring-[#233D7B]/25 focus:border-[#233D7B] hover:border-gray-300';
 
   return (
-    <section id="compare" className="relative overflow-hidden py-14 md:py-16 bg-[#eef1f6] border-y border-gray-200/80">
+    <section
+      id="compare"
+      className="relative overflow-hidden border-y border-slate-100 bg-[#f8f9fa] py-16 md:py-20"
+    >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(35,61,123,0.09),transparent)]" aria-hidden />
 
       <div className="relative max-w-7xl mx-auto px-4">
@@ -188,8 +191,8 @@ export function CompareSection() {
               <GitCompare className="w-3.5 h-3.5" aria-hidden />
               Side-by-side
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight mb-3">Compare vehicles</h2>
-            <p className="text-gray-600 text-base leading-relaxed">
+            <h2 className="mb-3 text-3xl font-bold tracking-tight text-[#00236f] sm:text-4xl">Compare vehicles</h2>
+            <p className="text-base leading-relaxed text-slate-600">
               Choose two or three listings from live inventory and open a detailed comparison — price, specs, mileage, and
               more in one view.
             </p>

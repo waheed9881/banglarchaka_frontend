@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { fetchDealers, resolveMediaUrl, type DealerDto } from '@/lib/marketplace';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { SkeletonBox } from '@/app/components/PremiumSkeleton';
 
 function DealerLogo({
   name,
@@ -27,7 +28,7 @@ function DealerLogo({
       {logoUrl ? (
         <ImageWithFallback src={logoUrl} alt={`${name} logo`} className="h-full w-full object-cover" />
       ) : (
-        <span className="text-2xl font-bold text-[#233D7B]" aria-hidden>
+        <span className="text-2xl font-bold text-[#00236f]" aria-hidden>
           {initial}
         </span>
       )}
@@ -37,18 +38,18 @@ function DealerLogo({
 
 function DealerCardSkeleton() {
   return (
-    <div className="snap-start shrink-0 w-[min(100%,280px)] sm:w-[260px] rounded-2xl border border-gray-200 bg-white p-5 animate-pulse flex flex-col">
-      <div className="flex gap-4 mb-4">
-        <div className="h-[72px] w-[72px] shrink-0 rounded-2xl bg-gray-200" />
+    <div className="flex w-[min(100%,280px)] shrink-0 snap-start flex-col rounded-2xl border border-slate-100 bg-white p-5 shadow-sm sm:w-[260px]">
+      <div className="mb-4 flex gap-4">
+        <SkeletonBox className="h-[72px] w-[72px] shrink-0" rounded="rounded-2xl" />
         <div className="min-w-0 flex-1 space-y-2 pt-1">
-          <div className="h-5 bg-gray-200 rounded-md w-[88%]" />
-          <div className="h-3 bg-gray-200 rounded-md w-[55%]" />
+          <SkeletonBox className="h-5 w-[88%]" />
+          <SkeletonBox className="h-3 w-[55%]" />
         </div>
       </div>
-      <div className="h-4 bg-gray-200 rounded-md w-[62%] mb-4 flex-1" />
-      <div className="flex gap-2 mt-auto">
-        <div className="h-10 flex-1 bg-gray-200 rounded-xl" />
-        <div className="h-10 w-12 bg-gray-200 rounded-xl shrink-0" />
+      <SkeletonBox className="mb-4 h-4 w-[62%] flex-1" />
+      <div className="mt-auto flex gap-2">
+        <SkeletonBox className="h-10 flex-1" rounded="rounded-xl" />
+        <SkeletonBox className="h-10 w-12 shrink-0" rounded="rounded-xl" />
       </div>
     </div>
   );
@@ -94,7 +95,7 @@ export function Dealers() {
   };
 
   return (
-    <section className="relative overflow-hidden py-14 md:py-16 bg-white border-y border-gray-100">
+    <section className="relative overflow-hidden border-y border-slate-100 bg-[#f8f9fa] py-16 md:py-20">
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-30%,rgba(35,61,123,0.06),transparent)]"
         aria-hidden
@@ -103,11 +104,11 @@ export function Dealers() {
       <div className="relative max-w-7xl mx-auto px-4">
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
           <div className="max-w-xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#233D7B]/[0.08] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#233D7B] mb-3">
-              <Store className="w-3.5 h-3.5" aria-hidden />
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#00236f]">
+              <Store className="h-3.5 w-3.5" aria-hidden />
               {t('dealers.dealerDirectoryBadge')}
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#233D7B] tracking-tight">{t('dealers.featuredHeading')}</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-[#00236f] sm:text-4xl">{t('dealers.featuredHeading')}</h2>
             <p className="text-gray-600 mt-2 text-base leading-relaxed">
               {t('dealers.introLead')}
               <span className="font-semibold text-gray-800">{t('dealers.introBold')}</span>
@@ -116,7 +117,7 @@ export function Dealers() {
           </div>
           <Link
             to="/used-car-dealers"
-            className="inline-flex items-center justify-center self-start lg:self-end rounded-xl border-2 border-[#233D7B] bg-white px-7 py-3 text-sm font-bold text-[#233D7B] shadow-sm transition hover:bg-[#233D7B] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#233D7B] focus-visible:ring-offset-2"
+            className="inline-flex items-center justify-center self-start rounded-xl border-2 border-[#00236f] bg-white px-7 py-3 text-sm font-bold text-[#00236f] shadow-sm transition hover:bg-[#00236f] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00236f]/40 focus-visible:ring-offset-2 lg:self-end"
           >
             {t('dealers.viewAllDealers')}
           </Link>
@@ -130,7 +131,7 @@ export function Dealers() {
                 Icon: ShieldCheck,
                 titleKey: 'dealers.trustVerifiedTitle',
                 bodyKey: 'dealers.trustVerifiedBody',
-                wrap: 'bg-blue-50 text-[#233D7B]',
+                wrap: 'bg-blue-50 text-[#00236f]',
               },
               {
                 Icon: BadgeCheck,
@@ -177,7 +178,7 @@ export function Dealers() {
         ) : dealers.length === 0 ? (
           <p className="text-center text-gray-500 py-10 text-sm">
             {t('dealers.emptyDirectory')}{' '}
-            <Link to="/dealer/portal" className="font-semibold text-[#233D7B] hover:underline">
+            <Link to="/dealer/portal" className="font-semibold text-[#00236f] hover:underline">
               {t('dealers.registerShowroom')}
             </Link>
             .
@@ -215,7 +216,7 @@ export function Dealers() {
                   <article
                     key={dealer.id}
                     data-dealer-card
-                    className="snap-start shrink-0 w-[min(100%,280px)] sm:w-[260px] rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-lg hover:border-[#233D7B]/25 hover:-translate-y-0.5 flex flex-col"
+                    className="snap-start shrink-0 w-[min(100%,280px)] sm:w-[260px] rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-lg hover:border-[#00236f]/25 hover:-translate-y-0.5 flex flex-col"
                   >
                     <div className="flex gap-4 mb-4">
                       <DealerLogo name={dealer.business_name} logoUrl={logoFull} />
@@ -238,7 +239,7 @@ export function Dealers() {
 
                     <div className="text-sm text-gray-700 mb-4 flex-1 space-y-1">
                       <p>
-                        <span className="font-bold text-[#233D7B]">{listings}</span>{' '}
+                        <span className="font-bold text-[#00236f]">{listings}</span>{' '}
                         <span className="text-gray-600">{t('dealers.liveListings')}</span>
                       </p>
                       {dealer.response_rate_percent != null ? (
@@ -251,7 +252,7 @@ export function Dealers() {
                     <div className="flex gap-2 mt-auto">
                       <Link
                         to={`/dealers/${dealer.slug}`}
-                        className="flex-1 text-center rounded-xl bg-[#233D7B] text-white text-sm font-bold py-2.5 hover:bg-[#1a2d5a] transition"
+                        className="flex-1 text-center rounded-xl bg-[#00236f] text-white text-sm font-bold py-2.5 hover:bg-[#1a2d5a] transition"
                       >
                         {t('dealers.viewProfile')}
                       </Link>
@@ -260,7 +261,7 @@ export function Dealers() {
                           href={whatsappUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center rounded-xl border border-gray-200 px-3 text-[#233D7B] hover:bg-green-50 hover:border-green-200 transition"
+                          className="inline-flex items-center justify-center rounded-xl border border-gray-200 px-3 text-[#00236f] hover:bg-green-50 hover:border-green-200 transition"
                           aria-label={`WhatsApp ${dealer.business_name}`}
                         >
                           <MessageCircle className="w-5 h-5" />
@@ -283,7 +284,7 @@ export function Dealers() {
 
         <p className="mt-8 text-center text-sm text-gray-500">
           {t('dealers.footerPreferSearch')}{' '}
-          <Link to="/listings?type=used_car&dealer_only=1" className="font-semibold text-[#233D7B] hover:underline">
+          <Link to="/listings?type=used_car&dealer_only=1" className="font-semibold text-[#00236f] hover:underline">
             {t('dealers.dealerOnlyListings')}
           </Link>
         </p>

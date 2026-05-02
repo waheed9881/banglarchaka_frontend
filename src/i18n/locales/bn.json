@@ -1040,6 +1040,21 @@
     "savedSearchBikes": "বাইক",
     "savedSearchParts": "অটো পার্টস"
   },
+  "homePremium": {
+    "browseByCategory": "ক্যাটাগরি অনুযায়ী ব্রাউজ",
+    "category": {
+      "sedan": "সেডান",
+      "suv": "এসইউভি",
+      "hybrid": "হাইব্রিড",
+      "electric": "ইলেকট্রিক",
+      "bikes": "বাইক",
+      "van": "ভ্যান",
+      "popular": "জনপ্রিয়"
+    },
+    "sellCtaTitle": "গাড়ি বিক্রি করতে চান?",
+    "sellCtaBody": "বিনামূল্যে বিজ্ঞাপন দিন, ক্রেতাদের কাছে পৌঁছান এবং এক জায়গায় মেসেজ পরিচালনা করুন।",
+    "sellCtaButton": "বিক্রি শুরু করুন"
+  },
   "browseUsed": {
     "title": "ইউজড গাড়ি ব্রাউজ করুন",
     "tabCategory": "ক্যাটাগরি",

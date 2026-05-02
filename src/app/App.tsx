@@ -15,6 +15,8 @@ import { Testimonials } from './components/Testimonials';
 import { BlogNews } from './components/BlogNews';
 import { QuickLinks } from './components/QuickLinks';
 import { Footer } from './components/Footer';
+import { HomeBrowseCategories } from './components/HomeBrowseCategories';
+import { HomeSellCta } from './components/HomeSellCta';
 import { ApiConnectionHint } from './components/ApiConnectionHint';
 import { CarDetailPage } from './components/CarDetailPage';
 import { ListingPage } from './components/ListingPage';
@@ -144,6 +146,7 @@ function HomePage() {
       <div id="browse-used-cars">
         <BrowseUsedCarsSection />
       </div>
+      <HomeBrowseCategories />
       <BrowseByBrand />
       <NewCars />
       <Bikes />
@@ -154,8 +157,9 @@ function HomePage() {
       {/* <MobileApp /> */}
       <Testimonials />
       <BlogNews />
+      <HomeSellCta />
       <QuickLinks />
-      <Footer />
+      <Footer tone="light" />
     </>
   );
 }
@@ -496,7 +500,7 @@ function AppShell() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen min-w-0 bg-white">
+    <div className="min-h-screen min-w-0 bg-white font-sans antialiased">
       <PaymentReturnEffects />
       <Toaster position="top-center" richColors />
       <Header onNavigate={(path) => navigate(path)} />

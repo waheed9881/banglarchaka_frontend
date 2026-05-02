@@ -1040,6 +1040,21 @@
     "savedSearchBikes": "Bikes",
     "savedSearchParts": "Auto parts"
   },
+  "homePremium": {
+    "browseByCategory": "Browse by category",
+    "category": {
+      "sedan": "Sedan",
+      "suv": "SUV",
+      "hybrid": "Hybrid",
+      "electric": "Electric",
+      "bikes": "Bikes",
+      "van": "Van",
+      "popular": "Popular"
+    },
+    "sellCtaTitle": "Want to sell your car?",
+    "sellCtaBody": "List for free, reach serious buyers, and manage enquiries from one place.",
+    "sellCtaButton": "Start selling"
+  },
   "browseUsed": {
     "title": "Browse Used Cars",
     "tabCategory": "Category",

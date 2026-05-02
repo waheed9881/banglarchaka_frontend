@@ -10,6 +10,7 @@ import {
   type NewCarsPulseItemDto,
 } from '@/lib/marketplace';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { SkeletonBox } from '@/app/components/PremiumSkeleton';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1705747401901-28363172fe7e?auto=format&fit=crop&w=1080&q=80';
@@ -168,12 +169,12 @@ const NEW_CARS_REFRESH_MS = 5 * 60 * 1000;
 
 function NewCarCarouselCardSkeleton() {
   return (
-    <div className="snap-start shrink-0 w-[calc(50%-8px)] sm:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)] min-w-[158px] rounded-lg border border-gray-100 bg-white shadow-sm overflow-hidden animate-pulse flex flex-col">
-      <div className="min-h-[132px] bg-gray-200 mx-3 mt-4 rounded-md" />
-      <div className="px-3 pb-4 pt-3 flex flex-col items-center gap-2 flex-1">
-        <div className="h-4 bg-gray-200 rounded-md w-[88%]" />
-        <div className="h-4 bg-gray-200 rounded-md w-[52%]" />
-        <div className="h-3 bg-gray-200 rounded-md w-[72%] mt-auto" />
+    <div className="flex min-w-[158px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm sm:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)] w-[calc(50%-8px)]">
+      <SkeletonBox className="mx-3 mt-4 min-h-[132px]" rounded="rounded-lg" />
+      <div className="flex flex-1 flex-col items-center gap-2 px-3 pb-4 pt-3">
+        <SkeletonBox className="h-4 w-[88%]" rounded="rounded-md" />
+        <SkeletonBox className="h-4 w-[52%]" rounded="rounded-md" />
+        <SkeletonBox className="mt-auto h-3 w-[72%]" rounded="rounded-md" />
       </div>
     </div>
   );
@@ -268,12 +269,14 @@ export function NewCars() {
   );
 
   return (
-    <section className="py-12 bg-[#f2f3f5] border-y border-gray-100">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <section className="border-y border-slate-100 bg-[#f8f9fa] py-16 md:py-20">
+      <div className="mx-auto max-w-7xl px-4">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">New Cars in Bangladesh</h2>
-            <p className="mt-1 text-sm text-gray-500 max-w-3xl">
+            <h2 className="text-2xl font-bold tracking-tight text-[#00236f] sm:text-3xl md:text-4xl">
+              New Cars in Bangladesh
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm text-slate-600">
               Each tab mixes{' '}
               <span className="font-medium text-gray-700">BanglarChaka showroom listings</span> with{' '}
               <span className="font-medium text-gray-700">live Bangladesh automotive headlines</span> from Google News RSS. Our
@@ -281,23 +284,27 @@ export function NewCars() {
               photos when not — refreshed automatically while you browse.
             </p>
           </div>
-          <Link to="/listings?type=new_car" className="text-sm font-semibold hover:underline shrink-0" style={{ color: ACCENT }}>
+          <Link
+            to="/listings?type=new_car"
+            className="shrink-0 text-sm font-bold text-[#ba0035] underline-offset-4 hover:underline"
+          >
             View All New Cars →
           </Link>
         </div>
 
-        <div className="flex flex-wrap gap-1 border-b border-gray-200 mb-8">
+        <div className="mb-8 flex flex-wrap gap-1 border-b border-slate-200">
           {TABS.map(({ key, label }) => (
             <button
               key={key}
               type="button"
               onClick={() => setTab(key)}
-              className={`px-4 py-3 text-sm font-semibold transition-colors relative ${tab === key ? '' : 'text-gray-600 hover:text-gray-900'}`}
-              style={tab === key ? { color: ACCENT } : undefined}
+              className={`relative px-4 py-3 text-sm font-semibold transition-colors ${
+                tab === key ? 'text-[#00236f]' : 'text-slate-600 hover:text-slate-900'
+              }`}
             >
               {label}
               {tab === key ? (
-                <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full" style={{ backgroundColor: ACCENT }} aria-hidden />
+                <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-[#ba0035]" aria-hidden />
               ) : null}
             </button>
           ))}

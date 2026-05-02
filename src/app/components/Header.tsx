@@ -14,6 +14,16 @@ import { NEW_CARS_MOBILE_LINKS, NewCarsMegaMenuPanel } from './NewCarsMegaMenu';
 import { UsedCarsMegaMenuPanel } from './UsedCarsMegaMenu';
 import logoUrl from '@/assets/logo_3.webp';
 import { MarketRegionSwitcher } from '@/app/components/MarketRegionSwitcher';
+import { isMarketingShellPath } from '@/lib/marketingShell';
+
+function megaTriggerClass(shell: boolean, group: 'used' | 'new' | 'bikes' | 'autostore'): string {
+  const base =
+    'relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent transition-colors duration-150';
+  if (!shell) {
+    return `${base} text-white/95 group-hover/${group}:bg-white group-hover/${group}:text-gray-900 group-hover/${group}:border-white group-hover/${group}:border-b-white group-hover/${group}:shadow-[0_1px_0_0_white]`;
+  }
+  return `${base} text-slate-800 group-hover/${group}:bg-white group-hover/${group}:text-slate-900 group-hover/${group}:border-slate-200 group-hover/${group}:shadow-md`;
+}
 
 const navBtn =
   'flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white rounded-md transition-colors';
@@ -21,6 +31,9 @@ const navBtn =
 /** Plain nav links with solid white hover on blue header (no dropdown) */
 const navLinkElevated =
   'px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-md text-white/95 transition-colors duration-150 hover:bg-white hover:text-gray-900';
+
+const navLinkMarketing =
+  'px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-md text-slate-700 transition-colors duration-150 hover:bg-slate-100 hover:text-[#00236f]';
 
 export function Header({
   onNavigate,
@@ -136,32 +149,59 @@ export function Header({
   const mobileAccordionBtn =
     'text-left px-3 py-3 rounded-md hover:bg-white/10 flex items-center justify-between gap-2 w-full text-white';
 
+  const shell = isMarketingShellPath(location.pathname);
+  const navElev = shell ? navLinkMarketing : navLinkElevated;
+  const navBtnCls = shell
+    ? 'flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-[#00236f] rounded-md transition-colors'
+    : navBtn;
+
   return (
-    <header className={`w-full shadow-md bg-[#233D7B] ${mobileNavOpen ? 'z-[200]' : 'z-50'}`}>
+    <header
+      className={
+        shell
+          ? `w-full sticky top-0 z-50 border-b border-slate-200/90 bg-white/95 shadow-sm backdrop-blur-md ${mobileNavOpen ? 'z-[200]' : ''}`
+          : `w-full shadow-md bg-[#233D7B] ${mobileNavOpen ? 'z-[200]' : 'z-50'}`
+      }
+    >
       {/* Utility strip */}
-      <div className="border-b border-white/10 text-white/95">
+      <div
+        className={
+          shell
+            ? 'border-b border-slate-200/80 bg-slate-50/90 text-slate-700'
+            : 'border-b border-white/10 text-white/95'
+        }
+      >
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center py-1.5 text-[12px] sm:text-[13px]">
           <div className="flex gap-4 sm:gap-6 min-w-0 items-center">
-            {/* <span className="hover:text-white cursor-default truncate transition"></span> */}
-            <MarketRegionSwitcher />
-            <LanguageSwitcher />
+            <MarketRegionSwitcher tone={shell ? 'onLight' : 'onDark'} />
+            <LanguageSwitcher tone={shell ? 'onLight' : 'onDark'} />
           </div>
           <div className="flex items-center gap-3 sm:gap-4 shrink-0">
             {tokenWhileLoading ? (
-              <span className="text-white/70 text-[11px] sm:text-xs whitespace-nowrap" aria-live="polite">
+              <span
+                className={`text-[11px] sm:text-xs whitespace-nowrap ${shell ? 'text-slate-500' : 'text-white/70'}`}
+                aria-live="polite"
+              >
                 {t('common.loading')}
               </span>
             ) : !me ? (
               <div className="flex items-center gap-2 sm:gap-3">
-                <Link to="/login" className="hover:text-white transition font-medium whitespace-nowrap">
+                <Link
+                  to="/login"
+                  className={`font-medium whitespace-nowrap transition ${shell ? 'text-slate-700 hover:text-[#00236f]' : 'hover:text-white'}`}
+                >
                   {t('nav.signIn')}
                 </Link>
-                <span className="text-white/30 hidden sm:inline" aria-hidden>
+                <span className={`hidden sm:inline ${shell ? 'text-slate-300' : 'text-white/30'}`} aria-hidden>
                   |
                 </span>
                 <Link
                   to="/register"
-                  className="rounded-md border border-white/35 bg-white/10 px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold hover:bg-white/20 transition whitespace-nowrap"
+                  className={`rounded-md px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold transition whitespace-nowrap ${
+                    shell
+                      ? 'border border-slate-300 bg-white text-[#00236f] hover:bg-slate-50'
+                      : 'border border-white/35 bg-white/10 hover:bg-white/20'
+                  }`}
                 >
                   {t('nav.register')}
                 </Link>
@@ -171,7 +211,11 @@ export function Header({
                 <button
                   type="button"
                   onClick={() => setAccountMenuOpen((o) => !o)}
-                  className="flex items-center gap-1 sm:gap-1.5 rounded-md px-1.5 sm:px-2 py-1 text-white/95 hover:bg-white/10 hover:text-white transition max-w-[min(52vw,14rem)] sm:max-w-[16rem]"
+                  className={`flex items-center gap-1 sm:gap-1.5 rounded-md px-1.5 sm:px-2 py-1 transition max-w-[min(52vw,14rem)] sm:max-w-[16rem] ${
+                    shell
+                      ? 'text-slate-800 hover:bg-slate-100 hover:text-[#00236f]'
+                      : 'text-white/95 hover:bg-white/10 hover:text-white'
+                  }`}
                   aria-expanded={accountMenuOpen}
                   aria-haspopup="menu"
                 >
@@ -262,7 +306,7 @@ export function Header({
               <div className="group/used">
                 <Link
                   to="/listings?type=used_car"
-                  className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/used:bg-white group-hover/used:text-gray-900 group-hover/used:border-white group-hover/used:border-b-white group-hover/used:shadow-[0_1px_0_0_white]"
+                  className={megaTriggerClass(shell, 'used')}
                   title={t('nav.tooltipUsedCars')}
                 >
                   {t('nav.usedCars')} <ChevronDown className="w-3.5 h-3.5 opacity-80" />
@@ -274,18 +318,20 @@ export function Header({
                 </div>
               </div>
 
-              <Link to="/auctions" className={navLinkElevated} title={t('nav.tooltipAuctions')}>
+              <Link to="/auctions" className={navElev} title={t('nav.tooltipAuctions')}>
                 {t('nav.auctions')}
               </Link>
 
               <div className="group/new">
                 <Link
                   to="/new-cars"
-                  className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/new:bg-white group-hover/new:text-gray-900 group-hover/new:border-white group-hover/new:border-b-white group-hover/new:shadow-[0_1px_0_0_white]"
+                  className={megaTriggerClass(shell, 'new')}
                   title={t('mega.newCars.banner')}
                 >
                   {t('nav.newCars')}{' '}
-                  <ChevronDown className="w-3.5 h-3.5 opacity-80 transition-colors group-hover/new:text-[#C4161C]" />
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 opacity-80 transition-colors ${shell ? 'group-hover/new:text-[#ba0035]' : 'group-hover/new:text-[#C4161C]'}`}
+                  />
                 </Link>
                 <div className="pointer-events-none invisible opacity-0 group-hover/new:pointer-events-auto group-hover/new:visible group-hover/new:opacity-100 transition-opacity duration-150 absolute left-0 right-0 top-full z-50 pt-1">
                   <div className="w-full min-w-0">
@@ -296,11 +342,13 @@ export function Header({
               <div className="group/bikes">
                 <Link
                   to="/used-bikes"
-                  className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/bikes:bg-white group-hover/bikes:text-gray-900 group-hover/bikes:border-white group-hover/bikes:border-b-white group-hover/bikes:shadow-[0_1px_0_0_white]"
+                  className={megaTriggerClass(shell, 'bikes')}
                   title={t('mega.bikes.banner')}
                 >
                   {t('nav.bikes')}{' '}
-                  <ChevronDown className="w-3.5 h-3.5 opacity-80 transition-colors group-hover/bikes:text-[#C4161C]" />
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 opacity-80 transition-colors ${shell ? 'group-hover/bikes:text-[#ba0035]' : 'group-hover/bikes:text-[#C4161C]'}`}
+                  />
                 </Link>
                 <div className="pointer-events-none invisible opacity-0 group-hover/bikes:pointer-events-auto group-hover/bikes:visible group-hover/bikes:opacity-100 transition-opacity duration-150 absolute left-0 right-0 top-full z-50 pt-1">
                   <div className="w-full min-w-0 max-w-full overflow-x-auto">
@@ -311,37 +359,39 @@ export function Header({
               <div className="relative group/autostore">
                 <Link
                   to="/listings?type=auto_part"
-                  className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/autostore:bg-white group-hover/autostore:text-gray-900 group-hover/autostore:border-white group-hover/autostore:border-b-white group-hover/autostore:shadow-[0_1px_0_0_white]"
+                  className={megaTriggerClass(shell, 'autostore')}
                   title={t('nav.tooltipAutoStore')}
                 >
                   {t('nav.autoStore')}{' '}
-                  <ChevronDown className="w-3.5 h-3.5 opacity-80 transition-colors group-hover/autostore:text-[#C4161C]" />
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 opacity-80 transition-colors ${shell ? 'group-hover/autostore:text-[#ba0035]' : 'group-hover/autostore:text-[#C4161C]'}`}
+                  />
                 </Link>
                 <div className="pointer-events-none invisible opacity-0 group-hover/autostore:pointer-events-auto group-hover/autostore:visible group-hover/autostore:opacity-100 transition-opacity duration-150 absolute left-0 top-full z-50 pt-1 w-max max-w-[min(22rem,calc(100vw-2rem))]">
                   <AutoStoreMegaMenuPanel />
                 </div>
               </div>
-              <Link to="/videos" className={navLinkElevated}>
+              <Link to="/videos" className={navElev}>
                 {t('nav.videos')}
               </Link>
-              <Link to="/forums" className={navLinkElevated}>
+              <Link to="/forums" className={navElev}>
                 {t('nav.forums')}
               </Link>
-              <Link to="/blog" className={navLinkElevated}>
+              <Link to="/blog" className={navElev}>
                 {t('nav.blog')}
               </Link>
               {canAccessStaffPortal ? (
-                <button type="button" onClick={() => onNavigate('/admin')} className={navBtn}>
+                <button type="button" onClick={() => onNavigate('/admin')} className={navBtnCls}>
                   {t('nav.admin')}
                 </button>
               ) : null}
               {canAccessDealer ? (
-                <button type="button" onClick={() => onNavigate('/dealer/portal')} className={navBtn}>
+                <button type="button" onClick={() => onNavigate('/dealer/portal')} className={navBtnCls}>
                   {t('nav.dealerPortal')}
                 </button>
               ) : null}
               <div className="relative group/more">
-                <button type="button" className={`${navBtn} items-center gap-1.5`} aria-haspopup="menu">
+                <button type="button" className={`${navBtnCls} items-center gap-1.5`} aria-haspopup="menu">
                   {t('nav.more')} <ChevronDown className="w-3.5 h-3.5 opacity-70" />
                   <span className="text-[10px] font-bold uppercase tracking-wide bg-sky-500 text-white px-1 py-px rounded leading-none">
                     {t('common.new')}
@@ -359,7 +409,9 @@ export function Header({
               <button
                 type="button"
                 onClick={() => onNavigate('/post-ad')}
-                className="flex items-center gap-1.5 bg-[#C4161C] text-white px-4 sm:px-6 py-2 rounded-md hover:bg-red-700 transition font-semibold shadow-sm text-[13px] sm:text-sm whitespace-nowrap"
+                className={`flex items-center gap-1.5 text-white px-4 sm:px-6 py-2 rounded-lg transition font-semibold shadow-sm text-[13px] sm:text-sm whitespace-nowrap ${
+                  shell ? 'bg-[#ba0035] hover:bg-[#9a002c]' : 'bg-[#C4161C] hover:bg-red-700 rounded-md'
+                }`}
                 title={t('nav.tooltipPostAd')}
               >
                 {t('nav.postAd')}
@@ -371,7 +423,9 @@ export function Header({
             </div>
             <button
               type="button"
-              className="lg:hidden p-2.5 rounded-lg hover:bg-white/10 text-white -mr-1"
+              className={`lg:hidden p-2.5 rounded-lg -mr-1 ${
+                shell ? 'text-slate-800 hover:bg-slate-100' : 'hover:bg-white/10 text-white'
+              }`}
               aria-expanded={mobileNavOpen}
               aria-label={mobileNavOpen ? t('nav.closeMenu') : t('nav.openMenu')}
               onClick={() => setMobileNavOpen((o) => !o)}
@@ -383,7 +437,9 @@ export function Header({
 
         {mobileNavOpen ? (
             <div
-              className="lg:hidden w-full border-t border-white/15 max-h-[min(78vh,calc(100dvh-10rem))] flex flex-col -mx-4 px-4"
+              className={`lg:hidden w-full border-t max-h-[min(78vh,calc(100dvh-10rem))] flex flex-col -mx-4 px-4 ${
+                shell ? 'border-slate-200 bg-[#00236f]' : 'border-white/15'
+              }`}
               role="dialog"
               aria-modal="true"
               aria-label={t('nav.openMenu')}

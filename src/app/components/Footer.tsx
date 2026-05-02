@@ -6,8 +6,11 @@ import { toast } from 'sonner';
 import logoUrl from '@/assets/logo_3.webp';
 
 const BG = '#23292d';
-const LINK = 'text-gray-400 hover:text-white transition-colors';
-const HEADING = 'text-white font-bold text-[13px] uppercase tracking-wide mb-4';
+const LINK_DARK = 'text-gray-400 hover:text-white transition-colors';
+const LINK_LIGHT = 'text-slate-600 hover:text-[#ba0035] transition-colors';
+const HEADING_DARK = 'text-white font-bold text-[13px] uppercase tracking-wide mb-4';
+const HEADING_LIGHT =
+  'text-[#00236f] font-bold text-[11px] sm:text-[13px] uppercase tracking-widest mb-4';
 
 function carListings(extra: Record<string, string>) {
   const p = new URLSearchParams({ type: 'used_car', ...extra });
@@ -132,8 +135,10 @@ const COLS_BOTTOM: FootCol[] = [
   },
 ];
 
-function LinkColumn({ col }: { col: FootCol }) {
+function LinkColumn({ col, light }: { col: FootCol; light?: boolean }) {
   const { t } = useTranslation();
+  const LINK = light ? LINK_LIGHT : LINK_DARK;
+  const HEADING = light ? HEADING_LIGHT : HEADING_DARK;
   return (
     <div>
       <h3 className={HEADING}>{t(col.titleKey)}</h3>
@@ -164,7 +169,7 @@ function LinkColumn({ col }: { col: FootCol }) {
   );
 }
 
-export function Footer() {
+export function Footer({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
   const { t } = useTranslation();
   const [newsletter, setNewsletter] = useState('');
 
@@ -179,6 +184,8 @@ export function Footer() {
     setNewsletter('');
   };
 
+  const light = tone === 'light';
+
   const social = [
     { Icon: Twitter, href: 'https://twitter.com', labelKey: 'footer.socialTwitter' as const },
     { Icon: Facebook, href: 'https://facebook.com', labelKey: 'footer.socialFacebook' as const },
@@ -188,10 +195,22 @@ export function Footer() {
   ];
 
   return (
-    <footer className="text-white" style={{ backgroundColor: BG }}>
-      <div className="max-w-7xl mx-auto px-4 pt-14 pb-8">
-        <div className="pb-10 mb-2 border-b border-gray-700/80">
-          <Link to="/" className="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3EB549]/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[#23292d] rounded">
+    <footer
+      className={
+        light
+          ? 'border-t border-slate-200 bg-[#f8f9fa] text-slate-700'
+          : 'text-white'
+      }
+      style={light ? undefined : { backgroundColor: BG }}
+    >
+      <div className="mx-auto max-w-7xl px-4 pb-8 pt-14">
+        <div className={`mb-2 pb-10 ${light ? 'border-b border-slate-200' : 'border-b border-gray-700/80'}`}>
+          <Link
+            to="/"
+            className={`inline-block rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00236f]/50 focus-visible:ring-offset-2 ${
+              light ? 'focus-visible:ring-offset-[#f8f9fa]' : 'focus-visible:ring-[#3EB549]/80 focus-visible:ring-offset-[#23292d]'
+            }`}
+          >
             <img
               src={logoUrl}
               alt="Banglar Chaka — বাংলার চাকা"
@@ -204,34 +223,42 @@ export function Footer() {
         </div>
         <div className="flex flex-col xl:flex-row gap-12 xl:gap-16">
           <div className="flex-1 min-w-0 space-y-12">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4">
               {COLS_TOP.map((col) => (
-                <LinkColumn key={col.titleKey} col={col} />
+                <LinkColumn key={col.titleKey} col={col} light={light} />
               ))}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10 pt-2 border-t border-gray-700/80">
+            <div
+              className={`grid grid-cols-2 gap-x-8 gap-y-10 border-t pt-2 md:grid-cols-4 ${
+                light ? 'border-slate-200' : 'border-gray-700/80'
+              }`}
+            >
               {COLS_BOTTOM.map((col) => (
-                <LinkColumn key={col.titleKey} col={col} />
+                <LinkColumn key={col.titleKey} col={col} light={light} />
               ))}
             </div>
           </div>
 
-          <aside className="w-full xl:w-[280px] shrink-0 space-y-8 xl:border-l xl:border-gray-700/80 xl:pl-10">
+          <aside
+            className={`w-full shrink-0 space-y-8 xl:w-[280px] xl:border-l xl:pl-10 ${
+              light ? 'xl:border-slate-200' : 'xl:border-gray-700/80'
+            }`}
+          >
             <div>
-              <h3 className={HEADING}>{t('footer.sellOnTitle')}</h3>
+              <h3 className={light ? HEADING_LIGHT : HEADING_DARK}>{t('footer.sellOnTitle')}</h3>
               <ul className="space-y-2.5">
                 <li>
-                  <Link to="/used-cars/sell" className={`text-[13px] ${LINK}`}>
+                  <Link to="/used-cars/sell" className={`text-[13px] ${light ? LINK_LIGHT : LINK_DARK}`}>
                     {t('postAd.sellYourCar')}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/used-bikes/sell" className={`text-[13px] ${LINK}`}>
+                  <Link to="/used-bikes/sell" className={`text-[13px] ${light ? LINK_LIGHT : LINK_DARK}`}>
                     {t('postAd.sellYourBike')}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/post-ad?type=accessory" className={`text-[13px] ${LINK}`}>
+                  <Link to="/post-ad?type=accessory" className={`text-[13px] ${light ? LINK_LIGHT : LINK_DARK}`}>
                     {t('postAd.sellAccessory')}
                   </Link>
                 </li>
@@ -239,19 +266,25 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className={HEADING}>{t('footer.newsletterHeading')}</h3>
+              <h3 className={light ? HEADING_LIGHT : HEADING_DARK}>{t('footer.newsletterHeading')}</h3>
               <form onSubmit={onNewsletter} className="flex gap-2">
                 <input
                   type="email"
                   value={newsletter}
                   onChange={(e) => setNewsletter(e.target.value)}
                   placeholder={t('footer.subscribePlaceholder')}
-                  className="flex-1 min-w-0 rounded-md border border-gray-600 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3EB549]/60"
+                  className={`min-w-0 flex-1 rounded-lg border px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 ${
+                    light
+                      ? 'border-slate-300 bg-white focus:ring-[#00236f]/30'
+                      : 'border-gray-600 bg-white focus:ring-[#3EB549]/60'
+                  }`}
                   aria-label={t('footer.subscribePlaceholder')}
                 />
                 <button
                   type="submit"
-                  className="shrink-0 rounded-md bg-[#3EB549] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#36a340] transition"
+                  className={`shrink-0 rounded-lg px-4 py-2.5 text-sm font-bold text-white transition ${
+                    light ? 'bg-[#00236f] hover:bg-[#001a52]' : 'bg-[#3EB549] hover:bg-[#36a340]'
+                  }`}
                 >
                   {t('footer.subscribeButton')}
                 </button>
@@ -259,7 +292,7 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className={HEADING}>{t('footer.followUs')}</h3>
+              <h3 className={light ? HEADING_LIGHT : HEADING_DARK}>{t('footer.followUs')}</h3>
               <div className="flex flex-wrap gap-2">
                 {social.map(({ Icon, href, labelKey }) => (
                   <a
@@ -268,16 +301,20 @@ export function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={t(labelKey)}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-700/90 text-gray-200 hover:bg-gray-600 hover:text-white transition"
+                    className={`flex h-10 w-10 items-center justify-center rounded-full transition ${
+                      light
+                        ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                        : 'bg-gray-700/90 text-gray-200 hover:bg-gray-600 hover:text-white'
+                    }`}
                   >
-                    <Icon className="w-[18px] h-[18px]" strokeWidth={2} />
+                    <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
                   </a>
                 ))}
               </div>
             </div>
 
             <div>
-              <h3 className={HEADING}>{t('footer.downloadApps')}</h3>
+              <h3 className={light ? HEADING_LIGHT : HEADING_DARK}>{t('footer.downloadApps')}</h3>
               <div className="flex flex-col gap-2">
                 <a
                   href="#"
@@ -304,18 +341,26 @@ export function Footer() {
           </aside>
         </div>
 
-        <div className="mt-14 pt-8 border-t border-gray-700 text-center space-y-3">
-          <p className="text-xs text-gray-500">{t('footer.copyrightLine', { year: new Date().getFullYear() })}</p>
+        <div
+          className={`mt-14 space-y-3 border-t pt-8 text-center ${
+            light ? 'border-slate-200' : 'border-gray-700'
+          }`}
+        >
+          <p className={`text-xs ${light ? 'text-slate-500' : 'text-gray-500'}`}>
+            {t('footer.copyrightLine', { year: new Date().getFullYear() })}
+          </p>
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs">
-            <Link to="/terms" className={`${LINK} text-gray-400`}>
+            <Link to="/terms" className={`text-[13px] ${light ? LINK_LIGHT : LINK_DARK} ${light ? '' : 'text-gray-400'}`}>
               {t('footer.termsOfService')}
             </Link>
-            <span className="text-gray-600">|</span>
-            <Link to="/privacy" className={`${LINK} text-gray-400`}>
+            <span className={light ? 'text-slate-300' : 'text-gray-600'}>|</span>
+            <Link to="/privacy" className={`text-[13px] ${light ? LINK_LIGHT : LINK_DARK} ${light ? '' : 'text-gray-400'}`}>
               {t('footer.privacyPolicyLink')}
             </Link>
           </div>
-          <p className="text-[11px] text-gray-600 max-w-3xl mx-auto leading-relaxed px-2">{t('footer.reproductionNote')}</p>
+          <p className={`mx-auto max-w-3xl px-2 text-[11px] leading-relaxed ${light ? 'text-slate-500' : 'text-gray-600'}`}>
+            {t('footer.reproductionNote')}
+          </p>
         </div>
       </div>
     </footer>

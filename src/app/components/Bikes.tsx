@@ -10,23 +10,10 @@ import {
   resolveMediaUrl,
   type ListingDto,
 } from '@/lib/marketplace';
+import { SkeletonCardGrid } from '@/app/components/PremiumSkeleton';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1080&q=80';
-
-function BikeCardSkeleton() {
-  return (
-    <div className="animate-pulse rounded-lg bg-white shadow overflow-hidden ring-1 ring-gray-100">
-      <div className="h-48 bg-gray-200" />
-      <div className="p-4 space-y-3">
-        <div className="h-5 bg-gray-200 rounded-md w-[88%]" />
-        <div className="h-7 bg-gray-200 rounded-md w-[36%]" />
-        <div className="h-3 bg-gray-200 rounded-md w-full" />
-        <div className="h-3 bg-gray-200 rounded-md w-3/5" />
-      </div>
-    </div>
-  );
-}
 
 /** Brands with strong presence in Bangladesh (commuter + sport segments). */
 const BIKE_BRANDS = ['Honda', 'Yamaha', 'Suzuki', 'Bajaj', 'TVS', 'Hero', 'Runner'] as const;
@@ -44,40 +31,40 @@ export function Bikes() {
   }, []);
 
   return (
-    <section className="py-12 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
+    <section className="bg-white py-16 md:py-20">
+      <div className="mx-auto max-w-7xl px-4">
+        <div className="mb-10 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">{t('homeSections.usedBikesTitle')}</h2>
-            <p className="text-gray-600 mt-2">{t('homeSections.usedBikesSubtitle')}</p>
+            <h2 className="text-3xl font-bold tracking-tight text-[#00236f] md:text-4xl">
+              {t('homeSections.usedBikesTitle')}
+            </h2>
+            <p className="mt-2 text-slate-600">{t('homeSections.usedBikesSubtitle')}</p>
           </div>
-          <Link to="/used-bikes" className="text-[#233D7B] hover:underline font-semibold">
+          <Link to="/used-bikes" className="shrink-0 text-sm font-bold text-[#ba0035] underline-offset-4 hover:underline">
             {t('homeSections.viewAllBikes')}
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {loading ? (
-            Array.from({ length: 8 }, (_, i) => <BikeCardSkeleton key={i} />)
-          ) : null}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {loading ? <SkeletonCardGrid count={8} /> : null}
           {!loading &&
             bikes.map((bike) => (
             <Link
               key={bike.id}
               to={listingPublicHref(bike)}
-              className="bg-white rounded-lg shadow hover:shadow-xl transition overflow-hidden block ring-1 ring-transparent hover:ring-[#233D7B]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#233D7B]"
+              className="group block overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00236f]/40"
             >
-              <div className="relative">
+              <div className="relative h-48 overflow-hidden">
                 <ImageWithFallback
                   src={resolveMediaUrl(bike.media?.[0]?.path) || FALLBACK_IMAGE}
                   alt={bike.title}
-                  className="w-full h-48 object-cover"
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />
               </div>
 
-              <div className="p-4">
-                <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">{bike.title}</h3>
-                <div className="text-[#3EB549] font-bold text-xl mb-3">{formatMoney(bike.price, bike.currency)}</div>
+              <div className="p-5">
+                <h3 className="mb-2 line-clamp-2 text-lg font-bold text-[#00236f]">{bike.title}</h3>
+                <div className="mb-3 text-xl font-bold text-emerald-700">{formatMoney(bike.price, bike.currency)}</div>
 
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex items-center gap-2">

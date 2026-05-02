@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import { fetchBrands, type BrandDto } from '@/lib/marketplace';
+import { fetchBrands, resolveMediaUrl, type BrandDto } from '@/lib/marketplace';
+import { ImageWithFallback } from './figma/ImageWithFallback';
+import { SkeletonBox } from '@/app/components/PremiumSkeleton';
 
 function BrandTileSkeleton() {
   return (
-    <div className="animate-pulse border border-gray-200 rounded-lg p-4 ring-1 ring-gray-100">
-      <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-2" />
-      <div className="h-4 bg-gray-200 rounded-md w-3/4 mx-auto mb-2" />
-      <div className="h-3 bg-gray-200 rounded-md w-1/2 mx-auto" />
+    <div className="flex flex-col items-center rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+      <SkeletonBox className="mb-3 h-16 w-16" rounded="rounded-full" />
+      <SkeletonBox className="mb-2 h-4 w-20" />
+      <SkeletonBox className="h-3 w-14" />
     </div>
   );
 }
@@ -26,34 +28,49 @@ export function BrowseByBrand() {
   }, []);
 
   return (
-    <section className="py-12 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">{t('homeSections.browseByMakeTitle')}</h2>
+    <section className="bg-white py-16 md:py-20">
+      <div className="mx-auto max-w-7xl px-4">
+        <h2 className="mb-10 text-center text-3xl font-bold tracking-tight text-[#00236f] md:text-4xl">
+          {t('homeSections.browseByMakeTitle')}
+        </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-8">
           {loading ? (
             Array.from({ length: 8 }, (_, i) => <BrandTileSkeleton key={i} />)
           ) : null}
           {!loading &&
-            brands.map((brand) => (
-            <Link
-              key={brand.id}
-              to={`/listings?type=used_car&brand_id=${brand.id}`}
-              className="border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-[#233D7B] transition text-center ring-1 ring-transparent hover:ring-[#233D7B]/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#233D7B]"
-            >
-              <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-2 flex items-center justify-center">
-                <span className="text-2xl font-bold text-gray-400">{brand.name[0]}</span>
-              </div>
-              <div className="font-semibold text-gray-900">{brand.name}</div>
-              <div className="text-xs text-gray-500 mt-1">{brand.slug.toUpperCase()}</div>
-            </Link>
-          ))}
+            brands.map((brand) => {
+              const logo = brand.logo_path ? resolveMediaUrl(brand.logo_path) : null;
+              return (
+                <Link
+                  key={brand.id}
+                  to={`/listings?type=used_car&brand_id=${brand.id}`}
+                  className="group flex flex-col items-center rounded-2xl border border-slate-100 bg-white p-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:border-[#00236f]/25 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00236f]/40"
+                >
+                  <div className="mb-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-slate-50 ring-1 ring-slate-100 transition group-hover:ring-[#00236f]/20">
+                    {logo ? (
+                      <ImageWithFallback
+                        src={logo}
+                        alt=""
+                        className="h-10 w-auto max-w-[3rem] object-contain grayscale opacity-70 transition group-hover:grayscale-0 group-hover:opacity-100"
+                      />
+                    ) : (
+                      <span className="text-2xl font-bold text-slate-400">{brand.name[0]}</span>
+                    )}
+                  </div>
+                  <div className="font-semibold text-slate-900">{brand.name}</div>
+                  <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    {brand.slug}
+                  </div>
+                </Link>
+              );
+            })}
         </div>
 
-        <div className="text-center mt-8">
+        <div className="mt-10 text-center">
           <Link
             to="/listings?type=used_car"
-            className="inline-flex border-2 border-[#233D7B] text-[#233D7B] px-8 py-3 rounded-lg hover:bg-[#233D7B] hover:text-white transition font-semibold"
+            className="inline-flex rounded-xl border-2 border-[#00236f] px-8 py-3 text-sm font-bold text-[#00236f] transition hover:bg-[#00236f] hover:text-white"
           >
             {t('homeSections.viewAllBrands')}
           </Link>

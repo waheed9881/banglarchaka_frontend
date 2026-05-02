@@ -10,23 +10,10 @@ import {
   resolveMediaUrl,
   type ListingDto,
 } from '@/lib/marketplace';
+import { SkeletonCardGrid } from '@/app/components/PremiumSkeleton';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=1080&q=80';
-
-function FeaturedCarCardSkeleton() {
-  return (
-    <div className="animate-pulse rounded-lg bg-white shadow overflow-hidden ring-1 ring-gray-100">
-      <div className="h-48 bg-gray-200" />
-      <div className="p-4 space-y-3">
-        <div className="h-5 bg-gray-200 rounded-md w-[85%]" />
-        <div className="h-7 bg-gray-200 rounded-md w-[40%]" />
-        <div className="h-3 bg-gray-200 rounded-md w-full" />
-        <div className="h-3 bg-gray-200 rounded-md w-4/5" />
-      </div>
-    </div>
-  );
-}
 
 export function FeaturedCars() {
   const { t } = useTranslation();
@@ -61,69 +48,72 @@ export function FeaturedCars() {
   }, [t]);
 
   return (
-    <section className="py-12 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8">
+    <section className="bg-[#f8f9fa] py-16 md:py-20">
+      <div className="mx-auto max-w-7xl px-4">
+        <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">{t('homeFeatured.title')}</h2>
-            {feedHint ? <p className="text-sm text-gray-600 mt-2">{feedHint}</p> : null}
+            <h2 className="text-3xl font-bold tracking-tight text-[#00236f] md:text-4xl">{t('homeFeatured.title')}</h2>
+            {feedHint ? <p className="mt-2 max-w-xl text-sm text-slate-600">{feedHint}</p> : null}
           </div>
-          <Link to="/listings?type=used_car" className="text-[#233D7B] hover:underline font-semibold shrink-0">
+          <Link
+            to="/listings?type=used_car"
+            className="shrink-0 text-sm font-bold text-[#ba0035] underline-offset-4 hover:underline"
+          >
             {t('homeFeatured.viewAll')}
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {loading ? (
-            Array.from({ length: 8 }, (_, i) => <FeaturedCarCardSkeleton key={i} />)
-          ) : null}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {loading ? <SkeletonCardGrid count={8} /> : null}
           {!loading &&
             cars.map((car) => (
             <Link
               key={car.id}
               to={`${listingPublicHref(car)}${car.has_live_auction ? '#detail-auction' : ''}`}
-              className="bg-white rounded-lg shadow hover:shadow-xl transition overflow-hidden block ring-1 ring-transparent hover:ring-[#233D7B]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#233D7B]"
+              className="group block overflow-hidden rounded-2xl border border-slate-100/80 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00236f]/40"
             >
-              <div className="relative">
+              <div className="relative h-48 overflow-hidden">
                 <ImageWithFallback
                   src={resolveMediaUrl(car.media?.[0]?.path) || FALLBACK_IMAGE}
                   alt={car.title}
-                  className="w-full h-48 object-cover"
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />
-                {car.featured ? (
-                  <div className="absolute top-3 left-3 bg-[#C4161C] text-white px-3 py-1 rounded text-xs font-semibold">
-                    {t('homeFeatured.badge')}
-                  </div>
-                ) : null}
-                {car.has_live_auction ? (
-                  <div className="absolute bottom-3 left-3 bg-[#233D7B] text-white px-2.5 py-1 rounded text-[11px] font-bold shadow">
-                    {t('listingBrowse.auctionBadge')}
-                  </div>
-                ) : null}
+                <div className="absolute left-3 top-3 z-10 flex flex-wrap gap-2">
+                  {car.featured ? (
+                    <span className="rounded bg-[#00236f] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                      {t('homeFeatured.badge')}
+                    </span>
+                  ) : null}
+                  {car.has_live_auction ? (
+                    <span className="rounded bg-[#ba0035] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                      {t('listingBrowse.auctionBadge')}
+                    </span>
+                  ) : null}
+                </div>
               </div>
 
-              <div className="p-4">
-                <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">{car.title}</h3>
-                <div className="text-[#3EB549] font-bold text-xl mb-3">{formatMoney(car.price, car.currency)}</div>
+              <div className="p-5">
+                <h3 className="mb-2 line-clamp-2 text-lg font-bold text-[#00236f]">{car.title}</h3>
+                <div className="mb-3 text-xl font-bold text-emerald-700">{formatMoney(car.price, car.currency)}</div>
 
-                <div className="space-y-2 text-sm text-gray-600 mb-3">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 shrink-0" />
+                <div className="mb-0 space-y-1.5 border-t border-slate-100 pt-4 text-[11px] font-bold uppercase tracking-tight text-slate-500">
+                  <div className="flex items-center gap-2 font-medium normal-case text-slate-500">
+                    <MapPin className="h-3.5 w-3.5 shrink-0" />
                     {car.location_city || t('homeFeatured.na')}
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4 shrink-0" />
-                      {car.vehicle_year || t('homeFeatured.na')}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Gauge className="w-4 h-4 shrink-0" />
-                      {car.mileage_km ? `${car.mileage_km.toLocaleString()} km` : t('homeFeatured.na')}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Settings className="w-4 h-4 shrink-0" />
-                    {car.transmission || t('homeFeatured.na')}
+                  <div className="flex flex-wrap justify-between gap-2">
+                    <span className="flex items-center gap-1 normal-case">
+                      <Calendar className="h-3.5 w-3.5" />
+                      {car.vehicle_year || '—'}
+                    </span>
+                    <span className="flex items-center gap-1 normal-case">
+                      <Gauge className="h-3.5 w-3.5" />
+                      {car.mileage_km ? `${car.mileage_km.toLocaleString()} km` : '—'}
+                    </span>
+                    <span className="flex items-center gap-1 normal-case">
+                      <Settings className="h-3.5 w-3.5" />
+                      {car.transmission || '—'}
+                    </span>
                   </div>
                 </div>
               </div>
