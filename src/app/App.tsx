@@ -22,6 +22,7 @@ import { PostAdPage } from './components/PostAdPage';
 import { NewCarDetailPage } from './components/NewCarDetailPage';
 import { AdminFinancePage } from './components/AdminFinancePage';
 import { AdminHrPage } from './components/AdminHrPage';
+import { AdminLayout, AdminPanelIndexRedirect } from './components/AdminLayout';
 import { AdminModerationPage } from './components/AdminModerationPage';
 import { DealerPortalLayout } from './components/DealerPortalLayout';
 import { AuctionDetailPage } from './components/AuctionDetailPage';
@@ -511,9 +512,12 @@ function AppShell() {
         <Route path="/new-cars" element={<NewCarsLandingPage />} />
         <Route path="/new-cars/:id" element={<NewCarRoute />} />
         <Route path="/post-ad" element={<PostAdRoute />} />
-        <Route path="/admin/moderation" element={<AdminModerationPage />} />
-        <Route path="/admin/hr" element={<AdminHrPage />} />
-        <Route path="/admin/finance" element={<AdminFinancePage />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminPanelIndexRedirect />} />
+          <Route path="moderation" element={<AdminModerationPage />} />
+          <Route path="hr" element={<AdminHrPage />} />
+          <Route path="finance" element={<AdminFinancePage />} />
+        </Route>
         <Route path="/wishlist" element={<WishlistPage />} />
         <Route path="/my-listings" element={<MyListingsPage />} />
         <Route path="/my-listings/:id/edit" element={<EditListingRoute />} />
