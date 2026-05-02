@@ -16,9 +16,6 @@ import logoUrl from '@/assets/logo_3.webp';
 const navBtn =
   'flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white rounded-md transition-colors';
 
-const navLink =
-  'px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white rounded-md transition-colors';
-
 /** Plain nav links with PakWheels-style solid white hover (no dropdown) */
 const navLinkElevated =
   'px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-md text-white/95 transition-colors duration-150 hover:bg-white hover:text-gray-900';
@@ -44,11 +41,13 @@ export function Header({
 
   useEffect(() => {
     let cancelled = false;
-    fetchMe().then((u) => {
-      if (!cancelled) setMe(u);
-    }).finally(() => {
-      if (!cancelled) setAuthReady(true);
-    });
+    fetchMe()
+      .then((u) => {
+        if (!cancelled) setMe(u);
+      })
+      .finally(() => {
+        if (!cancelled) setAuthReady(true);
+      });
     return () => {
       cancelled = true;
     };
@@ -101,10 +100,11 @@ export function Header({
     };
   }, [mobileNavOpen]);
 
+  const mobileAccordionBtn =
+    'text-left px-3 py-3 rounded-md hover:bg-white/10 flex items-center justify-between gap-2 w-full text-white';
+
   return (
-    <header
-      className={`w-full shadow-md bg-[#233D7B] ${mobileNavOpen ? 'z-[200]' : 'z-50'}`}
-    >
+    <header className={`w-full shadow-md bg-[#233D7B] ${mobileNavOpen ? 'z-[200]' : 'z-50'}`}>
       {/* Utility strip */}
       <div className="border-b border-white/10 text-white/95">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center py-1.5 text-[12px] sm:text-[13px]">
@@ -118,9 +118,20 @@ export function Header({
                 {t('common.loading')}
               </span>
             ) : !me ? (
-              <Link to="/login" className="hover:text-white transition font-medium whitespace-nowrap">
-                {t('nav.signIn')}
-              </Link>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Link to="/login" className="hover:text-white transition font-medium whitespace-nowrap">
+                  {t('nav.signIn')}
+                </Link>
+                <span className="text-white/30 hidden sm:inline" aria-hidden>
+                  |
+                </span>
+                <Link
+                  to="/register"
+                  className="rounded-md border border-white/35 bg-white/10 px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold hover:bg-white/20 transition whitespace-nowrap"
+                >
+                  {t('nav.register')}
+                </Link>
+              </div>
             ) : (
               <div className="flex flex-wrap gap-x-3 gap-y-1 items-center justify-end">
                 <button type="button" onClick={() => onNavigate('/wishlist')} className="hover:text-white transition text-[11px] sm:text-xs">
@@ -294,245 +305,286 @@ export function Header({
         </div>
 
         {mobileNavOpen ? (
-          <nav
-            className="lg:hidden border-t border-white/15 py-3 pb-4 flex flex-col gap-0.5 text-[14px] font-medium text-white/95"
-            style={{ fontWeight: 500 }}
-          >
-            <div className="flex flex-col">
-              <button
-                type="button"
-                onClick={() => setUsedCarsMobileOpen((o) => !o)}
-                className="text-left px-2 py-2.5 rounded-md hover:bg-white/10 flex items-center justify-between"
-                aria-expanded={usedCarsMobileOpen}
+            <div
+              className="lg:hidden w-full border-t border-white/15 max-h-[min(78vh,calc(100dvh-10rem))] flex flex-col -mx-4 px-4"
+              role="dialog"
+              aria-modal="true"
+              aria-label={t('nav.openMenu')}
+            >
+              <div
+                className="overflow-y-auto overscroll-contain py-2 flex flex-col gap-0.5 text-[15px] font-medium text-white/95 min-h-0 flex-1"
+                style={{ fontWeight: 500 }}
               >
-                {t('nav.usedCars')}
-                <ChevronDown className={`w-4 h-4 shrink-0 transition-transform opacity-80 ${usedCarsMobileOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {usedCarsMobileOpen ? (
-                <div className="pl-2 pb-2 border-l-2 border-[#C4161C]/80 ml-2 space-y-0.5">
-                  <Link
-                    to="/listings?type=used_car"
-                    className="block py-2 px-2 text-sm text-white/85 hover:text-white hover:bg-white/5 rounded"
-                    onClick={closeMobileNav}
+                <div className="flex flex-col rounded-lg bg-white/[0.06] px-1 py-1">
+                  <button
+                    type="button"
+                    onClick={() => setUsedCarsMobileOpen((o) => !o)}
+                    className={mobileAccordionBtn}
+                    aria-expanded={usedCarsMobileOpen}
                   >
-                    {t('nav.browseAllUsedCars')}
-                  </Link>
-                  <Link
-                    to="/used-cars/featured"
-                    className="block py-2 px-2 text-sm text-white/85 hover:text-white hover:bg-white/5 rounded"
-                    onClick={closeMobileNav}
-                  >
-                    {t('nav.featuredUsedCars')}
-                  </Link>
-                  <Link
-                    to="/used-cars/sell"
-                    className="block py-2 px-2 text-sm text-white/85 hover:text-white hover:bg-white/5 rounded"
-                    onClick={closeMobileNav}
-                  >
-                    {t('nav.sellYourCar')}
-                  </Link>
-                  <Link
-                    to="/used-car-dealers"
-                    className="block py-2 px-2 text-sm text-white/85 hover:text-white hover:bg-white/5 rounded"
-                    onClick={closeMobileNav}
-                  >
-                    {t('nav.usedCarDealers')}
-                  </Link>
-                  <Link
-                    to="/car-prices"
-                    className="block py-2 px-2 text-sm text-white/85 hover:text-white hover:bg-white/5 rounded"
-                    onClick={closeMobileNav}
-                  >
-                    {t('nav.carPrices')}
-                  </Link>
-                </div>
-              ) : null}
-            </div>
-            <div className="flex flex-col">
-              <button
-                type="button"
-                onClick={() => setNewCarsMobileOpen((o) => !o)}
-                className="text-left px-2 py-2.5 rounded-md hover:bg-white/10 flex items-center justify-between"
-                aria-expanded={newCarsMobileOpen}
-              >
-                {t('nav.newCars')}
-                <ChevronDown className={`w-4 h-4 shrink-0 transition-transform opacity-80 ${newCarsMobileOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {newCarsMobileOpen ? (
-                <div className="pl-2 pb-2 border-l-2 border-[#C4161C]/80 ml-2 space-y-0.5">
-                  {NEW_CARS_MOBILE_LINKS.map((l) => (
-                    <Link
-                      key={l.to + l.labelKey}
-                      to={l.to}
-                      className="block py-2 px-2 text-sm text-white/85 hover:text-white hover:bg-white/5 rounded"
-                      onClick={closeMobileNav}
-                    >
-                      {t(l.labelKey)}
-                    </Link>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-            <div className="flex flex-col">
-              <button
-                type="button"
-                onClick={() => setBikesMobileOpen((o) => !o)}
-                className="text-left px-2 py-2.5 rounded-md hover:bg-white/10 flex items-center justify-between"
-                aria-expanded={bikesMobileOpen}
-              >
-                {t('nav.bikes')}
-                <ChevronDown className={`w-4 h-4 shrink-0 transition-transform opacity-80 ${bikesMobileOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {bikesMobileOpen ? (
-                <div className="pl-2 pb-2 border-l-2 border-[#C4161C]/80 ml-2 space-y-0.5">
-                  {BIKES_MOBILE_LINKS.map((l) => (
-                    <Link
-                      key={l.to + l.labelKey}
-                      to={l.to}
-                      className="block py-2 px-2 text-sm text-white/85 hover:text-white hover:bg-white/5 rounded"
-                      onClick={closeMobileNav}
-                    >
-                      {t(l.labelKey)}
-                    </Link>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-            <div className="flex flex-col">
-              <button
-                type="button"
-                onClick={() => setAutoStoreMobileOpen((o) => !o)}
-                className="text-left px-2 py-2.5 rounded-md hover:bg-white/10 flex items-center justify-between"
-                aria-expanded={autoStoreMobileOpen}
-              >
-                {t('nav.autoStore')}
-                <ChevronDown className={`w-4 h-4 shrink-0 transition-transform opacity-80 ${autoStoreMobileOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {autoStoreMobileOpen ? (
-                <div className="pl-2 pb-2 border-l-2 border-[#C4161C]/80 ml-2 space-y-0.5">
-                  {AUTO_STORE_MOBILE_LINKS.map((l) => (
-                    <Link
-                      key={l.to + l.labelKey}
-                      to={l.to}
-                      className="block py-2 px-2 text-sm text-white/85 hover:text-white hover:bg-white/5 rounded"
-                      onClick={closeMobileNav}
-                    >
-                      {t(l.labelKey)}
-                    </Link>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-            <Link to="/videos" className="block px-2 py-2.5 rounded-md hover:bg-white/10" onClick={closeMobileNav}>
-              {t('nav.videos')}
-            </Link>
-            <Link to="/forums" className="block px-2 py-2.5 rounded-md hover:bg-white/10" onClick={closeMobileNav}>
-              {t('nav.forums')}
-            </Link>
-            <Link to="/blog" className="block px-2 py-2.5 rounded-md hover:bg-white/10" onClick={closeMobileNav}>
-              {t('nav.blog')}
-            </Link>
-            {canAccessAdmin ? (
-              <button type="button" onClick={() => go('/admin/moderation')} className="text-left px-2 py-2.5 rounded-md hover:bg-white/10">
-                {t('nav.admin')}
-              </button>
-            ) : null}
-            {canAccessHr ? (
-              <button type="button" onClick={() => go('/admin/hr')} className="text-left px-2 py-2.5 rounded-md hover:bg-white/10">
-                {t('nav.hr')}
-              </button>
-            ) : null}
-            {canAccessFinance ? (
-              <button type="button" onClick={() => go('/admin/finance')} className="text-left px-2 py-2.5 rounded-md hover:bg-white/10">
-                {t('nav.finance')}
-              </button>
-            ) : null}
-            {canAccessDealer ? (
-              <button type="button" onClick={() => go('/dealer/portal')} className="text-left px-2 py-2.5 rounded-md hover:bg-white/10">
-                {t('nav.dealerPortal')}
-              </button>
-            ) : null}
-            <div className="flex flex-col">
-              <button
-                type="button"
-                onClick={() => setMoreMobileOpen((o) => !o)}
-                className="text-left px-2 py-2.5 rounded-md hover:bg-white/10 flex items-center justify-between gap-2"
-                aria-expanded={moreMobileOpen}
-              >
-                <span className="flex items-center gap-2">
-                  {t('nav.more')}
-                  <span className="text-[10px] font-bold uppercase tracking-wide bg-sky-500 text-white px-1 py-px rounded leading-none">
-                    {t('common.new')}
-                  </span>
-                </span>
-                <ChevronDown className={`w-4 h-4 shrink-0 transition-transform opacity-80 ${moreMobileOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {moreMobileOpen ? (
-                <div className="pl-2 pb-2 border-l-2 border-sky-500/70 ml-2 space-y-3">
-                  {MORE_NAV_SECTIONS.map((section) => (
-                    <div key={section.titleKey}>
-                      <div className="text-[10px] font-bold uppercase tracking-wide text-white/45 px-2 pt-1">{t(section.titleKey)}</div>
-                      <div className="flex flex-col">
-                        {section.links.map((l) => (
-                          <Link
-                            key={l.to}
-                            to={l.to}
-                            className="block py-2 px-2 text-sm text-white/85 hover:text-white hover:bg-white/5 rounded"
-                            onClick={closeMobileNav}
-                          >
-                            {t(l.labelKey)}
-                          </Link>
-                        ))}
-                      </div>
+                    {t('nav.usedCars')}
+                    <ChevronDown className={`w-4 h-4 shrink-0 opacity-80 ${usedCarsMobileOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {usedCarsMobileOpen ? (
+                    <div className="pl-3 pr-2 pb-3 border-l-2 border-[#C4161C]/90 ml-3 space-y-0.5">
+                      <Link
+                        to="/listings?type=used_car"
+                        className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                        onClick={closeMobileNav}
+                      >
+                        {t('nav.browseAllUsedCars')}
+                      </Link>
+                      <Link
+                        to="/used-cars/featured"
+                        className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                        onClick={closeMobileNav}
+                      >
+                        {t('nav.featuredUsedCars')}
+                      </Link>
+                      <Link
+                        to="/used-cars/sell"
+                        className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                        onClick={closeMobileNav}
+                      >
+                        {t('nav.sellYourCar')}
+                      </Link>
+                      <Link
+                        to="/used-car-dealers"
+                        className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                        onClick={closeMobileNav}
+                      >
+                        {t('nav.usedCarDealers')}
+                      </Link>
+                      <Link
+                        to="/car-prices"
+                        className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                        onClick={closeMobileNav}
+                      >
+                        {t('nav.carPrices')}
+                      </Link>
                     </div>
-                  ))}
+                  ) : null}
                 </div>
-              ) : null}
-            </div>
-            <div className="flex flex-col">
-              <button
-                type="button"
-                onClick={() => setPostAdMobileOpen((o) => !o)}
-                className="text-left px-2 py-2.5 rounded-md text-[#ffb4b4] font-semibold hover:bg-white/10 flex items-center justify-between gap-2"
-                aria-expanded={postAdMobileOpen}
-              >
-                {t('nav.postAd')}
-                <ChevronDown className={`w-4 h-4 shrink-0 opacity-90 ${postAdMobileOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {postAdMobileOpen ? (
-                <div className="pl-2 pb-2 border-l-2 border-[#C4161C]/80 ml-2 space-y-0.5">
-                  {POST_AD_MENU_LINKS.map((l) => (
+
+                <div className="flex flex-col rounded-lg bg-white/[0.06] px-1 py-1">
+                  <button
+                    type="button"
+                    onClick={() => setNewCarsMobileOpen((o) => !o)}
+                    className={mobileAccordionBtn}
+                    aria-expanded={newCarsMobileOpen}
+                  >
+                    {t('nav.newCars')}
+                    <ChevronDown className={`w-4 h-4 shrink-0 opacity-80 ${newCarsMobileOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {newCarsMobileOpen ? (
+                    <div className="pl-3 pr-2 pb-3 border-l-2 border-[#C4161C]/90 ml-3 space-y-0.5">
+                      {NEW_CARS_MOBILE_LINKS.map((l) => (
+                        <Link
+                          key={l.to}
+                          to={l.to}
+                          className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                          onClick={closeMobileNav}
+                        >
+                          {t(l.labelKey)}
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="flex flex-col rounded-lg bg-white/[0.06] px-1 py-1">
+                  <button
+                    type="button"
+                    onClick={() => setBikesMobileOpen((o) => !o)}
+                    className={mobileAccordionBtn}
+                    aria-expanded={bikesMobileOpen}
+                  >
+                    {t('nav.bikes')}
+                    <ChevronDown className={`w-4 h-4 shrink-0 opacity-80 ${bikesMobileOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {bikesMobileOpen ? (
+                    <div className="pl-3 pr-2 pb-3 border-l-2 border-[#C4161C]/90 ml-3 space-y-0.5">
+                      {BIKES_MOBILE_LINKS.map((l) => (
+                        <Link
+                          key={l.to}
+                          to={l.to}
+                          className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                          onClick={closeMobileNav}
+                        >
+                          {t(l.labelKey)}
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="flex flex-col rounded-lg bg-white/[0.06] px-1 py-1">
+                  <button
+                    type="button"
+                    onClick={() => setAutoStoreMobileOpen((o) => !o)}
+                    className={mobileAccordionBtn}
+                    aria-expanded={autoStoreMobileOpen}
+                  >
+                    {t('nav.autoStore')}
+                    <ChevronDown className={`w-4 h-4 shrink-0 opacity-80 ${autoStoreMobileOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {autoStoreMobileOpen ? (
+                    <div className="pl-3 pr-2 pb-3 border-l-2 border-[#C4161C]/90 ml-3 space-y-0.5">
+                      {AUTO_STORE_MOBILE_LINKS.map((l) => (
+                        <Link
+                          key={l.to}
+                          to={l.to}
+                          className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                          onClick={closeMobileNav}
+                        >
+                          {t(l.labelKey)}
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                <Link to="/videos" className="block px-3 py-3 rounded-lg hover:bg-white/10" onClick={closeMobileNav}>
+                  {t('nav.videos')}
+                </Link>
+                <Link to="/forums" className="block px-3 py-3 rounded-lg hover:bg-white/10" onClick={closeMobileNav}>
+                  {t('nav.forums')}
+                </Link>
+                <Link to="/blog" className="block px-3 py-3 rounded-lg hover:bg-white/10" onClick={closeMobileNav}>
+                  {t('nav.blog')}
+                </Link>
+                {canAccessAdmin ? (
+                  <button type="button" onClick={() => go('/admin/moderation')} className="text-left px-3 py-3 rounded-lg hover:bg-white/10 w-full">
+                    {t('nav.admin')}
+                  </button>
+                ) : null}
+                {canAccessHr ? (
+                  <button type="button" onClick={() => go('/admin/hr')} className="text-left px-3 py-3 rounded-lg hover:bg-white/10 w-full">
+                    {t('nav.hr')}
+                  </button>
+                ) : null}
+                {canAccessFinance ? (
+                  <button type="button" onClick={() => go('/admin/finance')} className="text-left px-3 py-3 rounded-lg hover:bg-white/10 w-full">
+                    {t('nav.finance')}
+                  </button>
+                ) : null}
+                {canAccessDealer ? (
+                  <button type="button" onClick={() => go('/dealer/portal')} className="text-left px-3 py-3 rounded-lg hover:bg-white/10 w-full">
+                    {t('nav.dealerPortal')}
+                  </button>
+                ) : null}
+
+                <div className="flex flex-col rounded-lg bg-white/[0.06] px-1 py-1">
+                  <button
+                    type="button"
+                    onClick={() => setMoreMobileOpen((o) => !o)}
+                    className={mobileAccordionBtn}
+                    aria-expanded={moreMobileOpen}
+                  >
+                    <span className="flex items-center gap-2">
+                      {t('nav.more')}
+                      <span className="text-[10px] font-bold uppercase tracking-wide bg-sky-500 text-white px-1 py-px rounded leading-none">
+                        {t('common.new')}
+                      </span>
+                    </span>
+                    <ChevronDown className={`w-4 h-4 shrink-0 opacity-80 ${moreMobileOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {moreMobileOpen ? (
+                    <div className="pl-3 pr-2 pb-3 border-l-2 border-sky-500/80 ml-3 space-y-3">
+                      {MORE_NAV_SECTIONS.map((section) => (
+                        <div key={section.titleKey}>
+                          <div className="text-[10px] font-bold uppercase tracking-wide text-white/50 px-2 pt-1">{t(section.titleKey)}</div>
+                          <div className="flex flex-col">
+                            {section.links.map((l) => (
+                              <Link
+                                key={l.to}
+                                to={l.to}
+                                className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                                onClick={closeMobileNav}
+                              >
+                                {t(l.labelKey)}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="flex flex-col rounded-lg bg-[#C4161C]/20 ring-1 ring-[#C4161C]/40 px-1 py-1 mt-1">
+                  <button
+                    type="button"
+                    onClick={() => setPostAdMobileOpen((o) => !o)}
+                    className="text-left px-3 py-3 rounded-md text-white font-semibold hover:bg-white/10 flex items-center justify-between gap-2 w-full"
+                    aria-expanded={postAdMobileOpen}
+                  >
+                    {t('nav.postAd')}
+                    <ChevronDown className={`w-4 h-4 shrink-0 opacity-90 ${postAdMobileOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {postAdMobileOpen ? (
+                    <div className="pl-3 pr-2 pb-3 border-l-2 border-white/30 ml-3 space-y-0.5">
+                      {POST_AD_MENU_LINKS.map((l) => (
+                        <Link
+                          key={l.to}
+                          to={l.to}
+                          className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                          onClick={closeMobileNav}
+                        >
+                          {t(l.labelKey)}
+                        </Link>
+                      ))}
+                      <Link
+                        to="/post-ad"
+                        className="block py-2.5 px-2 text-sm text-white/75 hover:text-white hover:bg-white/5 rounded-md border-t border-white/15 mt-2 pt-3"
+                        onClick={closeMobileNav}
+                      >
+                        {t('nav.otherListingTypes')}
+                      </Link>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="shrink-0 border-t border-white/10 pt-4 pb-3 mt-1">
+                {tokenWhileLoading ? (
+                  <span className="block px-3 py-2 text-white/70 text-sm">{t('common.loading')}</span>
+                ) : !me ? (
+                  <div className="grid grid-cols-2 gap-2 px-1">
                     <Link
-                      key={l.to}
-                      to={l.to}
-                      className="block py-2 px-2 text-sm text-white/85 hover:text-white hover:bg-white/5 rounded"
+                      to="/login"
+                      className="block px-3 py-3 rounded-lg bg-white text-[#233D7B] font-semibold text-center shadow-sm text-sm"
                       onClick={closeMobileNav}
                     >
-                      {t(l.labelKey)}
+                      {t('nav.signIn')}
                     </Link>
-                  ))}
-                  <Link
-                    to="/post-ad"
-                    className="block py-2 px-2 text-sm text-white/70 hover:text-white hover:bg-white/5 rounded border-t border-white/10 mt-1 pt-3"
-                    onClick={closeMobileNav}
-                  >
-                    {t('nav.otherListingTypes')}
-                  </Link>
-                </div>
-              ) : null}
+                    <Link
+                      to="/register"
+                      className="block px-3 py-3 rounded-lg border border-white/40 text-white font-semibold text-center text-sm hover:bg-white/10"
+                      onClick={closeMobileNav}
+                    >
+                      {t('nav.register')}
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-1 px-1">
+                    <div className="px-2 py-2 text-xs text-white/60 truncate">{me.name}</div>
+                    <button type="button" onClick={() => go('/wishlist')} className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10 text-sm">
+                      {t('nav.wishlist')}
+                    </button>
+                    <button type="button" onClick={() => go('/my-listings')} className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10 text-sm">
+                      {t('nav.myListings')}
+                    </button>
+                    <button type="button" onClick={() => go('/messages')} className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10 text-sm">
+                      {t('nav.messages')}
+                    </button>
+                    <button type="button" onClick={doLogout} className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10 text-sm text-white/80">
+                      {t('nav.logout')}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-            {tokenWhileLoading ? (
-              <span className="block px-2 py-2.5 text-white/70 text-sm">{t('common.loading')}</span>
-            ) : !me ? (
-              <Link to="/login" className="block px-2 py-2.5 rounded-md hover:bg-white/10" onClick={closeMobileNav}>
-                {t('nav.signIn')}
-              </Link>
-            ) : (
-              <button type="button" onClick={() => go('/my-listings')} className="text-left px-2 py-2.5 rounded-md hover:bg-white/10">
-                {t('nav.myListings')}
-              </button>
-            )}
-          </nav>
         ) : null}
       </div>
     </header>

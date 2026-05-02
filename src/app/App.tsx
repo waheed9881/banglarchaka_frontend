@@ -36,6 +36,8 @@ import { PaymentReturnEffects } from './components/PaymentReturnEffects';
 import { BlogArchivePage } from './components/BlogArchivePage';
 import { BlogArticlePage } from './components/BlogArticlePage';
 import { LoginPage } from './components/LoginPage';
+import { ForgotPasswordPage } from './components/ForgotPasswordPage';
+import { ResetPasswordPage } from './components/ResetPasswordPage';
 import { ComparePage } from './components/ComparePage';
 import { SellCarLandingPage } from './components/SellCarLandingPage';
 import { SellBikeLandingPage } from './components/SellBikeLandingPage';
@@ -522,7 +524,10 @@ function AppShell() {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/sitemap" element={<SiteMapPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage variant="login" />} />
+        <Route path="/register" element={<LoginPage variant="register" />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/used-cars/sell" element={<SellCarLandingPage />} />
         <Route path="/used-bikes" element={<UsedBikesLandingPage />} />
         <Route path="/used-bikes/sell" element={<SellBikeLandingPage />} />
