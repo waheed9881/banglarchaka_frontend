@@ -10,6 +10,7 @@ import {
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { BD_POPULAR_NEW_CAR_BRANDS, BD_POPULAR_NEW_CAR_MODELS } from '@/app/data/bdPopularCars';
 
 function MegaLink({
   title,
@@ -50,30 +51,6 @@ function NewModelLink({ label, q }: { label: string; q: string }) {
     </Link>
   );
 }
-
-const POPULAR_BRANDS: Array<{ label: string; q: string }> = [
-  { label: 'Suzuki Cars', q: 'Suzuki' },
-  { label: 'Toyota Cars', q: 'Toyota' },
-  { label: 'Honda Cars', q: 'Honda' },
-  { label: 'Kia Cars', q: 'Kia' },
-  { label: 'Hyundai Cars', q: 'Hyundai' },
-  { label: 'Changan Cars', q: 'Changan' },
-  { label: 'MG Cars', q: 'MG' },
-  { label: 'BMW Cars', q: 'BMW' },
-  { label: 'Audi Cars', q: 'Audi' },
-];
-
-const POPULAR_NEW_MODELS: Array<{ label: string; q: string }> = [
-  { label: 'Honda Civic', q: 'Honda Civic' },
-  { label: 'Suzuki Alto', q: 'Suzuki Alto' },
-  { label: 'Suzuki Cultus', q: 'Suzuki Cultus' },
-  { label: 'Honda City', q: 'Honda City' },
-  { label: 'Toyota Corolla', q: 'Toyota Corolla' },
-  { label: 'Toyota Yaris', q: 'Toyota Yaris' },
-  { label: 'Changan Alsvin', q: 'Changan Alsvin' },
-  { label: 'Suzuki Wagon R', q: 'Wagon R' },
-  { label: 'Kia Sportage', q: 'Kia Sportage' },
-];
 
 export const NEW_CARS_MOBILE_LINKS: Array<{ labelKey: string; to: string }> = [
   { labelKey: 'nav.mobileNewCarsFindNew', to: '/new-cars' },
@@ -142,7 +119,7 @@ export function NewCarsMegaMenuPanel({ className = '' }: { className?: string })
             {t('mega.newCars.popularBrands')}
           </div>
           <nav className="flex flex-col">
-            {POPULAR_BRANDS.map((b) => (
+            {BD_POPULAR_NEW_CAR_BRANDS.map((b) => (
               <BrandLink key={b.label} label={b.label} q={b.q} />
             ))}
           </nav>
@@ -154,7 +131,7 @@ export function NewCarsMegaMenuPanel({ className = '' }: { className?: string })
             {t('mega.newCars.popularNewCars')}
           </div>
           <nav className="flex flex-col">
-            {POPULAR_NEW_MODELS.map((m) => (
+            {BD_POPULAR_NEW_CAR_MODELS.map((m) => (
               <NewModelLink key={m.label} label={m.label} q={m.q} />
             ))}
           </nav>

@@ -36,7 +36,7 @@ export function FinanceSuitePanel({ variant }: { variant: FinanceSuiteVariant })
       ),
     [variant],
   );
-  const portalHref = variant === 'dealer' ? '/dealer/portal' : '/admin/moderation';
+  const portalHref = variant === 'dealer' ? '/dealer/portal' : '/admin';
   const portalLabel = variant === 'dealer' ? 'Dealer dashboard' : 'Admin portal';
 
   const [tab, setTab] = useState<Tab>('chart');

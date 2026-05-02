@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
+import { BD_POPULAR_USED_CAR_MODELS } from '@/app/data/bdPopularCars';
 import { fetchBrands, fetchListings, resolveMediaUrl, type BrandDto, type ListingDto } from '@/lib/marketplace';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
@@ -187,26 +188,13 @@ const SUB_CATEGORY_SLIDES: PartCard[][] = [
 ];
 
 const POPULAR_MODELS: Array<{ label: string; q: string }> = [
-  { label: 'Corolla parts', q: 'Toyota Corolla' },
-  { label: 'Civic parts', q: 'Honda Civic' },
-  { label: 'City parts', q: 'Honda City' },
-  { label: 'Swift parts', q: 'Suzuki Swift' },
-  { label: 'Axio parts', q: 'Toyota Axio' },
-  { label: 'Alto parts', q: 'Suzuki Alto' },
-  { label: 'Noah parts', q: 'Toyota Noah' },
-  { label: 'Premio parts', q: 'Toyota Premio' },
-  { label: 'X-Trail parts', q: 'Nissan X-Trail' },
-  { label: 'Pajero parts', q: 'Mitsubishi Pajero' },
+  ...BD_POPULAR_USED_CAR_MODELS.map(({ label, q }) => ({ label: `${label} parts`, q })),
   { label: 'Hiace parts', q: 'Toyota Hiace' },
+  { label: 'Premio parts', q: 'Toyota Premio' },
   { label: 'Axela parts', q: 'Mazda Axela' },
-  { label: 'Fielder parts', q: 'Toyota Fielder' },
-  { label: 'Allion parts', q: 'Toyota Allion' },
   { label: 'Vitz parts', q: 'Toyota Vitz' },
-  { label: 'Fit parts', q: 'Honda Fit' },
   { label: 'Prado parts', q: 'Toyota Prado' },
   { label: 'Harrier parts', q: 'Toyota Harrier' },
-  { label: 'Tucson parts', q: 'Hyundai Tucson' },
-  { label: 'Sportage parts', q: 'Kia Sportage' },
   { label: 'March parts', q: 'Nissan March' },
   { label: 'Jimny parts', q: 'Suzuki Jimny' },
   { label: 'WR-V parts', q: 'Honda WR-V' },

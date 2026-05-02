@@ -14,7 +14,8 @@ import {
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1080&q=80';
 
-const BIKE_BRANDS = ['Honda', 'Yamaha', 'Suzuki', 'Bajaj'] as const;
+/** Brands with strong presence in Bangladesh (commuter + sport segments). */
+const BIKE_BRANDS = ['Honda', 'Yamaha', 'Suzuki', 'Bajaj', 'TVS', 'Hero', 'Runner'] as const;
 
 export function Bikes() {
   const { t } = useTranslation();

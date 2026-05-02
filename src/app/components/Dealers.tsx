@@ -101,7 +101,7 @@ export function Dealers() {
           </Link>
         </div>
 
-        {/* Trust strip — compact, mirrors PakWheels benefit row */}
+        {/* Trust strip — compact benefit row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10">
           {(
             [

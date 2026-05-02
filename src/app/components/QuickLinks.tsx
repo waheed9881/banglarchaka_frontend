@@ -1,16 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-
-const POPULAR_SEARCH_QUERIES = [
-  'Toyota Corolla',
-  'Honda Civic',
-  'Suzuki Alto',
-  'Honda CD 70',
-  'Yamaha YBR',
-  'Mercedes C Class',
-  'BMW 3 Series',
-  'Cultus VXR',
-] as const;
+import { BD_POPULAR_QUICK_SEARCHES } from '@/app/data/bdPopularCars';
 
 const QUICK_CITIES = [
   { param: 'Dhaka', labelKey: 'footer.cityDhaka' as const },
@@ -56,13 +46,13 @@ export function QuickLinks() {
           <div>
             <h3 className="text-xl font-bold text-gray-900 mb-4">{t('quickLinks.popularTitle')}</h3>
             <div className="flex flex-wrap gap-2">
-              {POPULAR_SEARCH_QUERIES.map((search) => (
+              {BD_POPULAR_QUICK_SEARCHES.map((item) => (
                 <Link
-                  key={search}
-                  to={`/listings?type=used_car&q=${encodeURIComponent(search)}`}
+                  key={`${item.listingType}-${item.q}`}
+                  to={`/listings?type=${item.listingType}&q=${encodeURIComponent(item.q)}`}
                   className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-[#233D7B] hover:text-white transition"
                 >
-                  {search}
+                  {item.label}
                 </Link>
               ))}
             </div>

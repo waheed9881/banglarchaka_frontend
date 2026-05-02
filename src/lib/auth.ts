@@ -3,7 +3,7 @@ import { apiFetch, setAuthToken } from './api';
 export type AuthResponse = {
   token: string;
   token_type: string;
-  user: { id: number; name: string; email: string };
+  user: { id: number; name: string; email: string; roles?: Array<{ name: string }> };
 };
 
 export type MeResponse = {
@@ -11,7 +11,40 @@ export type MeResponse = {
   name: string;
   email: string;
   roles?: Array<{ name: string }>;
+  country_code?: string | null;
+  preferred_currency?: string | null;
 };
+
+/** Roles that can use moderation APIs (listings, reviews, reports queue). */
+export const ADMIN_MOD_ROLES = ['super_admin', 'admin', 'moderator'] as const;
+
+/** Roles that can use admin HR APIs. */
+export const ADMIN_HR_ROLES = ['super_admin', 'admin', 'hr_manager'] as const;
+
+/** Roles that can use admin finance APIs. */
+export const ADMIN_FINANCE_ROLES = ['super_admin', 'admin', 'finance_officer', 'account_manager'] as const;
+
+export function hasStaffRole(me: MeResponse | null | undefined, roles: readonly string[]): boolean {
+  return !!me?.roles?.some((r) => roles.includes(r.name));
+}
+
+/** Any staff section under `/admin` (moderation, HR, or finance). */
+export function canAccessAdminPortal(me: MeResponse | null | undefined): boolean {
+  return (
+    hasStaffRole(me, ADMIN_MOD_ROLES) ||
+    hasStaffRole(me, ADMIN_HR_ROLES) ||
+    hasStaffRole(me, ADMIN_FINANCE_ROLES)
+  );
+}
+
+/**
+ * After login/register: honor `?next=`, then send staff to `/admin`, else home.
+ */
+export function resolvePostLoginPath(me: MeResponse | null, returnTo: string | null): string {
+  if (returnTo) return returnTo;
+  if (canAccessAdminPortal(me)) return '/admin';
+  return '/';
+}
 
 export async function loginWithGoogleIdToken(idToken: string): Promise<AuthResponse> {
   const data = await apiFetch<AuthResponse>('/auth/google', {
@@ -77,4 +110,14 @@ export async function fetchMe(): Promise<MeResponse | null> {
   } catch {
     return null;
   }
+}
+
+export async function patchAccountPreferences(body: {
+  country_code: string;
+  preferred_currency: string;
+}): Promise<MeResponse> {
+  return apiFetch<MeResponse>('/account/preferences', {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
 }

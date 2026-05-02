@@ -2,7 +2,8 @@ import { User, Menu, X, ChevronDown, LogOut } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
-import { fetchMe, logoutLocal } from '@/lib/auth';
+import { useMarketPrefs } from '@/app/context/MarketPrefsContext';
+import { fetchMe, logoutLocal, type MeResponse } from '@/lib/auth';
 import { getAuthToken } from '@/lib/api';
 import { Link, useLocation } from 'react-router';
 import { MORE_NAV_SECTIONS, MoreNavMenuPanel } from './MoreNavMenu';
@@ -12,11 +13,12 @@ import { BIKES_MOBILE_LINKS, BikesMegaMenuPanel } from './BikesMegaMenu';
 import { NEW_CARS_MOBILE_LINKS, NewCarsMegaMenuPanel } from './NewCarsMegaMenu';
 import { UsedCarsMegaMenuPanel } from './UsedCarsMegaMenu';
 import logoUrl from '@/assets/logo_3.webp';
+import { MarketRegionSwitcher } from '@/app/components/MarketRegionSwitcher';
 
 const navBtn =
   'flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white rounded-md transition-colors';
 
-/** Plain nav links with PakWheels-style solid white hover (no dropdown) */
+/** Plain nav links with solid white hover on blue header (no dropdown) */
 const navLinkElevated =
   'px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-md text-white/95 transition-colors duration-150 hover:bg-white hover:text-gray-900';
 
@@ -27,7 +29,8 @@ export function Header({
 }) {
   const { t } = useTranslation();
   const location = useLocation();
-  const [me, setMe] = useState<{ id: number; name: string; email: string; roles?: Array<{ name: string }> } | null>(null);
+  const [me, setMe] = useState<MeResponse | null>(null);
+  const { applyFromMe } = useMarketPrefs();
   /** Avoid flashing “Sign In” while /auth/me resolves for a stored token */
   const [authReady, setAuthReady] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -53,6 +56,10 @@ export function Header({
     };
   }, [location.pathname]);
 
+  useEffect(() => {
+    applyFromMe(me);
+  }, [me, applyFromMe]);
+
   const doLogout = () => {
     logoutLocal();
     setMe(null);
@@ -68,6 +75,7 @@ export function Header({
   const canAccessFinance = !!me?.roles?.some((r) =>
     ['super_admin', 'admin', 'finance_officer', 'account_manager'].includes(r.name),
   );
+  const canAccessStaffPortal = canAccessAdmin || canAccessHr || canAccessFinance;
   const canAccessDealer = !!me?.roles?.some((r) => ['dealer', 'super_admin', 'admin'].includes(r.name));
 
   const go = (path: string) => {
@@ -110,6 +118,7 @@ export function Header({
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center py-1.5 text-[12px] sm:text-[13px]">
           <div className="flex gap-4 sm:gap-6 min-w-0 items-center">
             {/* <span className="hover:text-white cursor-default truncate transition"></span> */}
+            <MarketRegionSwitcher />
             <LanguageSwitcher />
           </div>
           <div className="flex items-center gap-3 sm:gap-4 shrink-0">
@@ -241,19 +250,9 @@ export function Header({
               <Link to="/blog" className={navLinkElevated}>
                 {t('nav.blog')}
               </Link>
-              {canAccessAdmin ? (
-                <button type="button" onClick={() => onNavigate('/admin/moderation')} className={navBtn}>
+              {canAccessStaffPortal ? (
+                <button type="button" onClick={() => onNavigate('/admin')} className={navBtn}>
                   {t('nav.admin')}
-                </button>
-              ) : null}
-              {canAccessHr ? (
-                <button type="button" onClick={() => onNavigate('/admin/hr')} className={navBtn}>
-                  {t('nav.hr')}
-                </button>
-              ) : null}
-              {canAccessFinance ? (
-                <button type="button" onClick={() => onNavigate('/admin/finance')} className={navBtn}>
-                  {t('nav.finance')}
                 </button>
               ) : null}
               {canAccessDealer ? (
@@ -451,19 +450,9 @@ export function Header({
                 <Link to="/blog" className="block px-3 py-3 rounded-lg hover:bg-white/10" onClick={closeMobileNav}>
                   {t('nav.blog')}
                 </Link>
-                {canAccessAdmin ? (
-                  <button type="button" onClick={() => go('/admin/moderation')} className="text-left px-3 py-3 rounded-lg hover:bg-white/10 w-full">
+                {canAccessStaffPortal ? (
+                  <button type="button" onClick={() => go('/admin')} className="text-left px-3 py-3 rounded-lg hover:bg-white/10 w-full">
                     {t('nav.admin')}
-                  </button>
-                ) : null}
-                {canAccessHr ? (
-                  <button type="button" onClick={() => go('/admin/hr')} className="text-left px-3 py-3 rounded-lg hover:bg-white/10 w-full">
-                    {t('nav.hr')}
-                  </button>
-                ) : null}
-                {canAccessFinance ? (
-                  <button type="button" onClick={() => go('/admin/finance')} className="text-left px-3 py-3 rounded-lg hover:bg-white/10 w-full">
-                    {t('nav.finance')}
                   </button>
                 ) : null}
                 {canAccessDealer ? (

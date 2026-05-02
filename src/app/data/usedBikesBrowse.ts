@@ -2,61 +2,37 @@
 
 export type BikeModelRef = { label: string; q: string };
 
+/** Models commonly searched on Bangladesh classifieds (showrooms + used). */
 export const POPULAR_NEW_BIKES: BikeModelRef[] = [
-  { label: 'Honda CG 125', q: 'Honda CG 125' },
-  { label: 'Yamaha YBR 125', q: 'Yamaha YBR 125' },
-  { label: 'Honda CD 70', q: 'Honda CD 70' },
-  { label: 'Suzuki GD 110S', q: 'Suzuki GD 110S' },
-  { label: 'Suzuki GS 150', q: 'Suzuki GS 150' },
-  { label: 'Honda Pridor', q: 'Honda Pridor' },
-  { label: 'Yamaha YBR 125G', q: 'Yamaha YBR 125G' },
-  { label: 'Honda CB 150F', q: 'Honda CB 150F' },
+  { label: 'Honda CB Shine SP', q: 'Honda CB Shine' },
+  { label: 'Yamaha FZS-FI V3', q: 'Yamaha FZS' },
+  { label: 'Bajaj Pulsar N160', q: 'Bajaj Pulsar N160' },
+  { label: 'TVS Apache RTR 160 4V', q: 'TVS Apache RTR' },
+  { label: 'Hero Splendor Plus', q: 'Hero Splendor' },
+  { label: 'Suzuki Gixxer SF', q: 'Suzuki Gixxer' },
+  { label: 'Honda Dio', q: 'Honda Dio' },
+  { label: 'Yamaha R15 V4', q: 'Yamaha R15' },
 ];
 
 export const POPULAR_USED_BIKES: BikeModelRef[] = [
-  { label: 'Honda CG 125', q: 'Honda CG 125' },
-  { label: 'Honda CD 70', q: 'Honda CD 70' },
-  { label: 'Yamaha YBR 125', q: 'Yamaha YBR 125' },
-  { label: 'Suzuki GS 150', q: 'Suzuki GS 150' },
-  { label: 'Honda CB 125F', q: 'Honda CB 125F' },
-  { label: 'Yamaha YBR 125G', q: 'Yamaha YBR 125G' },
-  { label: 'Honda Pridor', q: 'Honda Pridor' },
-  { label: 'Hi Speed Infinity 150', q: 'Hi Speed Infinity 150' },
+  { label: 'Honda CB Shine', q: 'Honda CB Shine' },
+  { label: 'Bajaj Pulsar 150', q: 'Bajaj Pulsar 150' },
+  { label: 'Hero Splendor Plus', q: 'Hero Splendor' },
+  { label: 'TVS Apache RTR', q: 'TVS Apache RTR' },
+  { label: 'Yamaha FZS-FI', q: 'Yamaha FZS' },
+  { label: 'Suzuki Gixxer', q: 'Suzuki Gixxer' },
+  { label: 'Honda Livo', q: 'Honda Livo' },
+  { label: 'Runner Knight Rider', q: 'Runner Knight' },
 ];
 
-/** Cities commonly used on classified hubs (matches seller `location_city` text when possible). */
-export const PK_CITIES_BROWSE = [
-  'Lahore',
-  'Karachi',
-  'Rawalpindi',
-  'Islamabad',
-  'Faisalabad',
-  'Multan',
-  'Peshawar',
-  'Sialkot',
-  'Gujranwala',
-  'Sargodha',
-  'Abbottabad',
-  'Sahiwal',
-  'Hyderabad',
-  'Wah Cantt',
-  'Bahawalpur',
-  'Okara',
-  'Dhaka',
-  'Chattogram',
-  'Sylhet',
-  'Rajshahi',
-] as const;
-
-export type PkBrowseCity = (typeof PK_CITIES_BROWSE)[number];
-
 export const USED_BIKE_MAKE_MODELS: Record<string, string[]> = {
-  Honda: ['CG 125', 'CD 70', 'Pridor', 'CB 125F', 'CB 150F', 'CB 250F'],
-  Suzuki: ['GD 110S', 'GS 150', 'GSX-R600', 'GR 150'],
-  Yamaha: ['YBR 125', 'YBR 125G', 'YZF-R3', 'MT 15'],
-  United: ['US 125', 'US 70', 'Scooty 100'],
-  'Road Prince': ['RP 70', 'RP 110', 'Wego 150'],
-  Unique: ['UD 70', 'UD 100', 'UD 125'],
+  Honda: ['CB Shine', 'Livo', 'Dio', 'CB Hornet', 'Unicorn'],
+  Yamaha: ['FZS-FI', 'R15', 'FZ-X', 'Saluto'],
+  Suzuki: ['Gixxer', 'Hayate', 'Intruder'],
+  Bajaj: ['Pulsar NS160', 'Pulsar 150', 'Platina', 'Discover'],
+  TVS: ['Apache RTR', 'Sport', 'Raider'],
+  Hero: ['Splendor Plus', 'Glamour', 'Passion Pro'],
+  Runner: ['Knight Rider', 'Bolt', 'Turbo'],
 };
 
 export type BikeFilterTile = { labelKey: string; q: string; icon: string };

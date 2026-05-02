@@ -22,6 +22,7 @@ import { PostAdPage } from './components/PostAdPage';
 import { NewCarDetailPage } from './components/NewCarDetailPage';
 import { AdminFinancePage } from './components/AdminFinancePage';
 import { AdminHrPage } from './components/AdminHrPage';
+import { AdminLayout, AdminPanelIndexRedirect } from './components/AdminLayout';
 import { AdminModerationPage } from './components/AdminModerationPage';
 import { DealerPortalLayout } from './components/DealerPortalLayout';
 import { DealerPortalDashboard } from './components/DealerPortalDashboard';
@@ -68,6 +69,7 @@ import {
 import { useInnerPage } from '@/i18n/useInnerPage';
 import { setPageSeo } from '@/lib/seo';
 import { getAuthToken } from '@/lib/api';
+import { useMarketPrefs } from '@/app/context/MarketPrefsContext';
 
 /** Stable refs for InnerContentPage feeds — avoids refetch loops from inline arrays */
 const INNER_DEALERS_STRIP = { heading: 'Featured dealers', limit: 4 };
@@ -480,9 +482,13 @@ function SiteMapPage() {
 
 function AppShell() {
   const navigate = useNavigate();
+  const { preset } = useMarketPrefs();
 
   return (
-    <div className="min-h-screen min-w-0 bg-white">
+    <div
+      key={`${preset.countryCode}-${preset.currency}-${preset.localeTag}`}
+      className="min-h-screen min-w-0 bg-white"
+    >
       <PaymentReturnEffects />
       <Toaster position="top-center" richColors />
       <Header onNavigate={(path) => navigate(path)} />
@@ -494,9 +500,12 @@ function AppShell() {
         <Route path="/new-cars" element={<NewCarsLandingPage />} />
         <Route path="/new-cars/:id" element={<NewCarRoute />} />
         <Route path="/post-ad" element={<PostAdRoute />} />
-        <Route path="/admin/moderation" element={<AdminModerationPage />} />
-        <Route path="/admin/hr" element={<AdminHrPage />} />
-        <Route path="/admin/finance" element={<AdminFinancePage />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminPanelIndexRedirect />} />
+          <Route path="moderation" element={<AdminModerationPage />} />
+          <Route path="hr" element={<AdminHrPage />} />
+          <Route path="finance" element={<AdminFinancePage />} />
+        </Route>
         <Route path="/wishlist" element={<WishlistPage />} />
         <Route path="/my-listings" element={<MyListingsPage />} />
         <Route path="/my-listings/:id/edit" element={<EditListingRoute />} />
