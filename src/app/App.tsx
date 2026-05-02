@@ -63,6 +63,53 @@ import {
 } from '@/i18n/innerFeeds';
 import { useInnerPage } from '@/i18n/useInnerPage';
 import { setPageSeo } from '@/lib/seo';
+import { getAuthToken } from '@/lib/api';
+
+/** Stable refs for InnerContentPage feeds — avoids refetch loops from inline arrays */
+const INNER_DEALERS_STRIP = { heading: 'Featured dealers', limit: 4 };
+
+const INNER_FEEDS: Record<string, InnerListingFeed[]> = {
+  videos: [
+    { heading: 'Fresh used inventory', params: { listing_type: 'used_car', sort: 'newest' }, per_page: 6 },
+    { heading: 'New car listings', params: { listing_type: 'new_car', sort: 'newest' }, per_page: 6 },
+  ],
+  forums: [
+    { heading: 'Used cars', params: { listing_type: 'used_car', sort: 'views' }, per_page: 6 },
+    { heading: 'Used bikes', params: { listing_type: 'used_bike', sort: 'newest' }, per_page: 6 },
+  ],
+  carPrices: [
+    { heading: 'Used car asking prices', params: { listing_type: 'used_car', sort: 'price_desc' }, per_page: 6 },
+    { heading: 'New car listings', params: { listing_type: 'new_car', sort: 'price_desc' }, per_page: 6 },
+  ],
+  carReviews: [
+    { heading: 'Popular used cars', params: { listing_type: 'used_car', sort: 'views' }, per_page: 6 },
+    {
+      heading: 'Hybrid picks',
+      params: { listing_type: 'used_car', fuel_type: 'hybrid', sort: 'newest' },
+      per_page: 6,
+    },
+  ],
+  newBikes: [
+    { heading: 'New bike listings', params: { listing_type: 'new_bike', sort: 'newest' }, per_page: 6 },
+    { heading: 'Used bikes', params: { listing_type: 'used_bike', sort: 'newest' }, per_page: 6 },
+  ],
+  bikePrices: [{ heading: 'Used bikes for sale', params: { listing_type: 'used_bike', sort: 'price_asc' }, per_page: 8 }],
+  bikeReviews: [{ heading: 'Featured bikes', params: { listing_type: 'used_bike', sort: 'views' }, per_page: 8 }],
+  accessories: [
+    { heading: 'Accessory listings', params: { listing_type: 'accessory', sort: 'newest' }, per_page: 6 },
+    { heading: 'Auto parts', params: { listing_type: 'auto_part', sort: 'newest' }, per_page: 6 },
+  ],
+  wheelsTyres: [
+    { heading: 'Tyres & rims', params: { listing_type: 'tyre_rim', sort: 'newest' }, per_page: 6 },
+    { heading: 'Related parts', params: { listing_type: 'auto_part', sort: 'newest' }, per_page: 6 },
+  ],
+  engineParts: [{ heading: 'Parts inventory', params: { listing_type: 'auto_part', sort: 'newest' }, per_page: 9 }],
+  carCare: [
+    { heading: 'Service listings', params: { listing_type: 'service', sort: 'newest' }, per_page: 6 },
+    { heading: 'Parts & consumables', params: { listing_type: 'auto_part', sort: 'newest' }, per_page: 6 },
+  ],
+  sitemap: [{ heading: 'Trending used cars', params: { listing_type: 'used_car', sort: 'views' }, per_page: 6 }],
+};
 import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router';
 import { Toaster } from 'sonner';
 
@@ -133,6 +180,11 @@ function NewCarRoute() {
 
 function PostAdRoute() {
   const navigate = useNavigate();
+  const location = useLocation();
+  if (!getAuthToken()) {
+    const next = `${location.pathname}${location.search}${location.hash || ''}`;
+    return <Navigate to={`/login?next=${encodeURIComponent(next)}`} replace />;
+  }
   return <PostAdPage onBack={() => navigate('/')} />;
 }
 
@@ -429,7 +481,7 @@ function AppShell() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen min-w-0 bg-white">
       <PaymentReturnEffects />
       <Toaster position="top-center" richColors />
       <Header onNavigate={(path) => navigate(path)} />

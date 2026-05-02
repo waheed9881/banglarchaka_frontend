@@ -256,25 +256,25 @@ function PartTile({ label, to, image }: PartCard) {
   return (
     <Link
       to={to}
-      className="flex flex-col items-stretch rounded-xl border border-gray-200/90 bg-white shadow-sm transition hover:border-[#3483D1]/45 hover:shadow-md overflow-hidden group min-h-[156px]"
+      className="flex flex-col items-stretch rounded-lg sm:rounded-xl border border-gray-200/90 bg-white shadow-sm transition hover:border-[#3483D1]/45 hover:shadow-md overflow-hidden group min-h-[132px] sm:min-h-[156px] active:scale-[0.99]"
     >
-      <div className="relative flex min-h-[104px] flex-1 w-full items-center justify-center px-2 pt-3 pb-2 bg-gradient-to-b from-slate-50/95 via-white to-white">
+      <div className="relative flex min-h-[76px] sm:min-h-[104px] flex-1 w-full items-center justify-center px-1.5 pt-2 pb-1.5 sm:px-2 sm:pt-3 sm:pb-2 bg-gradient-to-b from-slate-50/95 via-white to-white">
         <ImageWithFallback
           src={image}
           alt={label}
           loading="lazy"
           decoding="async"
-          className={`max-h-[88px] w-full object-contain object-center transition-transform duration-200 group-hover:scale-[1.04] ${
+          className={`max-h-[64px] sm:max-h-[88px] w-full object-contain object-center transition-transform duration-200 group-hover:scale-[1.04] ${
             isMarketplacePhoto ? 'drop-shadow-[0_2px_8px_rgba(15,23,42,0.08)]' : ''
           }`}
         />
         {isMarketplacePhoto ? (
-          <span className="pointer-events-none absolute right-2 top-2 rounded bg-emerald-600/90 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-sm">
+          <span className="pointer-events-none absolute right-1 top-1 sm:right-2 sm:top-2 rounded bg-emerald-600/90 px-1 py-0.5 sm:px-1.5 text-[8px] sm:text-[9px] font-bold uppercase tracking-wide text-white shadow-sm">
             Live
           </span>
         ) : null}
       </div>
-      <span className="text-xs sm:text-sm font-semibold text-gray-800 text-center px-2 pb-3 pt-1.5 leading-snug border-t border-gray-100/80 bg-white">
+      <span className="text-[11px] sm:text-xs md:text-sm font-semibold text-gray-800 text-center px-1.5 sm:px-2 pb-2 sm:pb-3 pt-1 sm:pt-1.5 leading-snug border-t border-gray-100/80 bg-white line-clamp-2">
         {label}
       </span>
     </Link>
@@ -382,31 +382,31 @@ export function AutoParts() {
   const canNext = safePage < pageCount - 1;
 
   return (
-    <section className="py-12 bg-[#f5f6f8] border-y border-gray-100">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Auto Store Car Parts &amp; Accessories</h2>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">
+    <section className="py-8 sm:py-12 bg-[#f5f6f8] border-y border-gray-100">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-4 mb-5 sm:mb-6">
+          <div className="min-w-0">
+            <h2 className="text-xl sm:text-3xl font-bold text-gray-900 leading-tight">Auto Store Car Parts &amp; Accessories</h2>
+            <p className="mt-1.5 max-w-2xl text-xs sm:text-sm text-gray-500 leading-relaxed">
               Category tiles use real listing photos from BanglarChaka when inventory matches; otherwise you still see clean stock references.
             </p>
           </div>
           <Link
             to="/listings?type=auto_part"
-            className="text-sm font-semibold hover:underline shrink-0"
+            className="inline-flex items-center justify-center rounded-lg border border-[#3483D1]/30 bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:bg-slate-50 shrink-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:hover:bg-transparent"
             style={{ color: ACCENT }}
           >
             View all parts →
           </Link>
         </div>
 
-        <div className="flex flex-wrap gap-1 border-b border-gray-200 mb-8">
+        <div className="flex gap-1 overflow-x-auto overscroll-x-contain border-b border-gray-200 mb-6 sm:mb-8 pb-px [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory">
           {TABS.map(({ key, label }) => (
             <button
               key={key}
               type="button"
               onClick={() => setTab(key)}
-              className={`px-4 py-3 text-sm font-semibold transition-colors relative ${
+              className={`shrink-0 snap-start px-3 sm:px-4 py-2.5 sm:py-3 text-[13px] sm:text-sm font-semibold transition-colors relative whitespace-nowrap ${
                 tab === key ? '' : 'text-gray-600 hover:text-gray-900'
               }`}
               style={tab === key ? { color: ACCENT } : undefined}
@@ -429,7 +429,7 @@ export function AutoParts() {
             aria-label="Previous"
             disabled={!canPrev}
             onClick={() => setPage((p) => Math.max(0, p - 1))}
-            className={`absolute left-0 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition hover:bg-gray-50 ${
+            className={`hidden md:flex absolute left-0 top-1/2 z-10 -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition hover:bg-gray-50 ${
               canPrev ? '' : 'opacity-40 cursor-not-allowed'
             }`}
           >
@@ -440,21 +440,21 @@ export function AutoParts() {
             aria-label="Next"
             disabled={!canNext}
             onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-            className={`absolute right-0 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition hover:bg-gray-50 ${
+            className={`hidden md:flex absolute right-0 top-1/2 z-10 -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition hover:bg-gray-50 ${
               canNext ? '' : 'opacity-40 cursor-not-allowed'
             }`}
           >
             <ChevronRight className="w-5 h-5 text-gray-600" />
           </button>
 
-          <div className="overflow-hidden px-12 sm:px-14">
+          <div className="overflow-hidden px-0 md:px-12 lg:px-14">
             <div
-              className="flex transition-transform duration-300 ease-out"
+              className="flex transition-transform duration-300 ease-out touch-pan-y"
               style={{ transform: `translateX(-${safePage * 100}%)` }}
             >
               {slides.map((slide, si) => (
                 <div key={`${tab}-${si}`} className="min-w-full shrink-0">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
                     {slide.map((c) => (
                       <PartTile key={`${c.label}-${si}`} {...c} />
                     ))}
@@ -463,9 +463,36 @@ export function AutoParts() {
               ))}
             </div>
           </div>
+
+          <div className="mt-4 flex md:hidden items-center justify-center gap-3">
+            <button
+              type="button"
+              aria-label="Previous page"
+              disabled={!canPrev}
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              className={`flex h-11 min-w-[44px] flex-1 max-w-[140px] items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-800 shadow-sm ${
+                canPrev ? 'active:bg-gray-50' : 'opacity-40 cursor-not-allowed'
+              }`}
+            >
+              <ChevronLeft className="w-5 h-5 shrink-0" />
+              Back
+            </button>
+            <button
+              type="button"
+              aria-label="Next page"
+              disabled={!canNext}
+              onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+              className={`flex h-11 min-w-[44px] flex-1 max-w-[140px] items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-800 shadow-sm ${
+                canNext ? 'active:bg-gray-50' : 'opacity-40 cursor-not-allowed'
+              }`}
+            >
+              Next
+              <ChevronRight className="w-5 h-5 shrink-0" />
+            </button>
+          </div>
         </div>
 
-        <div className="flex justify-center gap-2 mt-8">
+        <div className="flex justify-center gap-1.5 sm:gap-2 mt-5 sm:mt-8 flex-wrap max-w-full overflow-x-auto py-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {Array.from({ length: pageCount }, (_, i) => (
             <button
               key={i}

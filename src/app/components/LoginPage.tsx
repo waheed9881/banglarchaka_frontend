@@ -1,6 +1,6 @@
 import { GoogleLogin } from '@react-oauth/google';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { fetchMe, loginWithEmailPassword, loginWithGoogleIdToken, logoutLocal } from '@/lib/auth';
 import { loginWithPhoneOtp, sendLoginOtp } from '@/lib/engagement';
 import { useTranslation } from 'react-i18next';
@@ -9,9 +9,17 @@ import { setPageSeo } from '@/lib/seo';
 const googleClientId =
   typeof import.meta.env.VITE_GOOGLE_CLIENT_ID === 'string' ? import.meta.env.VITE_GOOGLE_CLIENT_ID.trim() : '';
 
+/** Internal paths only — avoids open redirects */
+function safeReturnPath(next: string | null): string | null {
+  if (!next || !next.startsWith('/') || next.startsWith('//')) return null;
+  return next;
+}
+
 export function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = safeReturnPath(searchParams.get('next'));
   const [me, setMe] = useState<{ id: number; name: string; email: string } | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,16 +35,16 @@ export function LoginPage() {
   useEffect(() => {
     fetchMe().then((u) => {
       setMe(u);
-      if (u) navigate('/', { replace: true });
+      if (u) navigate(returnTo || '/', { replace: true });
     });
-  }, [navigate]);
+  }, [navigate, returnTo]);
 
   const doLogin = async () => {
     try {
       const data = await loginWithEmailPassword(email.trim(), password);
       const meFresh = await fetchMe();
       setMe(meFresh || data.user);
-      navigate('/');
+      navigate(returnTo || '/');
     } catch (e) {
       setMsg(e instanceof Error ? e.message : t('auth.loginFailed'));
     }
@@ -60,7 +68,7 @@ export function LoginPage() {
       setMe(meFresh);
       setOtpCode('');
       setOtpHint('');
-      navigate('/');
+      navigate(returnTo || '/');
     } catch (e) {
       setMsg(e instanceof Error ? e.message : t('auth.otpLoginFailed'));
     }
@@ -113,7 +121,7 @@ export function LoginPage() {
                 try {
                   await loginWithGoogleIdToken(cred.credential);
                   await fetchMe();
-                  navigate('/');
+                  navigate(returnTo || '/');
                 } catch (e) {
                   setMsg(e instanceof Error ? e.message : t('auth.googleSignInFailed'));
                 }

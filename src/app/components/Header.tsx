@@ -92,8 +92,19 @@ export function Header({
     setMoreMobileOpen(false);
   };
 
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileNavOpen]);
+
   return (
-    <header className="w-full sticky top-0 z-50 shadow-md bg-[#233D7B]">
+    <header
+      className={`w-full shadow-md bg-[#233D7B] ${mobileNavOpen ? 'z-[200]' : 'z-50'}`}
+    >
       {/* Utility strip */}
       <div className="border-b border-white/10 text-white/95">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center py-1.5 text-[12px] sm:text-[13px]">
@@ -136,8 +147,8 @@ export function Header({
 
       {msg ? <div className="bg-amber-50 text-amber-900 text-xs px-4 py-2 border-b border-amber-200">{msg}</div> : null}
 
-      {/* Main dark nav */}
-      <div className="max-w-7xl mx-auto px-4">
+      {/* Main dark nav — relative so mega menus align to full content width (no horizontal overflow) */}
+      <div className="relative max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between gap-3 min-h-[52px] py-1">
           <div className="flex items-center gap-4 lg:gap-6 min-w-0 flex-1">
             <Link to="/" className="flex items-center gap-2 shrink-0 min-w-0">
@@ -151,8 +162,8 @@ export function Header({
               />
             </Link>
 
-            <nav className="hidden lg:flex items-center gap-0.5 flex-wrap xl:flex-nowrap min-w-0">
-              <div className="relative group/used">
+            <nav className="hidden lg:flex items-center gap-0.5 flex-wrap xl:flex-nowrap min-w-0 min-h-0">
+              <div className="group/used">
                 <Link
                   to="/listings?type=used_car"
                   className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/used:bg-white group-hover/used:text-gray-900 group-hover/used:border-white group-hover/used:border-b-white group-hover/used:shadow-[0_1px_0_0_white]"
@@ -160,12 +171,14 @@ export function Header({
                 >
                   {t('nav.usedCars')} <ChevronDown className="w-3.5 h-3.5 opacity-80" />
                 </Link>
-                <div className="pointer-events-none invisible opacity-0 group-hover/used:pointer-events-auto group-hover/used:visible group-hover/used:opacity-100 transition-opacity duration-150 absolute left-0 top-full z-50 min-w-[min(720px,92vw)] max-w-[min(92vw,920px)]">
-                  <UsedCarsMegaMenuPanel />
+                <div className="pointer-events-none invisible opacity-0 group-hover/used:pointer-events-auto group-hover/used:visible group-hover/used:opacity-100 transition-opacity duration-150 absolute left-0 right-0 top-full z-50 pt-1">
+                  <div className="w-full min-w-0">
+                    <UsedCarsMegaMenuPanel />
+                  </div>
                 </div>
               </div>
 
-              <div className="relative group/new">
+              <div className="group/new">
                 <Link
                   to="/listings?type=new_car"
                   className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/new:bg-white group-hover/new:text-gray-900 group-hover/new:border-white group-hover/new:border-b-white group-hover/new:shadow-[0_1px_0_0_white]"
@@ -174,11 +187,13 @@ export function Header({
                   {t('nav.newCars')}{' '}
                   <ChevronDown className="w-3.5 h-3.5 opacity-80 transition-colors group-hover/new:text-[#C4161C]" />
                 </Link>
-                <div className="pointer-events-none invisible opacity-0 group-hover/new:pointer-events-auto group-hover/new:visible group-hover/new:opacity-100 transition-opacity duration-150 absolute left-0 top-full z-50 pt-1 min-w-[min(640px,92vw)] max-w-[min(92vw,840px)] w-max">
-                  <NewCarsMegaMenuPanel />
+                <div className="pointer-events-none invisible opacity-0 group-hover/new:pointer-events-auto group-hover/new:visible group-hover/new:opacity-100 transition-opacity duration-150 absolute left-0 right-0 top-full z-50 pt-1">
+                  <div className="w-full min-w-0">
+                    <NewCarsMegaMenuPanel />
+                  </div>
                 </div>
               </div>
-              <div className="relative group/bikes">
+              <div className="group/bikes">
                 <Link
                   to="/listings?type=used_bike"
                   className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/bikes:bg-white group-hover/bikes:text-gray-900 group-hover/bikes:border-white group-hover/bikes:border-b-white group-hover/bikes:shadow-[0_1px_0_0_white]"
@@ -187,11 +202,13 @@ export function Header({
                   {t('nav.bikes')}{' '}
                   <ChevronDown className="w-3.5 h-3.5 opacity-80 transition-colors group-hover/bikes:text-[#C4161C]" />
                 </Link>
-                <div className="pointer-events-none invisible opacity-0 group-hover/bikes:pointer-events-auto group-hover/bikes:visible group-hover/bikes:opacity-100 transition-opacity duration-150 absolute left-0 top-full z-50 pt-1 min-w-[min(900px,94vw)] max-w-[min(96vw,1040px)] w-max">
-                  <BikesMegaMenuPanel />
+                <div className="pointer-events-none invisible opacity-0 group-hover/bikes:pointer-events-auto group-hover/bikes:visible group-hover/bikes:opacity-100 transition-opacity duration-150 absolute left-0 right-0 top-full z-50 pt-1">
+                  <div className="w-full min-w-0 max-w-full overflow-x-auto">
+                    <BikesMegaMenuPanel />
+                  </div>
                 </div>
               </div>
-              <div className="relative group/autostore">
+              <div className="group/autostore">
                 <Link
                   to="/listings?type=auto_part"
                   className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/autostore:bg-white group-hover/autostore:text-gray-900 group-hover/autostore:border-white group-hover/autostore:border-b-white group-hover/autostore:shadow-[0_1px_0_0_white]"
@@ -200,8 +217,10 @@ export function Header({
                   {t('nav.autoStore')}{' '}
                   <ChevronDown className="w-3.5 h-3.5 opacity-80 transition-colors group-hover/autostore:text-[#C4161C]" />
                 </Link>
-                <div className="pointer-events-none invisible opacity-0 group-hover/autostore:pointer-events-auto group-hover/autostore:visible group-hover/autostore:opacity-100 transition-opacity duration-150 absolute left-0 top-full z-50 pt-1 w-max">
-                  <AutoStoreMegaMenuPanel />
+                <div className="pointer-events-none invisible opacity-0 group-hover/autostore:pointer-events-auto group-hover/autostore:visible group-hover/autostore:opacity-100 transition-opacity duration-150 absolute left-0 right-0 top-full z-50 pt-1">
+                  <div className="w-full min-w-0 flex justify-start">
+                    <AutoStoreMegaMenuPanel />
+                  </div>
                 </div>
               </div>
               <Link to="/videos" className={navLinkElevated}>
@@ -264,7 +283,7 @@ export function Header({
             </div>
             <button
               type="button"
-              className="lg:hidden p-2 rounded-md hover:bg-white/10 text-white"
+              className="lg:hidden p-2.5 rounded-lg hover:bg-white/10 text-white -mr-1"
               aria-expanded={mobileNavOpen}
               aria-label={mobileNavOpen ? t('nav.closeMenu') : t('nav.openMenu')}
               onClick={() => setMobileNavOpen((o) => !o)}
@@ -273,6 +292,7 @@ export function Header({
             </button>
           </div>
         </div>
+      </div>
 
         {mobileNavOpen ? (
           <nav
