@@ -40,6 +40,7 @@ import { PaymentReturnEffects } from './components/PaymentReturnEffects';
 import { BlogArchivePage } from './components/BlogArchivePage';
 import { BlogArticlePage } from './components/BlogArticlePage';
 import { LoginPage } from './components/LoginPage';
+import { DealerPlanSelectionPage } from './components/DealerPlanSelectionPage';
 import { ForgotPasswordPage } from './components/ForgotPasswordPage';
 import { ResetPasswordPage } from './components/ResetPasswordPage';
 import { ComparePage } from './components/ComparePage';
@@ -548,6 +549,7 @@ function AppShell() {
         <Route path="/sitemap" element={<SiteMapPage />} />
         <Route path="/login" element={<LoginPage variant="login" />} />
         <Route path="/register" element={<LoginPage variant="register" />} />
+        <Route path="/register/dealer-plan" element={<DealerPlanSelectionPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/used-cars/sell" element={<SellCarLandingPage />} />

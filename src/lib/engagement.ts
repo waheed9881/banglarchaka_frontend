@@ -1,4 +1,5 @@
 import { apiFetch, setAuthToken } from './api';
+import type { AuthResponse } from './auth';
 import type { ListingDto } from './marketplace';
 
 function listingsFromPayload(payload: unknown): ListingDto[] {
@@ -42,13 +43,13 @@ export async function sendRegisterOtpEmail(email: string): Promise<{ debugCode?:
   return { debugCode: payload.debug_code };
 }
 
-export async function loginWithPhoneOtp(phone: string, otp: string): Promise<{ token: string }> {
-  const payload = await apiFetch<{ token: string }>('/auth/login', {
+export async function loginWithPhoneOtp(phone: string, otp: string): Promise<AuthResponse> {
+  const payload = await apiFetch<AuthResponse>('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ phone, otp }),
   });
   setAuthToken(payload.token);
-  return { token: payload.token };
+  return payload;
 }
 
 export type ConversationSummaryDto = {

@@ -6,12 +6,13 @@ import {
   fetchMe,
   loginWithEmailPassword,
   loginWithGoogleIdToken,
-  registerBuyer,
+  registerAccount,
   verifyRegistrationOtp,
   logoutLocal,
   resolvePostLoginPath,
   type MeResponse,
 } from '@/lib/auth';
+import { ApiError } from '@/lib/api';
 import { loginWithPhoneOtp, sendLoginOtp, sendRegisterOtpEmail } from '@/lib/engagement';
 import { useTranslation } from 'react-i18next';
 import { setPageSeo } from '@/lib/seo';
@@ -61,6 +62,12 @@ export function LoginPage({ variant }: { variant: Tab }) {
   const [regOtpSendBusy, setRegOtpSendBusy] = useState(false);
   const [regOtpVerifyBusy, setRegOtpVerifyBusy] = useState(false);
   const [regOtpResendSec, setRegOtpResendSec] = useState(0);
+  const [regAccountType, setRegAccountType] = useState<'buyer' | 'dealer'>('buyer');
+  const [regBusinessName, setRegBusinessName] = useState('');
+  const [showLoginVerify, setShowLoginVerify] = useState(false);
+  const [loginVerifyEmail, setLoginVerifyEmail] = useState('');
+  const [loginVerifyMask, setLoginVerifyMask] = useState('');
+  const [loginResendBusy, setLoginResendBusy] = useState(false);
 
   useEffect(() => {
     setTab(variant);
@@ -68,6 +75,11 @@ export function LoginPage({ variant }: { variant: Tab }) {
     setRegOtpCode('');
     setRegOtpHint('');
     setRegOtpResendSec(0);
+    setRegAccountType('buyer');
+    setRegBusinessName('');
+    setShowLoginVerify(false);
+    setLoginVerifyEmail('');
+    setLoginVerifyMask('');
   }, [variant]);
 
   useEffect(() => {
@@ -78,8 +90,16 @@ export function LoginPage({ variant }: { variant: Tab }) {
 
   useEffect(() => {
     fetchMe().then((u) => {
+      if (!u) {
+        setMe(null);
+        return;
+      }
+      if (u.status === 'pending_plan') {
+        navigate('/register/dealer-plan', { replace: true });
+        return;
+      }
       setMe(u);
-      if (u) navigate(resolvePostLoginPath(u, returnTo), { replace: true });
+      navigate(resolvePostLoginPath(u, returnTo), { replace: true });
     });
   }, [navigate, returnTo]);
 
@@ -97,8 +117,14 @@ export function LoginPage({ variant }: { variant: Tab }) {
 
   const doLogin = async () => {
     setSubmittingLogin(true);
+    setShowLoginVerify(false);
     try {
       const data = await loginWithEmailPassword(email.trim(), password);
+      if (data.requires_plan_selection) {
+        toast.success(data.message || t('auth.dealerPlanRedirect'));
+        navigate('/register/dealer-plan', { replace: true });
+        return;
+      }
       let meFresh = await fetchMe();
       if (!meFresh && data.user.roles?.length) {
         meFresh = data.user as MeResponse;
@@ -107,9 +133,38 @@ export function LoginPage({ variant }: { variant: Tab }) {
       toast.success(t('auth.welcomeBack'));
       navigate(resolvePostLoginPath(meFresh, returnTo));
     } catch (e) {
+      if (e instanceof ApiError && e.code === 'email_verification_required') {
+        const body = e.body as { email_mask?: string } | undefined;
+        setLoginVerifyEmail(email.trim());
+        setLoginVerifyMask(typeof body?.email_mask === 'string' ? body.email_mask : '');
+        setShowLoginVerify(true);
+        toast.error(e.message);
+        return;
+      }
       toast.error(e instanceof Error ? e.message : t('auth.loginFailed'));
     } finally {
       setSubmittingLogin(false);
+    }
+  };
+
+  const doResendLoginVerification = async () => {
+    const em = loginVerifyEmail.trim() || email.trim();
+    if (!em) {
+      toast.error(t('auth.enterEmail'));
+      return;
+    }
+    setLoginResendBusy(true);
+    try {
+      const res = await sendRegisterOtpEmail(em);
+      if (res.debugCode) {
+        toast.success(t('auth.otpHintDev', { code: res.debugCode }));
+      } else {
+        toast.success(t('auth.registrationOtpSent'));
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t('auth.otpSendFailed'));
+    } finally {
+      setLoginResendBusy(false);
     }
   };
 
@@ -123,13 +178,21 @@ export function LoginPage({ variant }: { variant: Tab }) {
       toast.error(t('auth.enterEmail'));
       return;
     }
+    if (regAccountType === 'dealer' && !regBusinessName.trim()) {
+      toast.error(t('auth.dealerBusinessRequired'));
+      return;
+    }
     setSubmittingRegister(true);
     try {
-      const data = await registerBuyer({
+      const data = await registerAccount({
         name: regName.trim(),
         email,
         password: regPassword,
         password_confirmation: regPassword2,
+        registration_type: regAccountType,
+        ...(regAccountType === 'dealer' && regBusinessName.trim()
+          ? { business_name: regBusinessName.trim() }
+          : {}),
         ...(regPhone.trim() ? { phone: regPhone.trim() } : {}),
       });
       if ('requires_otp' in data && data.requires_otp) {
@@ -191,15 +254,20 @@ export function LoginPage({ variant }: { variant: Tab }) {
     setRegOtpVerifyBusy(true);
     try {
       const auth = await verifyRegistrationOtp(email, regOtpCode.trim());
+      setRegOtpStep(false);
+      setRegOtpCode('');
+      setRegOtpHint('');
+      setRegOtpResendSec(0);
+      if (auth.requires_plan_selection) {
+        toast.success(t('auth.accountVerifiedPickPlan'));
+        navigate('/register/dealer-plan', { replace: true });
+        return;
+      }
       let meFresh = await fetchMe();
       if (!meFresh && auth.user.roles?.length) {
         meFresh = auth.user as MeResponse;
       }
       setMe(meFresh || auth.user);
-      setRegOtpStep(false);
-      setRegOtpCode('');
-      setRegOtpHint('');
-      setRegOtpResendSec(0);
       toast.success(t('auth.accountCreated'));
       navigate(resolvePostLoginPath(meFresh, returnTo));
     } catch (e) {
@@ -242,7 +310,12 @@ export function LoginPage({ variant }: { variant: Tab }) {
     }
     setOtpVerifyBusy(true);
     try {
-      await loginWithPhoneOtp(p, otpCode.trim());
+      const otpAuth = await loginWithPhoneOtp(p, otpCode.trim());
+      if (otpAuth.requires_plan_selection) {
+        toast.success(otpAuth.message || t('auth.dealerPlanRedirect'));
+        navigate('/register/dealer-plan', { replace: true });
+        return;
+      }
       const meFresh = await fetchMe();
       setMe(meFresh);
       setOtpCode('');
@@ -252,6 +325,10 @@ export function LoginPage({ variant }: { variant: Tab }) {
       toast.success(t('auth.welcomeBack'));
       navigate(resolvePostLoginPath(meFresh, returnTo));
     } catch (e) {
+      if (e instanceof ApiError && e.code === 'email_verification_required') {
+        toast.error(e.message);
+        return;
+      }
       toast.error(e instanceof Error ? e.message : t('auth.otpLoginFailed'));
     } finally {
       setOtpVerifyBusy(false);
@@ -312,6 +389,34 @@ export function LoginPage({ variant }: { variant: Tab }) {
 
             {tab === 'login' ? (
               <div className="space-y-6 max-w-md mx-auto lg:mx-0">
+                {showLoginVerify ? (
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50/90 p-4 text-sm text-amber-950 space-y-3">
+                    <p className="font-semibold">{t('auth.loginVerifyTitle')}</p>
+                    <p>
+                      {loginVerifyMask
+                        ? t('auth.loginVerifyBlurbMask', { mask: loginVerifyMask })
+                        : t('auth.loginVerifyBlurb')}
+                    </p>
+                    <p className="text-xs text-amber-900/90">{t('auth.loginVerifyHint')}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        disabled={loginResendBusy}
+                        onClick={() => void doResendLoginVerification()}
+                        className="rounded-lg bg-amber-600 text-white px-3 py-2 text-xs font-semibold hover:bg-amber-700 disabled:opacity-50"
+                      >
+                        {loginResendBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin inline" aria-hidden /> : null}{' '}
+                        {t('auth.resendOtp')}
+                      </button>
+                      <Link
+                        to={`/register?email=${encodeURIComponent(loginVerifyEmail || email.trim())}`}
+                        className="rounded-lg border border-amber-700/40 px-3 py-2 text-xs font-semibold text-amber-950 hover:bg-amber-100/80"
+                      >
+                        {t('auth.goToVerifyRegister')}
+                      </Link>
+                    </div>
+                  </div>
+                ) : null}
                 <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-5">
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-4">{t('auth.orContinue')} Google</p>
                   {googleClientId ? (
@@ -321,11 +426,20 @@ export function LoginPage({ variant }: { variant: Tab }) {
                           if (!cred.credential) return;
                           setGoogleBusy(true);
                           try {
-                            await loginWithGoogleIdToken(cred.credential);
+                            const data = await loginWithGoogleIdToken(cred.credential);
+                            if (data.requires_plan_selection) {
+                              toast.success(data.message || t('auth.dealerPlanRedirect'));
+                              navigate('/register/dealer-plan', { replace: true });
+                              return;
+                            }
                             const meFresh = await fetchMe();
                             toast.success(t('auth.welcomeBack'));
                             navigate(resolvePostLoginPath(meFresh, returnTo));
                           } catch (e) {
+                            if (e instanceof ApiError && e.code === 'email_verification_required') {
+                              toast.error(e.message);
+                              return;
+                            }
                             toast.error(e instanceof Error ? e.message : t('auth.googleSignInFailed'));
                           } finally {
                             setGoogleBusy(false);
@@ -573,6 +687,27 @@ export function LoginPage({ variant }: { variant: Tab }) {
             ) : (
               <div className="space-y-4 max-w-md mx-auto lg:mx-0">
                 <p className="text-sm text-slate-600 mb-2">{t('auth.registerSeoDesc')}</p>
+                <div className="flex p-1 rounded-xl bg-slate-100 border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setRegAccountType('buyer')}
+                    className={`flex-1 py-2 text-sm font-semibold rounded-lg transition ${
+                      regAccountType === 'buyer' ? 'bg-white text-[#233D7B] shadow-sm' : 'text-slate-600'
+                    }`}
+                  >
+                    {t('auth.accountTypeBuyer')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRegAccountType('dealer')}
+                    className={`flex-1 py-2 text-sm font-semibold rounded-lg transition ${
+                      regAccountType === 'dealer' ? 'bg-white text-[#233D7B] shadow-sm' : 'text-slate-600'
+                    }`}
+                  >
+                    {t('auth.accountTypeDealer')}
+                  </button>
+                </div>
+                <p className="text-xs text-slate-500">{t('auth.accountTypeHint')}</p>
                 <label className="block">
                   <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t('auth.fullName')}</span>
                   <input
@@ -592,6 +727,20 @@ export function LoginPage({ variant }: { variant: Tab }) {
                     autoComplete="email"
                   />
                 </label>
+                {regAccountType === 'dealer' ? (
+                  <label className="block">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      {t('auth.dealerBusinessName')}
+                    </span>
+                    <input
+                      value={regBusinessName}
+                      onChange={(e) => setRegBusinessName(e.target.value)}
+                      className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-[15px] outline-none focus:bg-white focus:ring-2 ring-[#233D7B]/30"
+                      placeholder={t('auth.dealerBusinessPlaceholder')}
+                      autoComplete="organization"
+                    />
+                  </label>
+                ) : null}
                 <label className="block">
                   <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                     {t('auth.phoneOptional')}

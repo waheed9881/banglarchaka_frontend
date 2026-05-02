@@ -3,7 +3,9 @@ import { apiFetch, setAuthToken } from './api';
 export type AuthResponse = {
   token: string;
   token_type: string;
-  user: { id: number; name: string; email: string; roles?: Array<{ name: string }> };
+  user: { id: number; name: string; email: string; roles?: Array<{ name: string }>; status?: string };
+  requires_plan_selection?: boolean;
+  message?: string;
 };
 
 export type MeResponse = {
@@ -11,6 +13,7 @@ export type MeResponse = {
   name: string;
   email: string;
   roles?: Array<{ name: string }>;
+  status?: string;
   country_code?: string | null;
   preferred_currency?: string | null;
 };
@@ -68,16 +71,23 @@ export type RegisterPendingResponse = {
   requires_otp: true;
   message: string;
   email_mask?: string;
+  registration_type?: string;
   debug_code?: string;
 };
 
-export async function registerBuyer(params: {
+export type RegisterAccountParams = {
   name: string;
   email: string;
   password: string;
   password_confirmation: string;
   phone?: string;
-}): Promise<AuthResponse | RegisterPendingResponse> {
+  registration_type?: 'buyer' | 'dealer';
+  business_name?: string;
+};
+
+export async function registerAccount(
+  params: RegisterAccountParams,
+): Promise<AuthResponse | RegisterPendingResponse> {
   const data = await apiFetch<AuthResponse | RegisterPendingResponse>('/auth/register', {
     method: 'POST',
     body: JSON.stringify(params),
@@ -90,13 +100,27 @@ export async function registerBuyer(params: {
   return auth;
 }
 
-export async function verifyRegistrationOtp(email: string, otp: string): Promise<AuthResponse> {
-  const data = await apiFetch<AuthResponse>('/auth/register/verify-otp', {
+export type VerifyRegistrationResponse = AuthResponse & {
+  requires_plan_selection?: boolean;
+};
+
+export async function verifyRegistrationOtp(email: string, otp: string): Promise<VerifyRegistrationResponse> {
+  const data = await apiFetch<VerifyRegistrationResponse>('/auth/register/verify-otp', {
     method: 'POST',
     body: JSON.stringify({ email: email.trim().toLowerCase(), otp: otp.trim() }),
   });
   setAuthToken(data.token);
   return data;
+}
+
+export async function selectDealerSubscriptionPlan(body: {
+  plan_id?: number;
+  plan_slug?: string;
+}): Promise<{ message: string; user: MeResponse; data?: { dealer_slug?: string } }> {
+  return apiFetch('/auth/registration/dealer/select-plan', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
 }
 
 /** Request reset email — always succeeds with generic messaging if email format is valid. */

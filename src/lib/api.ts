@@ -2,6 +2,19 @@ import { API_V1 } from './config';
 
 const TOKEN_KEY = 'banglarchaka_token';
 
+/** Thrown for non-2xx JSON API responses; includes optional `code` from Laravel (e.g. email_verification_required). */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly code?: string,
+    public readonly body?: unknown,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 export function getAuthToken(): string | null {
   const primary = localStorage.getItem(TOKEN_KEY);
   if (primary) return primary;
@@ -89,7 +102,11 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
         }
       }
     }
-    throw new Error(msg || `HTTP ${res.status}`);
+    const code =
+      typeof data === 'object' && data !== null && 'code' in data && (data as { code: unknown }).code != null
+        ? String((data as { code: unknown }).code)
+        : undefined;
+    throw new ApiError(msg || `HTTP ${res.status}`, res.status, code, data);
   }
 
   if (typeof data === 'string') {

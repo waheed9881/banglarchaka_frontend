@@ -5,7 +5,7 @@ import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { useMarketPrefs } from '@/app/context/MarketPrefsContext';
 import { fetchMe, logoutLocal, type MeResponse } from '@/lib/auth';
 import { getAuthToken } from '@/lib/api';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { MORE_NAV_SECTIONS, MoreNavMenuPanel } from './MoreNavMenu';
 import { AUTO_STORE_MOBILE_LINKS, AutoStoreMegaMenuPanel } from './AutoStoreMegaMenu';
 import { POST_AD_MENU_LINKS, PostAdDropdownPanel } from './PostAdDropdown';
@@ -29,6 +29,7 @@ export function Header({
 }) {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
   const [me, setMe] = useState<MeResponse | null>(null);
   const { applyFromMe } = useMarketPrefs();
   /** Avoid flashing “Sign In” while /auth/me resolves for a stored token */
@@ -61,6 +62,13 @@ export function Header({
   useEffect(() => {
     applyFromMe(me);
   }, [me, applyFromMe]);
+
+  /** Verified dealer must pick a plan before using the site with this session */
+  useEffect(() => {
+    if (me?.status !== 'pending_plan') return;
+    if (location.pathname === '/register/dealer-plan') return;
+    navigate('/register/dealer-plan', { replace: true });
+  }, [me?.status, location.pathname, navigate]);
 
   const doLogout = () => {
     logoutLocal();
