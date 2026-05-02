@@ -144,7 +144,7 @@ function HomePage() {
       <CompareSection />
       <Services />
       <Dealers />
-      <MobileApp />
+      {/* <MobileApp /> */}
       <Testimonials />
       <BlogNews />
       <QuickLinks />
