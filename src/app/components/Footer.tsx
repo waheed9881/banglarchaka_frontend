@@ -7,7 +7,7 @@ import logoUrl from '@/assets/logo_3.webp';
 
 const BG = '#23292d';
 const LINK = 'text-gray-400 hover:text-white transition-colors';
-const HEADING = 'text-white font-bold text-[13px] uppercase tracking-wide mb-4';
+const HEADING = 'text-white font-bold text-[13px] uppercase tracking-wide mb-2.5';
 
 function carListings(extra: Record<string, string>) {
   const p = new URLSearchParams({ type: 'used_car', ...extra });
@@ -137,7 +137,7 @@ function LinkColumn({ col }: { col: FootCol }) {
   return (
     <div>
       <h3 className={HEADING}>{t(col.titleKey)}</h3>
-      <ul className="space-y-2.5">
+      <ul className="space-y-1.5">
         {col.links.map((item) => (
           <li key={item.labelKey}>
             {'kind' in item && item.kind === 'careers' ? (
@@ -189,37 +189,37 @@ export function Footer() {
 
   return (
     <footer className="text-white" style={{ backgroundColor: BG }}>
-      <div className="max-w-7xl mx-auto px-4 pt-14 pb-8">
-        <div className="pb-10 mb-2 border-b border-gray-700/80">
+      <div className="max-w-7xl mx-auto px-4 pt-8 pb-5">
+        <div className="pb-6 mb-2 border-b border-gray-700/80">
           <Link to="/" className="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3EB549]/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[#23292d] rounded">
             <img
               src={logoUrl}
               alt="Banglar Chaka — বাংলার চাকা"
-              className="h-12 sm:h-14 w-auto max-w-full object-contain object-left"
+              className="h-10 sm:h-12 w-auto max-w-full object-contain object-left"
               width={240}
-              height={56}
+              height={48}
               decoding="async"
             />
           </Link>
         </div>
-        <div className="flex flex-col xl:flex-row gap-12 xl:gap-16">
-          <div className="flex-1 min-w-0 space-y-12">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10">
+        <div className="flex flex-col xl:flex-row gap-8 xl:gap-10">
+          <div className="flex-1 min-w-0 space-y-7">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-6">
               {COLS_TOP.map((col) => (
                 <LinkColumn key={col.titleKey} col={col} />
               ))}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10 pt-2 border-t border-gray-700/80">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-6 pt-2 border-t border-gray-700/80">
               {COLS_BOTTOM.map((col) => (
                 <LinkColumn key={col.titleKey} col={col} />
               ))}
             </div>
           </div>
 
-          <aside className="w-full xl:w-[280px] shrink-0 space-y-8 xl:border-l xl:border-gray-700/80 xl:pl-10">
+          <aside className="w-full xl:w-[280px] shrink-0 space-y-5 xl:border-l xl:border-gray-700/80 xl:pl-8">
             <div>
               <h3 className={HEADING}>{t('footer.sellOnTitle')}</h3>
-              <ul className="space-y-2.5">
+              <ul className="space-y-1.5">
                 <li>
                   <Link to="/used-cars/sell" className={`text-[13px] ${LINK}`}>
                     {t('postAd.sellYourCar')}
@@ -246,12 +246,12 @@ export function Footer() {
                   value={newsletter}
                   onChange={(e) => setNewsletter(e.target.value)}
                   placeholder={t('footer.subscribePlaceholder')}
-                  className="flex-1 min-w-0 rounded-md border border-gray-600 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3EB549]/60"
+                  className="flex-1 min-w-0 rounded-md border border-gray-600 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3EB549]/60"
                   aria-label={t('footer.subscribePlaceholder')}
                 />
                 <button
                   type="submit"
-                  className="shrink-0 rounded-md bg-[#3EB549] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#36a340] transition"
+                  className="shrink-0 rounded-md bg-[#3EB549] px-4 py-2 text-sm font-bold text-white hover:bg-[#36a340] transition"
                 >
                   {t('footer.subscribeButton')}
                 </button>
@@ -268,7 +268,7 @@ export function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={t(labelKey)}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-700/90 text-gray-200 hover:bg-gray-600 hover:text-white transition"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-700/90 text-gray-200 hover:bg-gray-600 hover:text-white transition"
                   >
                     <Icon className="w-[18px] h-[18px]" strokeWidth={2} />
                   </a>
@@ -281,7 +281,7 @@ export function Footer() {
               <div className="flex flex-col gap-2">
                 <a
                   href="#"
-                  className="flex items-center justify-center rounded-md bg-black px-4 py-2.5 text-left text-xs font-semibold text-white ring-1 ring-gray-700 hover:ring-gray-500 transition"
+                  className="flex items-center justify-center rounded-md bg-black px-4 py-2 text-left text-xs font-semibold text-white ring-1 ring-gray-700 hover:ring-gray-500 transition"
                   onClick={(e) => {
                     e.preventDefault();
                     toast.message(t('footer.appComingSoon'));
@@ -291,7 +291,7 @@ export function Footer() {
                 </a>
                 <a
                   href="#"
-                  className="flex items-center justify-center rounded-md bg-black px-4 py-2.5 text-xs font-semibold text-white ring-1 ring-gray-700 hover:ring-gray-500 transition"
+                  className="flex items-center justify-center rounded-md bg-black px-4 py-2 text-xs font-semibold text-white ring-1 ring-gray-700 hover:ring-gray-500 transition"
                   onClick={(e) => {
                     e.preventDefault();
                     toast.message(t('footer.appComingSoon'));
@@ -304,7 +304,7 @@ export function Footer() {
           </aside>
         </div>
 
-        <div className="mt-14 pt-8 border-t border-gray-700 text-center space-y-3">
+        <div className="mt-8 pt-5 border-t border-gray-700 text-center space-y-2">
           <p className="text-xs text-gray-500">{t('footer.copyrightLine', { year: new Date().getFullYear() })}</p>
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs">
             <Link to="/terms" className={`${LINK} text-gray-400`}>

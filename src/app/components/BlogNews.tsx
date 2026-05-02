@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import {
   fetchBrandNews,
   fetchListings,
+  listingCoverMediaPath,
   resolveMediaUrl,
   type BrandNewsArticleDto,
   type ListingDto,
@@ -86,7 +87,7 @@ export function BlogNews() {
                   : article.seller?.name || 'Seller';
               const image =
                 article.kind === 'listing'
-                  ? resolveMediaUrl(article.media?.[0]?.path) || FALLBACK_COVER
+                  ? resolveMediaUrl(listingCoverMediaPath(article.media)) || FALLBACK_COVER
                   : resolveMediaUrl(article.brand?.logo_path) || FALLBACK_COVER;
               const readHref =
                 article.kind === 'news'

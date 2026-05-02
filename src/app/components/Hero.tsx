@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { BD_CITIES, CITY_LABEL_KEYS } from '@/i18n/bdCities';
 import { fetchBrands, type BrandDto } from '@/lib/marketplace';
+import { PakPriceFilterHumanHint } from './listing/pakPriceHumanReadout';
 
 type ListingType = 'used_car' | 'new_car' | 'used_bike' | 'auto_part';
 
@@ -314,18 +315,24 @@ export function Hero() {
 
             {showAdvanced && (
               <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 pt-4 border-t border-gray-200">
-                <input
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
-                  placeholder={t('hero.placeholderMinPrice')}
-                  className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
-                />
-                <input
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  placeholder={t('hero.placeholderMaxPrice')}
-                  className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
-                />
+                <div className="min-w-0">
+                  <input
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    placeholder={t('hero.placeholderMinPrice')}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
+                  />
+                  <PakPriceFilterHumanHint raw={minPrice} />
+                </div>
+                <div className="min-w-0">
+                  <input
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    placeholder={t('hero.placeholderMaxPrice')}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
+                  />
+                  <PakPriceFilterHumanHint raw={maxPrice} />
+                </div>
                 <select
                   value={fuelType}
                   onChange={(e) => setFuelType(e.target.value)}

@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useCallback, useState } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { resolveMediaUrl } from '@/lib/marketplace';
+import { resolveMediaUrl, sortListingMediaByCoverPreference } from '@/lib/marketplace';
 
 type MediaItem = { path: string; type?: string };
 
@@ -21,8 +21,9 @@ export function ListingMediaGallery({
   /** Save / favorite / share — top-right on main photo */
   topRightSlot?: ReactNode;
 }) {
-  const urls =
-    media?.map((m) => resolveMediaUrl(m.path)).filter((u): u is string => Boolean(u)) ?? [];
+  const urls = sortListingMediaByCoverPreference(media)
+    .map((m) => resolveMediaUrl(m.path))
+    .filter((u): u is string => Boolean(u));
   const [active, setActive] = useState(0);
   const safeIndex = urls.length ? Math.min(active, urls.length - 1) : 0;
   const main = urls[safeIndex] || fallbackSrc;

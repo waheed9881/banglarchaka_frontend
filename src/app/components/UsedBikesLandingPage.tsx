@@ -22,6 +22,7 @@ import {
   fetchListingsPaged,
   formatMoney,
   listingPublicHref,
+  listingCoverMediaPath,
   resolveMediaUrl,
   type ListingDto,
 } from '@/lib/marketplace';
@@ -364,7 +365,7 @@ export function UsedBikesLandingPage() {
                 >
                   <div className="relative h-40 bg-gray-50">
                     <ImageWithFallback
-                      src={resolveMediaUrl(bike.media?.[0]?.path) || FALLBACK_BIKE}
+                      src={resolveMediaUrl(listingCoverMediaPath(bike.media)) || FALLBACK_BIKE}
                       alt=""
                       className="h-full w-full object-cover"
                     />
@@ -428,7 +429,7 @@ export function UsedBikesLandingPage() {
                     <div className="relative h-36 rounded-lg bg-gray-50 overflow-hidden mb-2">
                       {main ? (
                         <ImageWithFallback
-                          src={resolveMediaUrl(main.media?.[0]?.path) || FALLBACK_BIKE}
+                          src={resolveMediaUrl(listingCoverMediaPath(main.media)) || FALLBACK_BIKE}
                           alt=""
                           className="h-full w-full object-cover"
                         />
@@ -442,7 +443,7 @@ export function UsedBikesLandingPage() {
                       {thumbs.map((row) => (
                         <div key={row.id} className="h-10 flex-1 rounded overflow-hidden bg-gray-100 ring-1 ring-gray-200">
                           <ImageWithFallback
-                            src={resolveMediaUrl(row.media?.[0]?.path) || FALLBACK_BIKE}
+                            src={resolveMediaUrl(listingCoverMediaPath(row.media)) || FALLBACK_BIKE}
                             alt=""
                             className="h-full w-full object-cover"
                           />

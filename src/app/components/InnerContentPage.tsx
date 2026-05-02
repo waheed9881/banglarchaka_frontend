@@ -6,6 +6,7 @@ import {
   fetchDealers,
   fetchListings,
   formatMoney,
+  listingCoverMediaPath,
   resolveMediaUrl,
   type DealerDto,
   type ListingDto,
@@ -248,7 +249,7 @@ export function InnerContentPage({
                           >
                             <div className="aspect-[16/10] bg-gray-100 overflow-hidden">
                               <img
-                                src={resolveMediaUrl(row.media?.[0]?.path) || FALLBACK_IMG}
+                                src={resolveMediaUrl(listingCoverMediaPath(row.media)) || FALLBACK_IMG}
                                 alt=""
                                 className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
                               />

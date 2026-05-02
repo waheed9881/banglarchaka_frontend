@@ -1,4 +1,4 @@
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ListingCardHoverGallery } from './ListingCardHoverGallery';
 import {
   Heart,
   MapPin,
@@ -12,22 +12,24 @@ import {
   Link2,
   Check,
 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useSearchParams } from 'react-router';
 import { getAuthToken } from '@/lib/api';
 import { addToWishlist, fetchWishlistListings, removeFromWishlist } from '@/lib/engagement';
 import {
   fetchBrands,
+  fetchListingFilterFacets,
   fetchListingsPaged,
   formatMoney,
   listingPaginationPages,
   listingPublicHref,
-  resolveMediaUrl,
   type BrandDto,
   type ListingDto,
+  type ListingFacetBuckets,
   type ListingsPageMeta,
 } from '@/lib/marketplace';
+import { useDebouncedEffect } from '@/lib/hooks/useDebouncedCallback';
 import { setPageSeo } from '@/lib/seo';
 import { ApiConnectionHint } from './ApiConnectionHint';
 import {
@@ -35,12 +37,26 @@ import {
   PakFiltersSidebar,
   PakListingRow,
   UsedCarsListingFooter,
+  validatePakListingSidebarInput,
+  type PakFilterFieldErrors,
 } from './listing/ListingResultsPak';
+import { PakActiveFilterChips } from './listing/PakActiveFilterChips';
+import { PakPriceFilterHumanHint } from './listing/pakPriceHumanReadout';
+import {
+  expandCsvSlugs,
+  PAK_ASSEMBLY_SLUG_TO_HINTS,
+  PAK_REGISTRATION_SLUG_TO_HINTS,
+} from './listing/pakFilterExpand';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=1080&q=80';
 
 const PER_PAGE_OPTIONS = ['24', '48', '72'] as const;
+
+function splitCsvParam(s: string | null): string[] {
+  if (!s?.trim()) return [];
+  return s.split(',').map((x) => x.trim()).filter(Boolean);
+}
 
 function ListingCardSkeleton({ viewMode }: { viewMode: 'grid' | 'list' }) {
   if (viewMode === 'list') {
@@ -80,14 +96,23 @@ function listingParamsFromSearchParams(
     : '48';
 
   const listingKind = sp.get('type') || 'used_car';
-  /** Motorcycle listings often omit transmission; keeping URL chips would zero results. */
-  const transmissionForApi =
-    listingKind === 'used_bike' ? undefined : sp.get('transmission') || undefined;
+  const brandIdsCsv =
+    sp.get('brand_ids') ||
+    (!sp.get('brand_ids') && sp.get('brand_id') ? (sp.get('brand_id') as string) : undefined);
+  const fuelTypesCsv =
+    sp.get('fuel_types') ||
+    (!sp.get('fuel_types') && sp.get('fuel_type') ? (sp.get('fuel_type') as string) : undefined);
+  const transmissionCsv =
+    listingKind === 'used_bike'
+      ? undefined
+      : sp.get('transmissions') ||
+        (!sp.get('transmissions') && sp.get('transmission') ? (sp.get('transmission') as string) : undefined);
 
   const base: Record<string, string | number | boolean | undefined> = {
     listing_type: listingKind,
     city: sp.get('city') || undefined,
-    brand_id: sp.get('brand_id') || undefined,
+    brand_ids: brandIdsCsv,
+    vehicle_model_ids: sp.get('vehicle_model_ids') || undefined,
     category_id: sp.get('category_id') || undefined,
     sort: sp.get('sort') || 'newest',
     q: sp.get('q') || undefined,
@@ -95,12 +120,26 @@ function listingParamsFromSearchParams(
     max_price: sp.get('max_price') || undefined,
     min_year: sp.get('min_year') || undefined,
     max_year: sp.get('max_year') || undefined,
-    fuel_type: sp.get('fuel_type') || undefined,
-    transmission: transmissionForApi,
+    min_mileage: sp.get('min_mileage') || undefined,
+    max_mileage: sp.get('max_mileage') || undefined,
+    fuel_types: fuelTypesCsv,
+    transmissions: transmissionCsv,
+    body_hints: sp.get('body_hints') || undefined,
+    paint_hints: sp.get('paint_hints') || undefined,
+    variant_hints: sp.get('variant_hints') || undefined,
+    feature_slugs: sp.get('feature_slugs') || undefined,
+    assembly_types: sp.get('assembly') || undefined,
+    registration_regions: sp.get('registration') || undefined,
+    assembly_hints: expandCsvSlugs(sp.get('assembly'), PAK_ASSEMBLY_SLUG_TO_HINTS),
+    registration_hints: expandCsvSlugs(sp.get('registration'), PAK_REGISTRATION_SLUG_TO_HINTS),
+    min_engine_cc: sp.get('min_engine_cc') || undefined,
+    max_engine_cc: sp.get('max_engine_cc') || undefined,
     condition: sp.get('condition') || undefined,
     verified_dealer_only: sp.get('verified_dealer_only') === '1' ? 1 : undefined,
     dealer_only: sp.get('dealer_only') === '1' ? 1 : undefined,
+    individual_only: sp.get('individual_only') === '1' ? 1 : undefined,
     featured: sp.get('featured') === '1' ? 1 : undefined,
+    urgent: sp.get('urgent') === '1' ? 1 : undefined,
     per_page: Number(nextPerPage),
   };
 
@@ -145,7 +184,28 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
   const [verifiedDealerOnly, setVerifiedDealerOnly] = useState(false);
   const [dealerOnly, setDealerOnly] = useState(false);
   const [featuredOnly, setFeaturedOnly] = useState(false);
+  const [urgentOnly, setUrgentOnly] = useState(false);
+  const [individualOnly, setIndividualOnly] = useState(false);
   const [phoneRevealId, setPhoneRevealId] = useState<string | null>(null);
+  const [sidebarFilterErrors, setSidebarFilterErrors] = useState<PakFilterFieldErrors | null>(null);
+  const [pakMobileFiltersOpen, setPakMobileFiltersOpen] = useState(false);
+  const [facetBuckets, setFacetBuckets] = useState<ListingFacetBuckets | null>(null);
+  const [selectedBrandIds, setSelectedBrandIds] = useState<string[]>([]);
+  const [brandQueryPak, setBrandQueryPak] = useState('');
+  const [selectedModelIds, setSelectedModelIds] = useState<string[]>([]);
+  const [modelQueryPak, setModelQueryPak] = useState('');
+  const [fuelTypes, setFuelTypes] = useState<string[]>([]);
+  const [transmissionTypes, setTransmissionTypes] = useState<string[]>([]);
+  const [minMileage, setMinMileage] = useState('');
+  const [maxMileage, setMaxMileage] = useState('');
+  const [selectedBodyHints, setSelectedBodyHints] = useState<string[]>([]);
+  const [selectedPaintHints, setSelectedPaintHints] = useState<string[]>([]);
+  const [variantHintsInput, setVariantHintsInput] = useState('');
+  const [minEngineCc, setMinEngineCc] = useState('');
+  const [maxEngineCc, setMaxEngineCc] = useState('');
+  const [selectedAssemblySlugs, setSelectedAssemblySlugs] = useState<string[]>([]);
+  const [selectedRegistrationSlugs, setSelectedRegistrationSlugs] = useState<string[]>([]);
+  const [selectedFeatureSlugs, setSelectedFeatureSlugs] = useState<string[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -177,6 +237,31 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
   loadingRef.current = loading;
   loadingMoreRef.current = loadingMore;
   locationSearchRef.current = locationSearch;
+
+  useEffect(() => {
+    const tParam = listingType;
+    if (tParam !== 'used_car' && tParam !== 'used_bike') {
+      setFacetBuckets(null);
+      return;
+    }
+    let cancelled = false;
+    fetchListingFilterFacets(
+      listingParamsFromSearchParams(new URLSearchParams(locationSearch), { ignoreUrlPage: true }),
+    ).then((rows) => {
+      if (!cancelled) setFacetBuckets(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [listingType, locationSearch]);
+
+  useDebouncedEffect(keyword, 420, () => {
+    const sp = new URLSearchParams(locationSearchRef.current);
+    const cur = (sp.get('q') || '').trim();
+    const next = keyword.trim();
+    if (cur === next) return;
+    setSearchParams(mergeListingParams(locationSearchRef.current, { q: next || null }), { replace: true });
+  });
 
   useEffect(() => {
     const onScroll = () => setShowBackToTop(window.scrollY > 420);
@@ -216,6 +301,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
 
   useEffect(() => {
     const sp = new URLSearchParams(locationSearch);
+    setSidebarFilterErrors(null);
 
     const nextType = sp.get('type') || 'used_car';
     const nextCity = sp.get('city') || '';
@@ -227,12 +313,23 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
     const nextMaxPrice = sp.get('max_price') || '';
     const nextMinYear = sp.get('min_year') || '';
     const nextMaxYear = sp.get('max_year') || '';
-    const nextFuelType = sp.get('fuel_type') || '';
-    const nextTransmission = sp.get('transmission') || '';
+    const nextFuelType =
+      sp.get('fuel_types') && !String(sp.get('fuel_types')).includes(',')
+        ? String(sp.get('fuel_types'))
+        : sp.get('fuel_type') || '';
+    const ftMulti = sp.get('fuel_types') || sp.get('fuel_type') || '';
+    const nextTransmission =
+      nextType === 'used_bike'
+        ? ''
+        : sp.get('transmissions') && !String(sp.get('transmissions')).includes(',')
+          ? String(sp.get('transmissions'))
+          : sp.get('transmission') || '';
+    const trMulti = nextType === 'used_bike' ? '' : sp.get('transmissions') || sp.get('transmission') || '';
     const nextCondition = sp.get('condition') || '';
     const nextVerifiedDealerOnly = sp.get('verified_dealer_only') === '1';
     const nextDealerOnly = sp.get('dealer_only') === '1';
     const nextFeaturedOnly = sp.get('featured') === '1';
+    const brandIdsList = splitCsvParam(sp.get('brand_ids'));
     const nextPage = sp.get('page') || '1';
     const rawPer = sp.get('per_page') || '48';
     const nextPerPage = PER_PAGE_OPTIONS.includes(rawPer as (typeof PER_PAGE_OPTIONS)[number])
@@ -242,7 +339,10 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
 
     setListingType(nextType);
     setCity(nextCity);
-    setBrandId(nextBrand);
+    setBrandId(!sp.get('brand_ids') && nextBrand ? nextBrand : '');
+    setSelectedBrandIds(
+      brandIdsList.length > 0 ? brandIdsList : nextBrand ? [nextBrand] : [],
+    );
     setCategoryId(nextCategory);
     setSort(nextSort);
     setKeyword(nextQ);
@@ -250,12 +350,29 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
     setMaxPrice(nextMaxPrice);
     setMinYear(nextMinYear);
     setMaxYear(nextMaxYear);
-    setFuelType(nextFuelType);
-    setTransmission(nextTransmission);
+    setMinMileage(sp.get('min_mileage') || '');
+    setMaxMileage(sp.get('max_mileage') || '');
+    setFuelType(nextFuelType.includes(',') ? '' : nextFuelType.toLowerCase());
+    setFuelTypes(splitCsvParam(ftMulti).map((x) => x.toLowerCase()));
+    setTransmission(nextTransmission.includes(',') ? '' : nextTransmission.toLowerCase());
+    setTransmissionTypes(
+      nextType === 'used_bike' ? [] : splitCsvParam(trMulti).map((x) => x.toLowerCase()),
+    );
+    setSelectedModelIds(splitCsvParam(sp.get('vehicle_model_ids')));
+    setSelectedBodyHints(splitCsvParam(sp.get('body_hints')).map((x) => x.toLowerCase()));
+    setSelectedPaintHints(splitCsvParam(sp.get('paint_hints')));
+    setVariantHintsInput(sp.get('variant_hints') || '');
+    setMinEngineCc(sp.get('min_engine_cc') || '');
+    setMaxEngineCc(sp.get('max_engine_cc') || '');
+    setSelectedAssemblySlugs(splitCsvParam(sp.get('assembly')));
+    setSelectedRegistrationSlugs(splitCsvParam(sp.get('registration')));
+    setSelectedFeatureSlugs(splitCsvParam(sp.get('feature_slugs')));
     setCondition(nextCondition);
     setVerifiedDealerOnly(nextVerifiedDealerOnly);
     setDealerOnly(nextDealerOnly);
     setFeaturedOnly(nextFeaturedOnly);
+    setUrgentOnly(sp.get('urgent') === '1');
+    setIndividualOnly(sp.get('individual_only') === '1');
     setPerPage(nextPerPage);
 
     const stableBase = new URLSearchParams(locationSearch);
@@ -431,22 +548,153 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
   }, [listingType, t]);
 
   useEffect(() => {
-    setPageSeo(t('innerUi.seoTitle', { title: heading }), t('listingPage.seoBrowseDesc', { topic: heading }));
-  }, [heading, t]);
+    const sp = new URLSearchParams(locationSearch);
+    const bits: string[] = [];
+    const citySeo = sp.get('city')?.trim();
+    if (citySeo) bits.push(citySeo);
+    const qSeo = sp.get('q')?.trim();
+    if (qSeo) bits.push(qSeo);
+    const singleBrand =
+      splitCsvParam(sp.get('brand_ids')).length === 1 ? splitCsvParam(sp.get('brand_ids'))[0] : null;
+    if (singleBrand) {
+      const bn = brands.find((b) => String(b.id) === singleBrand)?.name;
+      if (bn) bits.push(bn);
+    }
+    const titleExtras = bits.length ? ` · ${bits.join(' · ')}` : '';
+    const title = `${heading}${titleExtras}`;
+    setPageSeo(t('innerUi.seoTitle', { title }), t('listingPage.seoBrowseDesc', { topic: heading }));
+  }, [brands, heading, locationSearch, t]);
 
-  /** Push current sidebar values into the URL (single source of truth → triggers fetch effect). */
+  const clearSidebarFilterErrors = useCallback((fields: Array<keyof PakFilterFieldErrors> | 'all') => {
+    setSidebarFilterErrors((prev) => {
+      if (!prev) return null;
+      if (fields === 'all') return null;
+      const next: PakFilterFieldErrors = { ...prev };
+      for (const f of fields) delete next[f];
+      return Object.keys(next).length > 0 ? next : null;
+    });
+  }, []);
+
+  const scrollToTopSmooth = () => {
+    const prefersReduce =
+      typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: prefersReduce ? 'auto' : 'smooth' });
+  };
+
   const commitFiltersToUrl = () => {
+    const pakLayout = listingType === 'used_car' || listingType === 'used_bike';
+
+    if (pakLayout) {
+      const validated = validatePakListingSidebarInput(
+        { keyword, minPrice, maxPrice, minYear, maxYear, minMileage, maxMileage, minEngineCc, maxEngineCc },
+        t,
+      );
+      if (!validated.ok) {
+        setSidebarFilterErrors(validated.errors);
+        return;
+      }
+      setSidebarFilterErrors(null);
+      const { normalized } = validated;
+      const next = new URLSearchParams();
+      if (listingType) next.set('type', listingType);
+      if (city.trim()) next.set('city', city.trim());
+      if (selectedBrandIds.length) {
+        next.set('brand_ids', [...new Set(selectedBrandIds)].sort().join(','));
+      } else if (brandId.trim()) {
+        next.set('brand_id', brandId.trim());
+      }
+      if (selectedModelIds.length) next.set('vehicle_model_ids', [...new Set(selectedModelIds)].sort().join(','));
+      if (categoryId) next.set('category_id', categoryId);
+      if (sort && sort !== 'newest') next.set('sort', sort);
+      if (normalized.keywordTrimmed) next.set('q', normalized.keywordTrimmed);
+      if (normalized.minPrice) next.set('min_price', normalized.minPrice);
+      if (normalized.maxPrice) next.set('max_price', normalized.maxPrice);
+      if (normalized.minYear) next.set('min_year', normalized.minYear);
+      if (normalized.maxYear) next.set('max_year', normalized.maxYear);
+      if (normalized.minMileage) next.set('min_mileage', normalized.minMileage);
+      if (normalized.maxMileage) next.set('max_mileage', normalized.maxMileage);
+
+      const fuels = [...new Set(fuelTypes.map((x) => x.toLowerCase().trim()).filter(Boolean))];
+      if (fuels.length === 1) next.set('fuel_types', fuels[0]);
+      else if (fuels.length > 1) next.set('fuel_types', fuels.join(','));
+      const trans = [...new Set(transmissionTypes.map((x) => x.toLowerCase().trim()).filter(Boolean))];
+      if (listingType !== 'used_bike') {
+        if (trans.length === 1) next.set('transmissions', trans[0]);
+        else if (trans.length > 1) next.set('transmissions', trans.join(','));
+      }
+
+      const bodies = [...new Set(selectedBodyHints.map((x) => x.toLowerCase()).filter(Boolean))];
+      if (bodies.length) next.set('body_hints', bodies.join(','));
+      const paints = [...new Set(selectedPaintHints.filter(Boolean))];
+      if (paints.length) next.set('paint_hints', paints.join(','));
+
+      const variantTokens = variantHintsInput
+        .split(/[,|]/u)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (variantTokens.length) {
+        next.set('variant_hints', [...new Set(variantTokens.map((x) => x.toLowerCase()))].join(','));
+      }
+
+      const asm = [...new Set(selectedAssemblySlugs.map((x) => x.toLowerCase().trim()).filter(Boolean))];
+      if (asm.length) next.set('assembly', asm.sort().join(','));
+
+      const reg = [...new Set(selectedRegistrationSlugs.map((x) => x.toLowerCase().trim()).filter(Boolean))];
+      if (reg.length) next.set('registration', reg.sort().join(','));
+
+      const feats = [...new Set(selectedFeatureSlugs.map((x) => x.toLowerCase().trim()).filter(Boolean))];
+      if (feats.length) next.set('feature_slugs', feats.sort().join(','));
+
+      if (normalized.minEngineCc) next.set('min_engine_cc', normalized.minEngineCc);
+      if (normalized.maxEngineCc) next.set('max_engine_cc', normalized.maxEngineCc);
+
+      if (condition) next.set('condition', condition);
+      if (featuredOnly) next.set('featured', '1');
+      if (urgentOnly) next.set('urgent', '1');
+      if (verifiedDealerOnly) next.set('verified_dealer_only', '1');
+      if (individualOnly && !dealerOnly) next.set('individual_only', '1');
+      if (dealerOnly && !individualOnly) next.set('dealer_only', '1');
+
+      if (perPage !== '48') next.set('per_page', perPage);
+      if (new URLSearchParams(locationSearch).get('continuous') === '1') {
+        next.set('continuous', '1');
+      }
+      setSearchParams(next, { replace: true });
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) scrollToTopSmooth();
+      return;
+    }
+
+    const validated = validatePakListingSidebarInput(
+      {
+        keyword,
+        minPrice,
+        maxPrice,
+        minYear,
+        maxYear,
+        minMileage: '',
+        maxMileage: '',
+        minEngineCc: '',
+        maxEngineCc: '',
+      },
+      t,
+    );
+    if (!validated.ok) {
+      setSidebarFilterErrors(validated.errors);
+      return;
+    }
+    setSidebarFilterErrors(null);
+    const { normalized } = validated;
     const next = new URLSearchParams();
     if (listingType) next.set('type', listingType);
     if (city.trim()) next.set('city', city.trim());
     if (brandId) next.set('brand_id', brandId);
     if (categoryId) next.set('category_id', categoryId);
     if (sort && sort !== 'newest') next.set('sort', sort);
-    if (keyword.trim()) next.set('q', keyword.trim());
-    if (minPrice) next.set('min_price', minPrice);
-    if (maxPrice) next.set('max_price', maxPrice);
-    if (minYear) next.set('min_year', minYear);
-    if (maxYear) next.set('max_year', maxYear);
+    if (normalized.keywordTrimmed) next.set('q', normalized.keywordTrimmed);
+    if (normalized.minPrice) next.set('min_price', normalized.minPrice);
+    if (normalized.maxPrice) next.set('max_price', normalized.maxPrice);
+    if (normalized.minYear) next.set('min_year', normalized.minYear);
+    if (normalized.maxYear) next.set('max_year', normalized.maxYear);
     if (fuelType) next.set('fuel_type', fuelType);
     if (listingType !== 'used_bike' && transmission) next.set('transmission', transmission);
     if (condition) next.set('condition', condition);
@@ -458,18 +706,33 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
       next.set('continuous', '1');
     }
     setSearchParams(next, { replace: true });
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) scrollToTopSmooth();
   };
 
   const clearFiltersToUrl = () => {
+    setSidebarFilterErrors(null);
+    setPakMobileFiltersOpen(false);
+    setSelectedBrandIds([]);
+    setSelectedModelIds([]);
+    setFuelTypes([]);
+    setTransmissionTypes([]);
+    setSelectedBodyHints([]);
+    setSelectedPaintHints([]);
+    setMinMileage('');
+    setMaxMileage('');
+    setBrandQueryPak('');
+    setModelQueryPak('');
+    setUrgentOnly(false);
+    setIndividualOnly(false);
+    setVariantHintsInput('');
+    setMinEngineCc('');
+    setMaxEngineCc('');
+    setSelectedAssemblySlugs([]);
+    setSelectedRegistrationSlugs([]);
+    setSelectedFeatureSlugs([]);
     const next = new URLSearchParams();
     next.set('type', listingType);
     setSearchParams(next, { replace: true });
-  };
-
-  const scrollToTopSmooth = () => {
-    const prefersReduce =
-      typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    window.scrollTo({ top: 0, behavior: prefersReduce ? 'auto' : 'smooth' });
   };
 
   return (
@@ -494,7 +757,13 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setShowFilters((v) => !v)}
+              onClick={() => {
+                if (listingType === 'used_car' || listingType === 'used_bike') {
+                  setPakMobileFiltersOpen(true);
+                } else {
+                  setShowFilters((v) => !v);
+                }
+              }}
               className="flex shrink-0 items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-800"
             >
               <SlidersHorizontal className="h-4 w-4" />
@@ -637,46 +906,262 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
           </div>
         </div>
 
+        {(listingType === 'used_car' || listingType === 'used_bike') &&
+        pakMobileFiltersOpen ? (
+          <div className="fixed inset-0 z-40 flex lg:hidden" role="dialog" aria-modal="true">
+            <button
+              type="button"
+              className="absolute inset-0 bg-black/45"
+              aria-label={t('listingPage.closeFilters')}
+              onClick={() => setPakMobileFiltersOpen(false)}
+            />
+            <div className="relative ml-auto flex h-full w-full max-w-[min(100%,420px)] flex-col bg-white shadow-2xl">
+              <PakFiltersSidebar
+                layout="overlay"
+                locationSearch={locationSearch}
+                setSearchParams={setSearchParams}
+                brands={brands}
+                city={city}
+                setCity={setCity}
+                keyword={keyword}
+                setKeyword={setKeyword}
+                minPrice={minPrice}
+                setMinPrice={setMinPrice}
+                maxPrice={maxPrice}
+                setMaxPrice={setMaxPrice}
+                minYear={minYear}
+                setMinYear={setMinYear}
+                maxYear={maxYear}
+                setMaxYear={setMaxYear}
+                minMileage={minMileage}
+                setMinMileage={setMinMileage}
+                maxMileage={maxMileage}
+                setMaxMileage={setMaxMileage}
+                selectedBrandIds={selectedBrandIds}
+                onToggleBrandId={(id) =>
+                  setSelectedBrandIds((prev) =>
+                    prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+                  )
+                }
+                brandQuery={brandQueryPak}
+                setBrandQuery={setBrandQueryPak}
+                selectedModelIds={selectedModelIds}
+                onToggleModelId={(id) =>
+                  setSelectedModelIds((prev) =>
+                    prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+                  )
+                }
+                modelQuery={modelQueryPak}
+                setModelQuery={setModelQueryPak}
+                fuelTypes={fuelTypes}
+                onToggleFuelType={(slug) =>
+                  setFuelTypes((prev) =>
+                    prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug],
+                  )
+                }
+                transmissionTypes={transmissionTypes}
+                onToggleTransmission={(slug) =>
+                  setTransmissionTypes((prev) =>
+                    prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug],
+                  )
+                }
+                selectedBodyHints={selectedBodyHints}
+                onToggleBodyHint={(slug) =>
+                  setSelectedBodyHints((prev) =>
+                    prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug],
+                  )
+                }
+                selectedPaintHints={selectedPaintHints}
+                onTogglePaintHint={(slug) =>
+                  setSelectedPaintHints((prev) =>
+                    prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug],
+                  )
+                }
+                condition={condition}
+                setCondition={setCondition}
+                verifiedDealerOnly={verifiedDealerOnly}
+                setVerifiedDealerOnly={setVerifiedDealerOnly}
+                dealerOnly={dealerOnly}
+                setDealerOnly={(v) => {
+                  setDealerOnly(v);
+                  if (v) setIndividualOnly(false);
+                }}
+                individualOnly={individualOnly}
+                setIndividualOnly={(v) => {
+                  setIndividualOnly(v);
+                  if (v) setDealerOnly(false);
+                }}
+                featuredOnly={featuredOnly}
+                setFeaturedOnly={setFeaturedOnly}
+                urgentOnly={urgentOnly}
+                setUrgentOnly={setUrgentOnly}
+                facetBuckets={facetBuckets}
+                variantHintsInput={variantHintsInput}
+                setVariantHintsInput={setVariantHintsInput}
+                minEngineCc={minEngineCc}
+                setMinEngineCc={setMinEngineCc}
+                maxEngineCc={maxEngineCc}
+                setMaxEngineCc={setMaxEngineCc}
+                selectedAssemblySlugs={selectedAssemblySlugs}
+                onToggleAssemblySlug={(slug) =>
+                  setSelectedAssemblySlugs((prev) =>
+                    prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug],
+                  )
+                }
+                selectedRegistrationSlugs={selectedRegistrationSlugs}
+                onToggleRegistrationSlug={(slug) =>
+                  setSelectedRegistrationSlugs((prev) =>
+                    prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug],
+                  )
+                }
+                selectedFeatureSlugs={selectedFeatureSlugs}
+                onToggleFeatureSlug={(slug) =>
+                  setSelectedFeatureSlugs((prev) =>
+                    prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug],
+                  )
+                }
+                commitFiltersToUrl={commitFiltersToUrl}
+                clearFiltersToUrl={clearFiltersToUrl}
+                listingType={listingType}
+                filterErrors={sidebarFilterErrors}
+                onClearPakFilterErrors={clearSidebarFilterErrors}
+                onAfterApplyOverlay={() => setPakMobileFiltersOpen(false)}
+              />
+            </div>
+          </div>
+        ) : null}
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {showFilters && (
             <div className="lg:col-span-1 max-lg:relative max-lg:z-[35]">
               {listingType === 'used_car' || listingType === 'used_bike' ? (
-                <PakFiltersSidebar
-                  locationSearch={locationSearch}
-                  setSearchParams={setSearchParams}
-                  brands={brands}
-                  city={city}
-                  setCity={setCity}
-                  brandId={brandId}
-                  setBrandId={setBrandId}
-                  keyword={keyword}
-                  setKeyword={setKeyword}
-                  minPrice={minPrice}
-                  setMinPrice={setMinPrice}
-                  maxPrice={maxPrice}
-                  setMaxPrice={setMaxPrice}
-                  minYear={minYear}
-                  setMinYear={setMinYear}
-                  maxYear={maxYear}
-                  setMaxYear={setMaxYear}
-                  fuelType={fuelType}
-                  setFuelType={setFuelType}
-                  transmission={transmission}
-                  setTransmission={setTransmission}
-                  condition={condition}
-                  setCondition={setCondition}
-                  verifiedDealerOnly={verifiedDealerOnly}
-                  setVerifiedDealerOnly={setVerifiedDealerOnly}
-                  dealerOnly={dealerOnly}
-                  setDealerOnly={setDealerOnly}
-                  featuredOnly={featuredOnly}
-                  setFeaturedOnly={setFeaturedOnly}
-                  commitFiltersToUrl={commitFiltersToUrl}
-                  clearFiltersToUrl={clearFiltersToUrl}
-                  listingType={listingType}
-                />
+                <div className="max-lg:hidden">
+                  <PakFiltersSidebar
+                    layout="desktop"
+                    locationSearch={locationSearch}
+                    setSearchParams={setSearchParams}
+                    brands={brands}
+                    city={city}
+                    setCity={setCity}
+                    keyword={keyword}
+                    setKeyword={setKeyword}
+                    minPrice={minPrice}
+                    setMinPrice={setMinPrice}
+                    maxPrice={maxPrice}
+                    setMaxPrice={setMaxPrice}
+                    minYear={minYear}
+                    setMinYear={setMinYear}
+                    maxYear={maxYear}
+                    setMaxYear={setMaxYear}
+                    minMileage={minMileage}
+                    setMinMileage={setMinMileage}
+                    maxMileage={maxMileage}
+                    setMaxMileage={setMaxMileage}
+                    selectedBrandIds={selectedBrandIds}
+                    onToggleBrandId={(id) =>
+                      setSelectedBrandIds((prev) =>
+                        prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+                      )
+                    }
+                    brandQuery={brandQueryPak}
+                    setBrandQuery={setBrandQueryPak}
+                    selectedModelIds={selectedModelIds}
+                    onToggleModelId={(id) =>
+                      setSelectedModelIds((prev) =>
+                        prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+                      )
+                    }
+                    modelQuery={modelQueryPak}
+                    setModelQuery={setModelQueryPak}
+                    fuelTypes={fuelTypes}
+                    onToggleFuelType={(slug) =>
+                      setFuelTypes((prev) =>
+                        prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug],
+                      )
+                    }
+                    transmissionTypes={transmissionTypes}
+                    onToggleTransmission={(slug) =>
+                      setTransmissionTypes((prev) =>
+                        prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug],
+                      )
+                    }
+                    selectedBodyHints={selectedBodyHints}
+                    onToggleBodyHint={(slug) =>
+                      setSelectedBodyHints((prev) =>
+                        prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug],
+                      )
+                    }
+                    selectedPaintHints={selectedPaintHints}
+                    onTogglePaintHint={(slug) =>
+                      setSelectedPaintHints((prev) =>
+                        prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug],
+                      )
+                    }
+                    condition={condition}
+                    setCondition={setCondition}
+                    verifiedDealerOnly={verifiedDealerOnly}
+                    setVerifiedDealerOnly={setVerifiedDealerOnly}
+                    dealerOnly={dealerOnly}
+                    setDealerOnly={(v) => {
+                      setDealerOnly(v);
+                      if (v) setIndividualOnly(false);
+                    }}
+                    individualOnly={individualOnly}
+                    setIndividualOnly={(v) => {
+                      setIndividualOnly(v);
+                      if (v) setDealerOnly(false);
+                    }}
+                    featuredOnly={featuredOnly}
+                    setFeaturedOnly={setFeaturedOnly}
+                    urgentOnly={urgentOnly}
+                    setUrgentOnly={setUrgentOnly}
+                    facetBuckets={facetBuckets}
+                    variantHintsInput={variantHintsInput}
+                    setVariantHintsInput={setVariantHintsInput}
+                    minEngineCc={minEngineCc}
+                    setMinEngineCc={setMinEngineCc}
+                    maxEngineCc={maxEngineCc}
+                    setMaxEngineCc={setMaxEngineCc}
+                    selectedAssemblySlugs={selectedAssemblySlugs}
+                    onToggleAssemblySlug={(slug) =>
+                      setSelectedAssemblySlugs((prev) =>
+                        prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug],
+                      )
+                    }
+                    selectedRegistrationSlugs={selectedRegistrationSlugs}
+                    onToggleRegistrationSlug={(slug) =>
+                      setSelectedRegistrationSlugs((prev) =>
+                        prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug],
+                      )
+                    }
+                    selectedFeatureSlugs={selectedFeatureSlugs}
+                    onToggleFeatureSlug={(slug) =>
+                      setSelectedFeatureSlugs((prev) =>
+                        prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug],
+                      )
+                    }
+                    commitFiltersToUrl={commitFiltersToUrl}
+                    clearFiltersToUrl={clearFiltersToUrl}
+                    listingType={listingType}
+                    filterErrors={sidebarFilterErrors}
+                    onClearPakFilterErrors={clearSidebarFilterErrors}
+                  />
+                </div>
               ) : (
                 <div className="bg-white rounded-lg shadow p-6 sticky top-6">
+                  {sidebarFilterErrors && Object.keys(sidebarFilterErrors).length > 0 ? (
+                    <div
+                      role="alert"
+                      className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-950"
+                    >
+                      <p className="font-semibold mb-1">{t('listingBrowse.filterErrSummaryTitle')}</p>
+                      <ul className="list-disc pl-4 space-y-0.5 marker:text-red-300">
+                        {[...new Set(Object.values(sidebarFilterErrors).filter(Boolean))].map((msg) => (
+                          <li key={msg}>{msg}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
                   <h3 className="font-bold text-lg mb-4">{t('listingPage.filtersHeading')}</h3>
                   {listingType === 'new_car' && categoryId ? (
                     <div className="mb-4 flex items-start justify-between gap-3 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-950">
@@ -736,6 +1221,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                           placeholder="100000"
                           className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                         />
+                        <PakPriceFilterHumanHint raw={minPrice} />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-gray-700 mb-2">{t('listingPage.maxPrice')}</label>
@@ -745,6 +1231,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                           placeholder="8000000"
                           className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                         />
+                        <PakPriceFilterHumanHint raw={maxPrice} />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
@@ -859,6 +1346,14 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
           )}
 
           <div className={showFilters ? 'lg:col-span-3' : 'lg:col-span-4'}>
+            {(listingType === 'used_car' || listingType === 'used_bike') && (
+              <PakActiveFilterChips
+                brands={brands}
+                listingType={listingType}
+                locationSearch={locationSearch}
+                setSearchParams={setSearchParams}
+              />
+            )}
             {loading && (
               <div
                 className={
@@ -929,11 +1424,12 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                     onClick={() => onOpenDetail?.(car.id)}
                     className="bg-white rounded-lg shadow hover:shadow-xl transition cursor-pointer overflow-hidden"
                   >
-                    <div className="relative">
-                      <ImageWithFallback
-                        src={resolveMediaUrl(car.media?.[0]?.path) || FALLBACK_IMAGE}
+                    <div className="relative h-48">
+                      <ListingCardHoverGallery
+                        media={car.media}
+                        fallbackSrc={FALLBACK_IMAGE}
                         alt={car.title}
-                        className="w-full h-48 object-cover"
+                        className="h-full w-full object-cover"
                         loading="lazy"
                         decoding="async"
                       />

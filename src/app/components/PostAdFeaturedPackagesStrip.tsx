@@ -47,13 +47,18 @@ export function PostAdFeaturedPackagesStrip() {
         ) : (
           <ul className="grid gap-3 sm:grid-cols-3">
             {packages.map((pkg) => (
-              <li
-                key={pkg.slug}
-                className="rounded-lg border border-white/80 bg-white/90 px-4 py-3 shadow-sm ring-1 ring-black/[0.04]"
-              >
-                <p className="font-semibold text-gray-900">{pkg.name}</p>
-                <p className="mt-1 text-xs text-gray-600">{t('postAdForm.featuredUpsell.days', { count: pkg.duration_days })}</p>
-                <p className="mt-2 text-base font-bold text-[#3EB549]">{formatMoney(pkg.price, pkg.currency)}</p>
+              <li key={pkg.slug} className="h-full">
+                <Link
+                  to={`/my-listings?promote_package=${encodeURIComponent(pkg.slug)}`}
+                  className="flex h-full flex-col rounded-lg border border-white/80 bg-white/90 px-4 py-3 shadow-sm ring-1 ring-black/[0.04] transition hover:border-[#233D7B]/35 hover:bg-white hover:shadow-md"
+                >
+                  <p className="font-semibold text-gray-900">{pkg.name}</p>
+                  <p className="mt-1 text-xs text-gray-600">{t('postAdForm.featuredUpsell.days', { count: pkg.duration_days })}</p>
+                  <p className="mt-2 text-base font-bold text-[#3EB549]">{formatMoney(pkg.price, pkg.currency)}</p>
+                  <span className="mt-3 text-xs font-semibold text-[#233D7B]">
+                    Apply on a listing →
+                  </span>
+                </Link>
               </li>
             ))}
           </ul>

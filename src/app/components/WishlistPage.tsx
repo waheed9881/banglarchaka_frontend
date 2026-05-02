@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router';
 import { fetchMe } from '@/lib/auth';
 import { fetchWishlistListings, removeFromWishlist } from '@/lib/engagement';
-import { formatMoney, resolveMediaUrl, type ListingDto } from '@/lib/marketplace';
+import { formatMoney, listingCoverMediaPath, resolveMediaUrl, type ListingDto } from '@/lib/marketplace';
 import { setPageSeo } from '@/lib/seo';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
@@ -97,7 +97,7 @@ export function WishlistPage() {
                   </button>
                   <button type="button" onClick={() => navigate(`/listings/${car.id}`)} className="block w-full">
                     <ImageWithFallback
-                      src={resolveMediaUrl(car.media?.[0]?.path) || FALLBACK}
+                      src={resolveMediaUrl(listingCoverMediaPath(car.media)) || FALLBACK}
                       alt={car.title}
                       className="w-full h-44 object-cover"
                     />

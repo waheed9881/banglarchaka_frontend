@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { getAuthToken } from '@/lib/api';
 import { setPageSeo } from '@/lib/seo';
 import {
@@ -9,6 +9,7 @@ import {
   formatMoney,
   listingPublicHref,
   listingPaginationPages,
+  listingCoverMediaPath,
   resolveMediaUrl,
   type ListingDto,
   type ListingsPageMeta,
@@ -37,6 +38,8 @@ function statusBadge(status: string | null | undefined) {
 
 export function MyListingsPage() {
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const promotePackageSlug = searchParams.get('promote_package');
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [items, setItems] = useState<ListingDto[]>([]);
   const [meta, setMeta] = useState<ListingsPageMeta | null>(null);
@@ -97,6 +100,25 @@ export function MyListingsPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="mx-auto max-w-5xl">
+        {promotePackageSlug ? (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+            <p>
+              Featured boost <span className="font-semibold">{promotePackageSlug}</span> — open a listing → Edit → use the Featured
+              section to checkout with this package.
+            </p>
+            <button
+              type="button"
+              className="shrink-0 text-xs font-bold uppercase tracking-wide text-amber-900 underline underline-offset-2 hover:text-amber-950"
+              onClick={() => {
+                const next = new URLSearchParams(searchParams);
+                next.delete('promote_package');
+                setSearchParams(next, { replace: true });
+              }}
+            >
+              Dismiss
+            </button>
+          </div>
+        ) : null}
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{t('myListings.title')}</h1>
@@ -137,7 +159,7 @@ export function MyListingsPage() {
                     className="relative h-36 w-full shrink-0 overflow-hidden rounded-lg bg-gray-100 sm:h-28 sm:w-40"
                   >
                     <ImageWithFallback
-                      src={resolveMediaUrl(row.media?.[0]?.path) || FALLBACK}
+                      src={resolveMediaUrl(listingCoverMediaPath(row.media)) || FALLBACK}
                       alt=""
                       className="h-full w-full object-cover"
                     />

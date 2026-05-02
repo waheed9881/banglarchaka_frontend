@@ -2,7 +2,14 @@ import { ArrowLeft } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router';
-import { fetchListingById, formatMoney, resolveMediaUrl, type ListingDto } from '@/lib/marketplace';
+import {
+  fetchListingById,
+  fetchListings,
+  formatMoney,
+  listingCoverMediaPath,
+  resolveMediaUrl,
+  type ListingDto,
+} from '@/lib/marketplace';
 import { setPageSeo } from '@/lib/seo';
 
 const FALLBACK =
@@ -21,6 +28,7 @@ export function ComparePage() {
 
   const [rows, setRows] = useState<(ListingDto | null)[]>([]);
   const [loading, setLoading] = useState(true);
+  const [suggestions, setSuggestions] = useState<ListingDto[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -37,6 +45,24 @@ export function ComparePage() {
       cancelled = true;
     };
   }, [queryKey]);
+
+  useEffect(() => {
+    if (ids.length >= 2) {
+      setSuggestions([]);
+      return;
+    }
+    let cancelled = false;
+    fetchListings({ listing_type: 'used_car', sort: 'views', per_page: 12 })
+      .then((items) => {
+        if (!cancelled) setSuggestions(Array.isArray(items) ? items : []);
+      })
+      .catch(() => {
+        if (!cancelled) setSuggestions([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [ids.length, queryKey]);
 
   useEffect(() => {
     if (loading) return;
@@ -69,13 +95,46 @@ export function ComparePage() {
         <p className="text-gray-600 mb-8">{t('compare.subtitle')}</p>
 
         {ids.length < 2 ? (
-          <p className="text-gray-700">
-            {t('compare.pickTwo')}{' '}
-            <Link to="/" className="text-[#233D7B] font-semibold underline">
-              {t('compare.goHome')}
-            </Link>
-            .
-          </p>
+          <div className="space-y-8">
+            <p className="text-gray-700">
+              {t('compare.pickTwo')}{' '}
+              <Link to="/" className="text-[#233D7B] font-semibold underline">
+                {t('compare.goHome')}
+              </Link>{' '}
+              or start from popular inventory below.
+            </p>
+            {suggestions.length >= 2 ? (
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 mb-3">Popular listings to compare</h2>
+                <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: Math.min(3, Math.floor(suggestions.length / 2)) }, (_, pairIdx) => {
+                    const a = suggestions[pairIdx * 2];
+                    const b = suggestions[pairIdx * 2 + 1];
+                    if (!a || !b || a.id === b.id) return null;
+                    return (
+                      <li
+                        key={`${a.id}-${b.id}`}
+                        className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm flex flex-col gap-3"
+                      >
+                        <div className="text-sm font-semibold text-gray-800 line-clamp-2">
+                          {a.title} <span className="text-gray-400">vs</span> {b.title}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          {formatMoney(a.price, a.currency)} · {formatMoney(b.price, b.currency)}
+                        </div>
+                        <Link
+                          to={`/compare?a=${encodeURIComponent(a.id)}&b=${encodeURIComponent(b.id)}`}
+                          className="mt-auto inline-flex justify-center rounded-lg bg-[#233D7B] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1a2d5a]"
+                        >
+                          Open this pair
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ) : null}
+          </div>
         ) : loading ? (
           <p className="text-gray-600">{t('compare.loading')}</p>
         ) : valid.length === 0 ? (
@@ -96,7 +155,7 @@ export function ComparePage() {
                       <div className="space-y-2">
                         <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
                           <img
-                            src={resolveMediaUrl(listing.media?.[0]?.path) || FALLBACK}
+                            src={resolveMediaUrl(listingCoverMediaPath(listing.media)) || FALLBACK}
                             alt=""
                             className="w-full h-full object-cover"
                           />

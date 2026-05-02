@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import {
   fetchListings,
   fetchNewCarsPulse,
+  listingCoverMediaPath,
   resolveMediaUrl,
   type ListingDto,
   type NewCarsPulseDto,
@@ -322,7 +323,7 @@ export function NewCars() {
                       >
                         <div className="flex items-center justify-center bg-white px-3 pt-5 pb-2 min-h-[132px]">
                           <ImageWithFallback
-                            src={resolveMediaUrl(car.media?.[0]?.path) || FALLBACK_IMAGE}
+                            src={resolveMediaUrl(listingCoverMediaPath(car.media)) || FALLBACK_IMAGE}
                             alt={formatDisplayName(car)}
                             className="max-h-[112px] w-full object-contain object-center"
                           />

@@ -49,6 +49,7 @@ import { SellItForMeProtocol } from './components/SellItForMeProtocol';
 import { SellBikeLandingPage } from './components/SellBikeLandingPage';
 import { UsedBikesLandingPage } from './components/UsedBikesLandingPage';
 import { InnerContentPage } from './components/InnerContentPage';
+import { CarPricesCompareSection } from './components/CarPricesCompareSection';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -245,6 +246,7 @@ function CarPricesPage() {
       title={page.title}
       subtitle={page.subtitle}
       highlights={page.highlights}
+      beforeHighlights={<CarPricesCompareSection />}
       listingsSections={innerFeedsCarPrices(t)}
       dealersPreview={featuredDealersStrip(t)}
       quickLinks={page.quickLinks}
