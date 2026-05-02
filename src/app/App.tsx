@@ -41,6 +41,7 @@ import { SellBikeLandingPage } from './components/SellBikeLandingPage';
 import { InnerContentPage, type InnerListingFeed } from './components/InnerContentPage';
 import { useEffect } from 'react';
 import { setPageSeo } from '@/lib/seo';
+import { getAuthToken } from '@/lib/api';
 
 /** Stable refs for InnerContentPage feeds — avoids refetch loops from inline arrays */
 const INNER_DEALERS_STRIP = { heading: 'Featured dealers', limit: 4 };
@@ -159,6 +160,11 @@ function NewCarRoute() {
 
 function PostAdRoute() {
   const navigate = useNavigate();
+  const location = useLocation();
+  if (!getAuthToken()) {
+    const next = `${location.pathname}${location.search}${location.hash || ''}`;
+    return <Navigate to={`/login?next=${encodeURIComponent(next)}`} replace />;
+  }
   return <PostAdPage onBack={() => navigate('/')} />;
 }
 
