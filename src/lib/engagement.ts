@@ -34,6 +34,14 @@ export async function sendLoginOtp(phone: string): Promise<{ debugCode?: string 
   return { debugCode: payload.debug_code };
 }
 
+export async function sendRegisterOtpEmail(email: string): Promise<{ debugCode?: string }> {
+  const payload = await apiFetch<{ debug_code?: string }>('/auth/otp/send', {
+    method: 'POST',
+    body: JSON.stringify({ channel: 'email', email: email.trim().toLowerCase(), purpose: 'register' }),
+  });
+  return { debugCode: payload.debug_code };
+}
+
 export async function loginWithPhoneOtp(phone: string, otp: string): Promise<{ token: string }> {
   const payload = await apiFetch<{ token: string }>('/auth/login', {
     method: 'POST',

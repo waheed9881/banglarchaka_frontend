@@ -61,6 +61,8 @@ export default defineConfig(({ mode }) => {
       // Alias @ to the src directory
       '@': path.resolve(__dirname, './src'),
     },
+    /** Single React instance — avoids context (e.g. MarketPrefs) appearing null when duplicates exist. */
+    dedupe: ['react', 'react-dom'],
   },
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
