@@ -610,7 +610,7 @@ function AppShell() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen min-w-0 bg-white">
       <PaymentReturnEffects />
       <Toaster position="top-center" richColors />
       <Header onNavigate={(path) => navigate(path)} />

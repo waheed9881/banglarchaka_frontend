@@ -81,7 +81,7 @@ const POPULAR_USED_BIKES: Array<{ label: string; q: string }> = [
 export function BikesMegaMenuPanel({ className = '' }: { className?: string }) {
   return (
     <div
-      className={`rounded-tl-none rounded-tr-lg rounded-b-lg border border-t-0 border-gray-200 bg-white shadow-xl border-b-[3px] border-b-[#C4161C] ${className}`}
+      className={`max-w-full rounded-tl-none rounded-tr-lg rounded-b-lg border border-t-0 border-gray-200 bg-white shadow-xl border-b-[3px] border-b-[#C4161C] ${className}`}
     >
       <div className="border-b border-gray-200 px-4 py-2.5 bg-white">
         <p className="inline-block max-w-xl rounded-sm border border-gray-900 px-2.5 py-1.5 text-[11px] leading-snug text-gray-800 shadow-[0_1px_2px_rgba(0,0,0,0.06)]">

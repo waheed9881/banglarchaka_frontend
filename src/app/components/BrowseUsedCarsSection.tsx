@@ -79,10 +79,10 @@ function BrowseTile({ label, to, Icon }: CardDef) {
   return (
     <Link
       to={to}
-      className="flex flex-col items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-5 shadow-sm transition hover:border-[#233D7B]/60 hover:shadow-md text-center min-h-[118px] group"
+      className="flex flex-col items-center justify-center rounded-lg sm:rounded-xl border border-gray-200 bg-white px-2 py-3.5 sm:px-3 sm:py-5 shadow-sm transition hover:border-[#233D7B]/60 hover:shadow-md text-center min-h-[100px] sm:min-h-[118px] group active:scale-[0.99]"
     >
-      <Icon className="w-10 h-10 text-gray-400 group-hover:text-[#233D7B] mb-2 shrink-0" strokeWidth={1.35} aria-hidden />
-      <span className="text-xs sm:text-sm font-semibold text-gray-800 leading-snug">{label}</span>
+      <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400 group-hover:text-[#233D7B] mb-1.5 sm:mb-2 shrink-0" strokeWidth={1.35} aria-hidden />
+      <span className="text-[11px] sm:text-xs md:text-sm font-semibold text-gray-800 leading-snug line-clamp-2">{label}</span>
     </Link>
   );
 }
@@ -250,17 +250,17 @@ export function BrowseUsedCarsSection() {
   const canNext = safePage < pageCount - 1;
 
   return (
-    <section className="py-12 bg-[#f5f6f8] border-y border-gray-100">
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Browse Used Cars</h2>
+    <section className="py-8 sm:py-12 bg-[#f5f6f8] border-y border-gray-100">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4">
+        <h2 className="text-xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Browse Used Cars</h2>
 
-        <div className="flex flex-wrap gap-1 border-b border-gray-200 mb-8">
+        <div className="flex gap-1 overflow-x-auto overscroll-x-contain border-b border-gray-200 mb-6 sm:mb-8 pb-px [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory">
           {TABS.map(({ key, label }) => (
             <button
               key={key}
               type="button"
               onClick={() => setTab(key)}
-              className={`px-4 py-3 text-sm font-semibold transition-colors relative ${
+              className={`shrink-0 snap-start px-3 sm:px-4 py-2.5 sm:py-3 text-[13px] sm:text-sm font-semibold transition-colors relative whitespace-nowrap ${
                 tab === key ? 'text-[#233D7B]' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
@@ -278,7 +278,7 @@ export function BrowseUsedCarsSection() {
             aria-label="Previous"
             disabled={!canPrev}
             onClick={() => setPage((p) => Math.max(0, p - 1))}
-            className={`absolute left-0 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition hover:bg-gray-50 ${
+            className={`hidden md:flex absolute left-0 top-1/2 z-10 -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition hover:bg-gray-50 ${
               canPrev ? '' : 'opacity-40 cursor-not-allowed'
             }`}
           >
@@ -289,21 +289,21 @@ export function BrowseUsedCarsSection() {
             aria-label="Next"
             disabled={!canNext}
             onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-            className={`absolute right-0 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition hover:bg-gray-50 ${
+            className={`hidden md:flex absolute right-0 top-1/2 z-10 -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition hover:bg-gray-50 ${
               canNext ? '' : 'opacity-40 cursor-not-allowed'
             }`}
           >
             <ChevronRight className="w-5 h-5 text-gray-700" />
           </button>
 
-          <div className="overflow-hidden px-12 sm:px-14">
+          <div className="overflow-hidden px-0 md:px-12 lg:px-14">
             <div
-              className="flex transition-transform duration-300 ease-out"
+              className="flex transition-transform duration-300 ease-out touch-pan-y"
               style={{ transform: `translateX(-${safePage * 100}%)` }}
             >
               {pages.map((slide, si) => (
                 <div key={`${tab}-${si}`} className="min-w-full shrink-0">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
                     {slide.map((c) => (
                       <BrowseTile key={`${c.label}-${si}`} {...c} />
                     ))}
@@ -312,9 +312,36 @@ export function BrowseUsedCarsSection() {
               ))}
             </div>
           </div>
+
+          <div className="mt-4 flex md:hidden items-center justify-center gap-3">
+            <button
+              type="button"
+              aria-label="Previous page"
+              disabled={!canPrev}
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              className={`flex h-11 min-w-[44px] flex-1 max-w-[140px] items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-800 shadow-sm ${
+                canPrev ? 'active:bg-gray-50' : 'opacity-40 cursor-not-allowed'
+              }`}
+            >
+              <ChevronLeft className="w-5 h-5 shrink-0" />
+              Back
+            </button>
+            <button
+              type="button"
+              aria-label="Next page"
+              disabled={!canNext}
+              onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+              className={`flex h-11 min-w-[44px] flex-1 max-w-[140px] items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-800 shadow-sm ${
+                canNext ? 'active:bg-gray-50' : 'opacity-40 cursor-not-allowed'
+              }`}
+            >
+              Next
+              <ChevronRight className="w-5 h-5 shrink-0" />
+            </button>
+          </div>
         </div>
 
-        <div className="flex justify-center gap-2 mt-8">
+        <div className="flex justify-center gap-1.5 sm:gap-2 mt-5 sm:mt-8 flex-wrap max-w-full overflow-x-auto py-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {Array.from({ length: pageCount }, (_, i) => (
             <button
               key={i}

@@ -126,6 +126,9 @@
 
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    overflow-x: clip;
+    max-width: 100%;
   }
 
   /**
@@ -135,6 +138,9 @@
 
   html {
     font-size: var(--font-size);
+    overflow-x: hidden;
+    overflow-x: clip;
+    max-width: 100%;
   }
 
   h1 {
