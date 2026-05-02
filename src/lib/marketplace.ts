@@ -1,4 +1,5 @@
 import { apiFetch } from './api';
+import { readStoredMarketPrefs } from './marketPrefs';
 
 export type ListingDto = {
   id: string;
@@ -519,7 +520,20 @@ export function formatMoney(value: string | number | null | undefined, currency 
   if (value === null || value === undefined || value === '') return `${currency} N/A`;
   const n = Number(value);
   if (!Number.isFinite(n)) return `${currency} ${String(value)}`;
-  return `${currency} ${new Intl.NumberFormat().format(Math.round(n))}`;
+  const code = (currency || 'BDT').toUpperCase();
+  const locale =
+    typeof window !== 'undefined'
+      ? readStoredMarketPrefs().localeTag
+      : undefined;
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: code,
+      maximumFractionDigits: 0,
+    }).format(Math.round(n));
+  } catch {
+    return `${code} ${new Intl.NumberFormat(locale).format(Math.round(n))}`;
+  }
 }
 
 export function resolveMediaUrl(path: string | undefined | null): string | null {

@@ -14,6 +14,7 @@ import {
 } from '@/lib/marketplace';
 import { setPageSeo } from '@/lib/seo';
 import { SubscriptionPlansStrip } from './SubscriptionPlansStrip';
+import { useMarketPrefs } from '@/app/context/MarketPrefsContext';
 
 const LISTING_TYPE_VALUES = [
   'used_car',
@@ -53,7 +54,7 @@ const EXTERIOR_COLORS = [
 ];
 
 const DESC_MAX = 1000;
-/** PakWheels-style bike description cap */
+/** Bike listing description max length */
 const DESC_MAX_BIKE = 995;
 
 const BIKE_ASSEMBLY_OPTIONS = ['Local assembled', 'CBU / Imported', 'CKD', 'Other'];
@@ -90,7 +91,7 @@ const BIKE_DESCRIPTION_CHIPS = [
   'Original documents',
 ];
 
-/** Starter text for used-car ads (PakWheels-style “Predefined template”) */
+/** Starter text for used-car ads (template hint in description) */
 const CAR_AD_DESCRIPTION_TEMPLATE = [
   'Make / model / variant:',
   'Model year:',
@@ -123,6 +124,7 @@ function Tip({ children }: { children: ReactNode }) {
 
 export function PostAdPage({ onBack }: { onBack?: () => void }) {
   const { t } = useTranslation();
+  const { preset } = useMarketPrefs();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [categories, setCategories] = useState<CategoryDto[]>([]);
@@ -236,9 +238,9 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
   const vehicleTitle = isBike ? t('postAdForm.vehicleBikeTitle') : t('postAdForm.vehicleCarTitle');
   const vehicleLower = isBike ? t('postAdForm.vehicleBike') : t('postAdForm.vehicleCar');
   const useSellWizard = showVehicleFields;
-  /** PakWheels-style used bike: one scrollable page */
+  /** Used bike: single scrollable sell flow */
   const bikePakStyle = listingType === 'used_bike';
-  /** PakWheels-style used car: one scrollable page (info incl. price & description → media → contact) */
+  /** Used car: single scrollable sell flow (price & description → media → contact) */
   const carPakStyle = listingType === 'used_car';
   const descriptionMax = bikePakStyle ? DESC_MAX_BIKE : DESC_MAX;
 
@@ -400,7 +402,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
         title: title.trim(),
         description: descOut || null,
         price: Number(price),
-        currency: 'BDT',
+        currency: preset.currency,
         condition: conditionDefault,
         location_city: city.trim(),
         transmission: showVehicleFields ? transmission : null,

@@ -140,7 +140,7 @@ function formatNewCarPriceRange(car: ListingDto): string {
   const dyn = car.dynamic_attributes;
   const minP = num(dyn?.price_min ?? dyn?.min_price);
   const maxP = num(dyn?.price_max ?? dyn?.max_price);
-  const cur = (car.currency || 'PKR').toUpperCase();
+  const cur = (car.currency || 'BDT').toUpperCase();
   if (minP != null && maxP != null && maxP >= minP) {
     return `${cur} ${(minP / 100000).toFixed(2)} - ${(maxP / 100000).toFixed(2)} lacs`;
   }
@@ -251,8 +251,8 @@ export function NewCarsLandingPage() {
 
   useEffect(() => {
     setPageSeo(
-      'Find New Cars in Pakistan · Showroom listings & reviews',
-      'Search new cars by make, price range, body type and category. Compare models, read reviews, and browse verified dealer inventory.',
+      'Find New Cars in Bangladesh · Showroom listings & reviews',
+      'Search new cars by make, price range, body type and category. Compare models, read reviews, and browse verified dealer inventory in Bangladesh.',
     );
   }, []);
 
@@ -495,15 +495,17 @@ export function NewCarsLandingPage() {
   const financing = landing?.financing_partners ?? [];
   const insurance = landing?.insurance_partners ?? [];
 
-  const spotlightBrands = ['Toyota', 'Suzuki', 'Honda', 'KIA', 'Hyundai', 'MG'];
+  const spotlightBrands = ['Toyota', 'Honda', 'Suzuki', 'Nissan', 'Mitsubishi', 'Hyundai', 'Kia', 'MG'];
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
       {/* —— Image 1: Hero + search —— */}
       <section className="relative pb-14" style={{ backgroundColor: BLUE }}>
         <div className="max-w-6xl mx-auto px-4 pt-10 pb-6 text-center text-white">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Find New Cars in Pakistan</h1>
-          <p className="mt-2 text-white/85 text-sm sm:text-base">Find information about the latest cars in the market</p>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Find New Cars in Bangladesh</h1>
+          <p className="mt-2 text-white/85 text-sm sm:text-base">
+            Find information about the latest cars available from dealers across Bangladesh
+          </p>
         </div>
 
         <div className="max-w-5xl mx-auto px-4 -mb-8 relative z-10">

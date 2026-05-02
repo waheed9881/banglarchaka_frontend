@@ -19,7 +19,7 @@ import {
   type BrandDto,
   type ListingDto,
 } from '@/lib/marketplace';
-import { PK_CITIES_BROWSE } from '@/app/data/usedBikesBrowse';
+import { BD_CITIES as BD_CITIES_ALL, CITY_LABEL_KEYS } from '@/i18n/bdCities';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 const FALLBACK =
@@ -133,16 +133,10 @@ type SidebarPakProps = {
   listingType: string;
 };
 
-const CITY_CHIPS: Array<{ slug: string; labelKey: string }> = [
-  { slug: 'Dhaka', labelKey: 'footer.cityDhaka' },
-  { slug: 'Chattogram', labelKey: 'footer.cityChattogram' },
-  { slug: 'Sylhet', labelKey: 'footer.citySylhet' },
-  { slug: 'Rajshahi', labelKey: 'footer.cityRajshahi' },
-  { slug: 'Khulna', labelKey: 'footer.cityKhulna' },
-  { slug: 'Gazipur', labelKey: 'footer.cityGazipur' },
-  { slug: 'Cumilla', labelKey: 'footer.cityCumilla' },
-  { slug: 'Barishal', labelKey: 'footer.cityBarishal' },
-];
+const CITY_CHIPS: Array<{ slug: string; labelKey: string }> = BD_CITIES_ALL.map((slug) => ({
+  slug,
+  labelKey: CITY_LABEL_KEYS[slug],
+}));
 const COLOR_CHIPS: Array<{ q: string; labelKey: string }> = [
   { q: 'white', labelKey: 'listingBrowse.colWhite' },
   { q: 'black', labelKey: 'listingBrowse.colBlack' },
@@ -158,11 +152,6 @@ const BODY_CHIPS: Array<{ labelKey: string; q: string }> = [
   { labelKey: 'listingBrowse.chipSuv', q: 'SUV' },
   { labelKey: 'listingBrowse.chipCrossover', q: 'crossover' },
 ];
-
-const BD_CITY_SLUGS = new Set(CITY_CHIPS.map((c) => c.slug));
-const BIKE_EXTRA_CITY_CHIPS: Array<{ slug: string; plainLabel: string }> = PK_CITIES_BROWSE.filter(
-  (slug) => !BD_CITY_SLUGS.has(slug),
-).map((slug) => ({ slug, plainLabel: slug }));
 
 export function PakFiltersSidebar({
   locationSearch,
@@ -256,22 +245,6 @@ export function PakFiltersSidebar({
                 {t(c.labelKey)}
               </button>
             ))}
-            {listingType === 'used_bike'
-              ? BIKE_EXTRA_CITY_CHIPS.map((c) => (
-                  <button
-                    key={c.slug}
-                    type="button"
-                    onClick={() => applyChip({ city: c.slug })}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold border ${
-                      chipActive('city', c.slug)
-                        ? 'border-[#233D7B] bg-[#233D7B]/10 text-[#233D7B]'
-                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                    }`}
-                  >
-                    {c.plainLabel}
-                  </button>
-                ))
-              : null}
           </div>
           <input
             value={city}
@@ -599,14 +572,14 @@ export function UsedCarsListingFooter() {
   const cols = [
     {
       titleKey: 'listingBrowse.footerColCity' as const,
-      links: ['Dhaka', 'Chattogram', 'Sylhet', 'Rajshahi', 'Khulna'].map((c) => ({
+      links: BD_CITIES_ALL.slice(0, 8).map((c) => ({
         label: t('listingBrowse.carsInCity', { city: c }),
         to: `/listings?type=used_car&city=${encodeURIComponent(c)}`,
       })),
     },
     {
       titleKey: 'listingBrowse.footerColMake' as const,
-      links: ['Toyota', 'Honda', 'Suzuki', 'Hyundai', 'Nissan'].map((m) => ({
+      links: ['Toyota', 'Honda', 'Suzuki', 'Hyundai', 'Nissan', 'Mitsubishi'].map((m) => ({
         label: t('listingBrowse.usedMake', { make: m }),
         to: `/listings?type=used_car&q=${encodeURIComponent(m)}`,
       })),

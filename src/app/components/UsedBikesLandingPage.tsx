@@ -7,10 +7,10 @@ import {
   BIKE_BUDGET_BANDS,
   BIKE_CATEGORY_TILES,
   BIKE_ENGINE_CC_TILES,
-  PK_CITIES_BROWSE,
   POPULAR_USED_BIKES,
   USED_BIKE_MAKE_MODELS,
 } from '@/app/data/usedBikesBrowse';
+import { BD_CITIES } from '@/i18n/bdCities';
 import {
   USED_BIKE_MAKE_FALLBACK_ICON,
   USED_BIKE_MAKE_LOGO_URLS,
@@ -141,7 +141,7 @@ export function UsedBikesLandingPage() {
     };
   }, [topPopular]);
 
-  const cityPages = useMemo(() => chunk([...PK_CITIES_BROWSE], 16), []);
+  const cityPages = useMemo(() => chunk([...BD_CITIES], 16), []);
   const cityPageCount = Math.max(1, cityPages.length);
   const safeCitySlide = Math.min(citySlide, cityPageCount - 1);
 
@@ -192,7 +192,7 @@ export function UsedBikesLandingPage() {
                   className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#233D7B]/40"
                 >
                   <option value="">{t('usedBikesLanding.allCities')}</option>
-                  {PK_CITIES_BROWSE.map((c) => (
+                  {BD_CITIES.map((c) => (
                     <option key={c} value={c}>
                       {c}
                     </option>

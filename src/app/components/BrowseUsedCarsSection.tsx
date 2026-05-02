@@ -24,27 +24,9 @@ import type { TFunction } from 'i18next';
 import { useEffect, useMemo, useState, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { BD_POPULAR_USED_CAR_MODELS } from '@/app/data/bdPopularCars';
 import { BD_CITIES, CITY_LABEL_KEYS } from '@/i18n/bdCities';
 import { fetchBrands, type BrandDto } from '@/lib/marketplace';
-
-const POPULAR_MODELS: Array<{ label: string; q: string }> = [
-  { label: 'Toyota Corolla', q: 'Toyota Corolla' },
-  { label: 'Honda Civic', q: 'Honda Civic' },
-  { label: 'Honda City', q: 'Honda City' },
-  { label: 'Suzuki Swift', q: 'Suzuki Swift' },
-  { label: 'Toyota Axio', q: 'Toyota Axio' },
-  { label: 'Toyota Noah', q: 'Toyota Noah' },
-  { label: 'Suzuki Alto', q: 'Suzuki Alto' },
-  { label: 'Mitsubishi Pajero', q: 'Mitsubishi Pajero' },
-  { label: 'Toyota Premio', q: 'Toyota Premio' },
-  { label: 'Nissan X-Trail', q: 'Nissan X-Trail' },
-  { label: 'Hyundai Tucson', q: 'Hyundai Tucson' },
-  { label: 'Kia Sportage', q: 'Kia Sportage' },
-  { label: 'Toyota Hiace', q: 'Toyota Hiace' },
-  { label: 'Mazda Axela', q: 'Mazda Axela' },
-  { label: 'Subaru Forester', q: 'Subaru Forester' },
-  { label: 'Mercedes C-Class', q: 'Mercedes C-Class' },
-];
 
 function listingsQs(extra: Record<string, string>) {
   const p = new URLSearchParams({ type: 'used_car', ...extra });
@@ -145,7 +127,7 @@ function buildBodyTypes(t: TFunction): CardDef[] {
     { label: t('footer.sedan'), to: listingsQs({ q: 'sedan' }), Icon: CarFront },
     { label: t('footer.suv'), to: listingsQs({ q: 'SUV' }), Icon: Truck },
     { label: t('footer.crossover'), to: listingsQs({ q: 'crossover' }), Icon: Truck },
-    { label: t('browseUsed.bodyMpvVan'), to: listingsQs({ q: 'MPV van Noah' }), Icon: Car },
+      { label: t('browseUsed.bodyMpvVan'), to: listingsQs({ q: 'MPV van Noah Esquire' }), Icon: Car },
     { label: t('footer.coupe'), to: listingsQs({ q: 'coupe' }), Icon: Car },
     { label: t('footer.wagon'), to: listingsQs({ q: 'wagon estate' }), Icon: Car },
     { label: t('footer.pickup'), to: listingsQs({ q: 'pickup truck' }), Icon: Truck },
@@ -207,7 +189,7 @@ export function BrowseUsedCarsSection() {
   }, [brands, t]);
 
   const modelPages = useMemo(() => {
-    const cards: CardDef[] = POPULAR_MODELS.map(({ label, q }) => ({
+    const cards: CardDef[] = BD_POPULAR_USED_CAR_MODELS.map(({ label, q }) => ({
       label,
       to: listingsQs({ q }),
       Icon: CarFront,
@@ -253,7 +235,7 @@ export function BrowseUsedCarsSection() {
   return (
     <section className="py-8 sm:py-12 bg-[#f5f6f8] border-y border-gray-100">
       <div className="max-w-7xl mx-auto px-3 sm:px-4">
-        <h2 className="text-xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Browse Used Cars</h2>
+        <h2 className="text-xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">{t('browseUsed.title')}</h2>
 
         <div className="flex gap-1 overflow-x-auto overscroll-x-contain border-b border-gray-200 mb-6 sm:mb-8 pb-px [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory">
           {TAB_DEFS.map(({ key, labelKey }) => (

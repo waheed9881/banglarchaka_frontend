@@ -16,12 +16,13 @@ import {
   type ModerationQueueDto,
   type PendingReviewDto,
 } from '@/lib/admin';
-import { fetchMe } from '@/lib/auth';
 import { fetchDealers, formatMoney, type DealerDto, type ListingDto } from '@/lib/marketplace';
 import { setPageSeo } from '@/lib/seo';
-import { Link } from 'react-router';
+import { Link, useOutletContext } from 'react-router';
+import type { AdminOutletContext } from '@/app/components/AdminLayout';
 
 export function AdminModerationPage() {
+  const { canModerate } = useOutletContext<AdminOutletContext>();
   const [tab, setTab] = useState<'dashboard' | 'listings' | 'reviews' | 'queue' | 'reports' | 'dealers'>('dashboard');
   const [rows, setRows] = useState<ListingDto[]>([]);
   const [reviewRows, setReviewRows] = useState<PendingReviewDto[]>([]);
@@ -38,8 +39,6 @@ export function AdminModerationPage() {
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [canAdmin, setCanAdmin] = useState<boolean | null>(null);
-
   const load = async () => {
     setLoading(true);
     try {
@@ -96,20 +95,13 @@ export function AdminModerationPage() {
   };
 
   useEffect(() => {
-    fetchMe()
-      .then((me) =>
-        setCanAdmin(!!me?.roles?.some((r) => ['super_admin', 'admin', 'moderator'].includes(r.name))),
-      )
-      .catch(() => setCanAdmin(false));
-  }, []);
-
-  useEffect(() => {
     setPageSeo('Admin moderation · BanglarChaka', 'Pending listings, reviews, queue, reports, and dealers.');
   }, []);
 
   useEffect(() => {
+    if (!canModerate) return;
     load().catch(() => undefined);
-  }, [tab, page, queueStatusFilter, reportStatusFilter]);
+  }, [canModerate, tab, page, queueStatusFilter, reportStatusFilter]);
 
   const onApprove = async (id: string) => {
     try {
@@ -228,39 +220,31 @@ export function AdminModerationPage() {
     [dealerRows, search],
   );
 
-  if (canAdmin === false) {
+  if (!canModerate) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 py-10">
-          <div className="bg-white rounded shadow p-8 text-center space-y-4">
-            <h1 className="text-xl font-bold text-gray-900">Access denied</h1>
-            <p className="text-gray-600">
-              Admin portal ke liye pehle login karein — account par <strong>super_admin</strong>,{' '}
-              <strong>admin</strong> ya <strong>moderator</strong> role honi chahiye.
-            </p>
-            <Link
-              to="/login"
-              className="inline-flex rounded-md bg-[#233D7B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a2d5a]"
-            >
-              Sign in
-            </Link>
-            {import.meta.env.DEV ? (
-              <p className="text-xs text-gray-500 pt-2 border-t border-gray-100">
-                Seed demo admin: <code className="bg-gray-100 px-1 rounded">admin@banglarchaka.local</code> /{' '}
-                <code className="bg-gray-100 px-1 rounded">BanglarAdmin1!</code>
-              </p>
-            ) : null}
-          </div>
+      <div className="max-w-lg mx-auto px-4 py-10">
+        <div className="bg-white rounded-xl shadow border border-gray-100 p-8 text-center space-y-4">
+          <h1 className="text-lg font-bold text-gray-900">Moderation access</h1>
+          <p className="text-gray-600 text-sm">
+            Yahan sirf <strong>super_admin</strong>, <strong>admin</strong> ya <strong>moderator</strong> aa sakte hain.
+            HR ya Finance ke liye sidebar se woh sections kholein.
+          </p>
+          <Link
+            to="/admin"
+            className="inline-flex rounded-lg bg-[#233D7B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a2d5a]"
+          >
+            Admin home
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gray-50 min-h-full">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Admin Portal</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Moderation</h1>
           <button
             onClick={() => load().catch(() => undefined)}
             className="px-4 py-2 rounded bg-[#233D7B] text-white hover:bg-[#1a2d5a]"

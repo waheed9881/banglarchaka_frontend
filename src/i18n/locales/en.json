@@ -11,6 +11,21 @@
     "bn": "বাংলা",
     "switcherAria": "Choose language"
   },
+  "market": {
+    "switcherAria": "Region and currency",
+    "presets": {
+      "bdBdt": "Bangladesh · BDT",
+      "pkPkr": "Pakistan · PKR",
+      "inInr": "India · INR",
+      "aeAed": "UAE · AED",
+      "saSar": "Saudi Arabia · SAR",
+      "gbGbp": "United Kingdom · GBP",
+      "usUsd": "United States · USD",
+      "caCad": "Canada · CAD",
+      "auAud": "Australia · AUD",
+      "deEur": "Germany · EUR"
+    }
+  },
   "nav": {
     "downloadAppSms": "Download App via SMS",
     "signIn": "Sign In",
@@ -1031,9 +1046,9 @@
     "seoTitle": "Used bikes for sale · Browse makes, cities & budgets · BanglarChaka",
     "seoDesc": "Search thousands of used motorcycles — filter by city, price, engine size and category. Featured listings, popular models and sell your bike free.",
     "heroTitle": "Find used bikes",
-    "heroSubtitle": "Used Honda, Suzuki, Yamaha & more — search like PakWheels, powered by BanglarChaka.",
+    "heroSubtitle": "Used Honda, Suzuki, Yamaha, Bajaj, Hero & more — search bikes across Bangladesh on BanglarChaka.",
     "fieldKeyword": "Bike make or model",
-    "placeholderKeyword": "e.g. YBR 125, CD 70…",
+    "placeholderKeyword": "e.g. CB Shine, Pulsar 150…",
     "fieldCity": "City",
     "allCities": "All cities",
     "fieldPrice": "Price range",
@@ -1075,7 +1090,7 @@
     "seoP2": "Filter by city, budget and keywords like \"125cc\" or \"self start\". Save time versus scrolling unstructured groups — every listing opens into a full detail page with seller contact.",
     "seoSub2": "Selling your bike?",
     "seoP3": "Posting is free: upload angles of the odometer, documents you are willing to share, and a fair price. Serious buyers prefer honest descriptions and daylight photos.",
-    "seoP4": "Explore commuter favourites like CG 125 and CD 70, sporty YBR lines, economical scooters and imported heavy bikes — all in one marketplace.",
+    "seoP4": "Explore commuter favourites like CB Shine and Splendor, sporty Pulsar and Apache lines, scooters and imported heavy bikes — all in one Bangladesh marketplace.",
     "cc70": "70cc",
     "cc100": "100cc",
     "cc125": "125cc",
@@ -1476,7 +1491,7 @@
         { "label": "Listings", "to": "/listings" },
         { "label": "Compare", "to": "/compare" },
         { "label": "Post Ad", "to": "/post-ad" },
-        { "label": "Admin Moderation", "to": "/admin/moderation" },
+        { "label": "Admin panel", "to": "/admin" },
         { "label": "Blog", "to": "/blog" }
       ]
     }

@@ -13,6 +13,8 @@ import {
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { BD_POPULAR_USED_CAR_MODELS } from '@/app/data/bdPopularCars';
+import { BD_CITIES } from '@/i18n/bdCities';
 
 function MegaLink({
   title,
@@ -59,19 +61,6 @@ function ModelLink({ label, q }: { label: string; q: string }) {
     </Link>
   );
 }
-
-const POPULAR_CITIES = ['Dhaka', 'Chattogram', 'Sylhet', 'Rajshahi', 'Khulna', 'Barishal', 'Rangpur', 'Gazipur'];
-
-const POPULAR_MODELS: Array<{ label: string; q: string }> = [
-  { label: 'Toyota Corolla', q: 'Toyota Corolla' },
-  { label: 'Honda Civic', q: 'Honda Civic' },
-  { label: 'Honda City', q: 'Honda City' },
-  { label: 'Suzuki Swift', q: 'Suzuki Swift' },
-  { label: 'Toyota Axio', q: 'Toyota Axio' },
-  { label: 'Toyota Noah', q: 'Toyota Noah' },
-  { label: 'Suzuki Alto', q: 'Suzuki Alto' },
-  { label: 'Mitsubishi Pajero', q: 'Mitsubishi Pajero' },
-];
 
 export function UsedCarsMegaMenuPanel({ className = '' }: { className?: string }) {
   const { t } = useTranslation();
@@ -146,7 +135,11 @@ export function UsedCarsMegaMenuPanel({ className = '' }: { className?: string }
             <MapPin className="w-4 h-4 text-[#C4161C]" />
             {t('mega.usedCars.popularCities')}
           </div>
-          <nav className="flex flex-col">{POPULAR_CITIES.map((c) => <CityLink key={c} city={c} />)}</nav>
+          <nav className="flex flex-col">
+            {BD_CITIES.map((c) => (
+              <CityLink key={c} city={c} />
+            ))}
+          </nav>
         </div>
 
         <div className="p-5">
@@ -155,7 +148,7 @@ export function UsedCarsMegaMenuPanel({ className = '' }: { className?: string }
             {t('mega.usedCars.popularModels')}
           </div>
           <nav className="flex flex-col">
-            {POPULAR_MODELS.map((m) => (
+            {BD_POPULAR_USED_CAR_MODELS.map((m) => (
               <ModelLink key={m.label} label={m.label} q={m.q} />
             ))}
           </nav>

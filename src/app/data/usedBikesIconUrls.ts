@@ -16,9 +16,10 @@ export const USED_BIKE_MAKE_LOGO_URLS: Record<string, string | null> = {
   Honda: 'https://cdn.simpleicons.org/honda/E40521',
   Suzuki: 'https://cdn.simpleicons.org/suzuki/E30613',
   Yamaha: 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Yamaha_logo.svg',
-  United: null,
-  'Road Prince': null,
-  Unique: null,
+  Bajaj: 'https://cdn.simpleicons.org/bajaj/ED1C24',
+  TVS: null,
+  Hero: null,
+  Runner: null,
 };
 
 export const USED_BIKE_MAKE_FALLBACK_ICON = tablerIconOutline('motorbike');

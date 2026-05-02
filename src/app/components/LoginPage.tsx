@@ -2,7 +2,15 @@ import { GoogleLogin } from '@react-oauth/google';
 import { Car, Check, ChevronDown, Loader2, Smartphone, ShieldCheck } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
-import { fetchMe, loginWithEmailPassword, loginWithGoogleIdToken, registerBuyer, logoutLocal } from '@/lib/auth';
+import {
+  fetchMe,
+  loginWithEmailPassword,
+  loginWithGoogleIdToken,
+  registerBuyer,
+  logoutLocal,
+  resolvePostLoginPath,
+  type MeResponse,
+} from '@/lib/auth';
 import { loginWithPhoneOtp, sendLoginOtp } from '@/lib/engagement';
 import { useTranslation } from 'react-i18next';
 import { setPageSeo } from '@/lib/seo';
@@ -59,7 +67,7 @@ export function LoginPage({ variant }: { variant: Tab }) {
   useEffect(() => {
     fetchMe().then((u) => {
       setMe(u);
-      if (u) navigate(returnTo || '/', { replace: true });
+      if (u) navigate(resolvePostLoginPath(u, returnTo), { replace: true });
     });
   }, [navigate, returnTo]);
 
@@ -73,10 +81,13 @@ export function LoginPage({ variant }: { variant: Tab }) {
     setSubmittingLogin(true);
     try {
       const data = await loginWithEmailPassword(email.trim(), password);
-      const meFresh = await fetchMe();
+      let meFresh = await fetchMe();
+      if (!meFresh && data.user.roles?.length) {
+        meFresh = data.user as MeResponse;
+      }
       setMe(meFresh || data.user);
       toast.success(t('auth.welcomeBack'));
-      navigate(returnTo || '/');
+      navigate(resolvePostLoginPath(meFresh, returnTo));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t('auth.loginFailed'));
     } finally {
@@ -98,10 +109,13 @@ export function LoginPage({ variant }: { variant: Tab }) {
         password_confirmation: regPassword2,
         phone: regPhone.trim() || undefined,
       });
-      const meFresh = await fetchMe();
+      let meFresh = await fetchMe();
+      if (!meFresh && data.user.roles?.length) {
+        meFresh = data.user as MeResponse;
+      }
       setMe(meFresh || data.user);
       toast.success(t('auth.accountCreated'));
-      navigate(returnTo || '/');
+      navigate(resolvePostLoginPath(meFresh, returnTo));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t('auth.registerFailed'));
     } finally {
@@ -150,7 +164,7 @@ export function LoginPage({ variant }: { variant: Tab }) {
       setOtpDelivered(false);
       setOtpResendSec(0);
       toast.success(t('auth.welcomeBack'));
-      navigate(returnTo || '/');
+      navigate(resolvePostLoginPath(meFresh, returnTo));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t('auth.otpLoginFailed'));
     } finally {
@@ -222,9 +236,9 @@ export function LoginPage({ variant }: { variant: Tab }) {
                           setGoogleBusy(true);
                           try {
                             await loginWithGoogleIdToken(cred.credential);
-                            await fetchMe();
+                            const meFresh = await fetchMe();
                             toast.success(t('auth.welcomeBack'));
-                            navigate(returnTo || '/');
+                            navigate(resolvePostLoginPath(meFresh, returnTo));
                           } catch (e) {
                             toast.error(e instanceof Error ? e.message : t('auth.googleSignInFailed'));
                           } finally {
