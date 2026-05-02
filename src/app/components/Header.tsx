@@ -113,9 +113,20 @@ export function Header({
                 Loading…
               </span>
             ) : !me ? (
-              <Link to="/login" className="hover:text-white transition font-medium whitespace-nowrap">
-                Sign In
-              </Link>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Link to="/login" className="hover:text-white transition font-medium whitespace-nowrap">
+                  Sign in
+                </Link>
+                <span className="text-white/30 hidden sm:inline" aria-hidden>
+                  |
+                </span>
+                <Link
+                  to="/register"
+                  className="rounded-md border border-white/35 bg-white/10 px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold hover:bg-white/20 transition whitespace-nowrap"
+                >
+                  Register
+                </Link>
+              </div>
             ) : (
               <div className="flex flex-wrap gap-x-3 gap-y-1 items-center justify-end">
                 <button type="button" onClick={() => onNavigate('/wishlist')} className="hover:text-white transition text-[11px] sm:text-xs">
@@ -564,9 +575,22 @@ export function Header({
                 {tokenWhileLoading ? (
                   <span className="block px-3 py-2 text-white/70 text-sm">Loading…</span>
                 ) : !me ? (
-                  <Link to="/login" className="block px-3 py-3 rounded-lg bg-white text-[#233D7B] font-semibold text-center shadow-sm" onClick={closeMobileNav}>
-                    Sign In
-                  </Link>
+                  <div className="grid grid-cols-2 gap-2 px-1">
+                    <Link
+                      to="/login"
+                      className="block px-3 py-3 rounded-lg bg-white text-[#233D7B] font-semibold text-center shadow-sm text-sm"
+                      onClick={closeMobileNav}
+                    >
+                      Sign in
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="block px-3 py-3 rounded-lg border border-white/40 text-white font-semibold text-center text-sm hover:bg-white/10"
+                      onClick={closeMobileNav}
+                    >
+                      Register
+                    </Link>
+                  </div>
                 ) : (
                   <div className="space-y-1 px-1">
                     <div className="px-2 py-2 text-xs text-white/60 truncate">{me.name}</div>

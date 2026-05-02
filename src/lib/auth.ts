@@ -46,6 +46,27 @@ export async function registerBuyer(params: {
   return data;
 }
 
+/** Request reset email — always succeeds with generic messaging if email format is valid. */
+export async function requestPasswordReset(email: string): Promise<{ message: string }> {
+  return apiFetch<{ message: string }>('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email: email.trim() }),
+  });
+}
+
+/** Complete reset after clicking link from email */
+export async function resetPasswordApi(params: {
+  email: string;
+  token: string;
+  password: string;
+  password_confirmation: string;
+}): Promise<{ message: string }> {
+  return apiFetch<{ message: string }>('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+}
+
 export function logoutLocal(): void {
   setAuthToken(null);
 }
