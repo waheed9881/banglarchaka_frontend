@@ -8,6 +8,7 @@ import {
   Tag,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 function MegaLink({
@@ -74,65 +75,62 @@ const POPULAR_NEW_MODELS: Array<{ label: string; q: string }> = [
   { label: 'Kia Sportage', q: 'Kia Sportage' },
 ];
 
-/** Tooltip + mobile subtitle */
-export const NEW_CARS_NAV_TOOLTIP =
-  'Research new cars in Bangladesh — prices, reviews and comparisons';
-
-/** Links shown under expandable “New Cars” on mobile */
-export const NEW_CARS_MOBILE_LINKS: Array<{ label: string; to: string }> = [
-  { label: 'Find new cars', to: '/listings?type=new_car' },
-  { label: 'Car comparisons', to: '/compare' },
-  { label: 'Reviews', to: '/car-reviews' },
-  { label: 'Prices', to: '/car-prices' },
-  { label: 'On-road price guide', to: '/car-prices' },
-  { label: 'New car dealers', to: '/listings?type=new_car&dealer_only=1' },
+export const NEW_CARS_MOBILE_LINKS: Array<{ labelKey: string; to: string }> = [
+  { labelKey: 'nav.mobileNewCarsFindNew', to: '/listings?type=new_car' },
+  { labelKey: 'nav.mobileNewCarsCompare', to: '/compare' },
+  { labelKey: 'nav.mobileNewCarsReviews', to: '/car-reviews' },
+  { labelKey: 'nav.mobileNewCarsPrices', to: '/car-prices' },
+  { labelKey: 'nav.mobileNewCarsOnRoad', to: '/car-prices' },
+  { labelKey: 'nav.mobileNewCarsDealers', to: '/listings?type=new_car&dealer_only=1' },
 ];
 
 export function NewCarsMegaMenuPanel({ className = '' }: { className?: string }) {
+  const { t } = useTranslation();
+
   return (
     <div
       className={`rounded-tl-none rounded-tr-lg rounded-b-lg border border-t-0 border-gray-200 bg-white shadow-xl border-b-[3px] border-b-[#C4161C] ${className}`}
     >
       <div className="border-b border-gray-200 px-4 py-2.5 bg-white">
         <p className="inline-block max-w-xl rounded-sm border border-gray-900 px-2.5 py-1.5 text-[11px] leading-snug text-gray-800 shadow-[0_1px_2px_rgba(0,0,0,0.06)]">
-          {NEW_CARS_NAV_TOOLTIP}
+          {t('mega.newCars.banner')}
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
         <div className="p-5 space-y-1">
           <MegaLink
-            title="Find New Cars"
-            desc="Browse new car listings on BanglarChaka"
+            title={t('mega.newCars.findTitle')}
+            desc={t('mega.newCars.findDesc')}
             to="/listings?type=new_car"
             icon={<Search className="w-5 h-5" />}
           />
           <MegaLink
-            title="Car Comparisons"
-            desc="Compare cars and spot trim differences"
+            title={t('mega.newCars.compareTitle')}
+            desc={t('mega.newCars.compareDesc')}
             to="/compare"
             icon={<GitCompare className="w-5 h-5" />}
           />
           <MegaLink
-            title="Reviews"
-            desc="Read reviews and buying angles by model"
+            title={t('mega.newCars.reviewsTitle')}
+            desc={t('mega.newCars.reviewsDesc')}
             to="/car-reviews"
             icon={<MessageSquare className="w-5 h-5" />}
           />
           <MegaLink
-            title="Prices"
-            desc="See asking prices for new listings"
+            title={t('mega.newCars.pricesTitle')}
+            desc={t('mega.newCars.pricesDesc')}
             to="/car-prices"
             icon={<Tag className="w-5 h-5" />}
           />
           <MegaLink
-            title="On road price"
-            desc="Use pricing guides before you budget"
+            title={t('mega.newCars.onRoadTitle')}
+            desc={t('mega.newCars.onRoadDesc')}
             to="/car-prices"
             icon={<Route className="w-5 h-5" />}
           />
           <MegaLink
-            title="New Car Dealers"
-            desc="Find dealers posting new inventory"
+            title={t('mega.newCars.dealersTitle')}
+            desc={t('mega.newCars.dealersDesc')}
             to="/listings?type=new_car&dealer_only=1"
             icon={<Building2 className="w-5 h-5" />}
           />
@@ -141,7 +139,7 @@ export function NewCarsMegaMenuPanel({ className = '' }: { className?: string })
         <div className="p-5">
           <div className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-3">
             <Car className="w-4 h-4 text-[#C4161C]" />
-            Popular brands
+            {t('mega.newCars.popularBrands')}
           </div>
           <nav className="flex flex-col">
             {POPULAR_BRANDS.map((b) => (
@@ -153,7 +151,7 @@ export function NewCarsMegaMenuPanel({ className = '' }: { className?: string })
         <div className="p-5">
           <div className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-3">
             <Car className="w-4 h-4 text-[#C4161C]" />
-            Popular new cars
+            {t('mega.newCars.popularNewCars')}
           </div>
           <nav className="flex flex-col">
             {POPULAR_NEW_MODELS.map((m) => (

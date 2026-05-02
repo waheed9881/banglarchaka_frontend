@@ -11,6 +11,7 @@ import {
   ThumbsUp,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 function MegaLink({
@@ -59,7 +60,6 @@ function ModelLink({ label, q }: { label: string; q: string }) {
   );
 }
 
-/** Bangladesh-focused cities & models; aligns with marketplace copy */
 const POPULAR_CITIES = ['Dhaka', 'Chattogram', 'Sylhet', 'Rajshahi', 'Khulna', 'Barishal', 'Rangpur', 'Gazipur'];
 
 const POPULAR_MODELS: Array<{ label: string; q: string }> = [
@@ -74,6 +74,8 @@ const POPULAR_MODELS: Array<{ label: string; q: string }> = [
 ];
 
 export function UsedCarsMegaMenuPanel({ className = '' }: { className?: string }) {
+  const { t } = useTranslation();
+
   return (
     <div
       className={`rounded-tl-none rounded-tr-lg rounded-b-lg border border-t-0 border-gray-200 bg-white shadow-xl border-b-[3px] border-b-[#C4161C] ${className}`}
@@ -81,32 +83,32 @@ export function UsedCarsMegaMenuPanel({ className = '' }: { className?: string }
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
         <div className="p-5 space-y-1">
           <MegaLink
-            title="Find Used Cars for Sale"
-            desc="Search from thousands of live listings"
+            title={t('mega.usedCars.findTitle')}
+            desc={t('mega.usedCars.findDesc')}
             to="/listings?type=used_car"
             icon={<Search className="w-5 h-5" />}
           />
           <MegaLink
-            title="Featured Used Cars"
-            desc="Boosted picks highlighted on the homepage"
+            title={t('mega.usedCars.featuredTitle')}
+            desc={t('mega.usedCars.featuredDesc')}
             to="/used-cars/featured"
             icon={<Star className="w-5 h-5" />}
           />
           <MegaLink
-            title="Sell Your Car"
-            desc="Post a free ad and reach serious buyers"
+            title={t('mega.usedCars.sellTitle')}
+            desc={t('mega.usedCars.sellDesc')}
             to="/used-cars/sell"
             icon={<Tag className="w-5 h-5" />}
           />
           <MegaLink
-            title="Used Car Dealers"
-            desc="Find verified dealers near you"
+            title={t('mega.usedCars.dealersTitle')}
+            desc={t('mega.usedCars.dealersDesc')}
             to="/used-car-dealers"
             icon={<BookOpen className="w-5 h-5" />}
           />
           <MegaLink
-            title="Car prices"
-            desc="Compare asking prices before you buy"
+            title={t('mega.usedCars.pricesTitle')}
+            desc={t('mega.usedCars.pricesDesc')}
             to="/car-prices"
             icon={<Target className="w-5 h-5" />}
           />
@@ -114,26 +116,26 @@ export function UsedCarsMegaMenuPanel({ className = '' }: { className?: string }
 
         <div className="p-5 space-y-1">
           <MegaLink
-            title="Certified cars"
-            desc="Vetted listings with extra peace of mind"
+            title={t('mega.usedCars.certifiedTitle')}
+            desc={t('mega.usedCars.certifiedDesc')}
             to="/services/certified-cars"
             icon={<ShieldCheck className="w-5 h-5" />}
           />
           <MegaLink
-            title="Car inspection"
-            desc="Professional inspection reports (coming soon)"
+            title={t('mega.usedCars.inspectionTitle')}
+            desc={t('mega.usedCars.inspectionDesc')}
             to="/services/car-inspection"
             icon={<ThumbsUp className="w-5 h-5" />}
           />
           <MegaLink
-            title="Sell it for me"
-            desc="Let us handle photos, chats, and handover"
+            title={t('mega.usedCars.sellForMeTitle')}
+            desc={t('mega.usedCars.sellForMeDesc')}
             to="/services/sell-it-for-me"
             icon={<ThumbsUp className="w-5 h-5" />}
           />
           <MegaLink
-            title="Auction sheet verification"
-            desc="Verify import paperwork when available"
+            title={t('mega.usedCars.auctionTitle')}
+            desc={t('mega.usedCars.auctionDesc')}
             to="/services/auction-sheet-verification"
             icon={<FileCheck className="w-5 h-5" />}
           />
@@ -142,7 +144,7 @@ export function UsedCarsMegaMenuPanel({ className = '' }: { className?: string }
         <div className="p-5">
           <div className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-3">
             <MapPin className="w-4 h-4 text-[#C4161C]" />
-            Popular cities
+            {t('mega.usedCars.popularCities')}
           </div>
           <nav className="flex flex-col">{POPULAR_CITIES.map((c) => <CityLink key={c} city={c} />)}</nav>
         </div>
@@ -150,7 +152,7 @@ export function UsedCarsMegaMenuPanel({ className = '' }: { className?: string }
         <div className="p-5">
           <div className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-3">
             <Car className="w-4 h-4 text-[#C4161C]" />
-            Popular models
+            {t('mega.usedCars.popularModels')}
           </div>
           <nav className="flex flex-col">
             {POPULAR_MODELS.map((m) => (

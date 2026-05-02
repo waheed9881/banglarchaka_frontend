@@ -1,0 +1,835 @@
+{
+  "common": {
+    "home": "Home",
+    "loading": "Loading…",
+    "back": "Back",
+    "new": "New",
+    "browseDealers": "Browse dealers"
+  },
+  "lang": {
+    "en": "English",
+    "bn": "বাংলা",
+    "switcherAria": "Choose language"
+  },
+  "nav": {
+    "downloadAppSms": "Download App via SMS",
+    "signIn": "Sign In",
+    "wishlist": "Wishlist",
+    "myListings": "My listings",
+    "messages": "Messages",
+    "logout": "Logout",
+    "loggedOut": "Logged out",
+    "usedCars": "Used Cars",
+    "newCars": "New Cars",
+    "bikes": "Bikes",
+    "autoStore": "Auto Store",
+    "videos": "Videos",
+    "forums": "Forums",
+    "blog": "Blog",
+    "admin": "Admin",
+    "hr": "HR",
+    "finance": "Finance",
+    "dealerPortal": "Dealer Portal",
+    "more": "More",
+    "postAd": "Post an Ad",
+    "closeMenu": "Close menu",
+    "openMenu": "Open menu",
+    "browseAllUsedCars": "Browse all used cars",
+    "featuredUsedCars": "Featured used cars",
+    "sellYourCar": "Sell your car",
+    "usedCarDealers": "Used car dealers",
+    "carPrices": "Car prices",
+    "otherListingTypes": "Other listing types…",
+    "tooltipUsedCars": "Used cars for sale",
+    "tooltipAutoStore": "Auto parts & accessories",
+    "tooltipPostAd": "Post an ad — choose category from the menu",
+    "mobileNewCarsFindNew": "Find new cars",
+    "mobileNewCarsCompare": "Car comparisons",
+    "mobileNewCarsReviews": "Reviews",
+    "mobileNewCarsPrices": "Prices",
+    "mobileNewCarsOnRoad": "On-road price guide",
+    "mobileNewCarsDealers": "New car dealers",
+    "mobileBikesFindUsed": "Find used bikes",
+    "mobileBikesListings": "Used bikes listings",
+    "mobileBikesFeatured": "Featured used bikes",
+    "mobileBikesSell": "Sell your bike",
+    "mobileBikesDealersUsed": "Used bike dealers",
+    "mobileBikesFindNew": "Find new bikes",
+    "mobileBikesCompare": "Bike comparisons",
+    "mobileBikesReviews": "Bike reviews",
+    "mobileBikesPricesNew": "New bike prices",
+    "mobileBikesDealersNew": "New bike dealers",
+    "mobileAutoStoreTitle": "BanglarChaka Auto Store",
+    "mobileAutoStoreFindParts": "Find auto parts",
+    "mobileAutoStoreSellParts": "Sell car parts"
+  },
+  "mega": {
+    "usedCars": {
+      "findTitle": "Find Used Cars for Sale",
+      "findDesc": "Search from thousands of live listings",
+      "featuredTitle": "Featured Used Cars",
+      "featuredDesc": "Boosted picks highlighted on the homepage",
+      "sellTitle": "Sell Your Car",
+      "sellDesc": "Post a free ad and reach serious buyers",
+      "dealersTitle": "Used Car Dealers",
+      "dealersDesc": "Find verified dealers near you",
+      "pricesTitle": "Car prices",
+      "pricesDesc": "Compare asking prices before you buy",
+      "certifiedTitle": "Certified cars",
+      "certifiedDesc": "Vetted listings with extra peace of mind",
+      "inspectionTitle": "Car inspection",
+      "inspectionDesc": "Professional inspection reports (coming soon)",
+      "sellForMeTitle": "Sell it for me",
+      "sellForMeDesc": "Let us handle photos, chats, and handover",
+      "auctionTitle": "Auction sheet verification",
+      "auctionDesc": "Verify import paperwork when available",
+      "popularCities": "Popular cities",
+      "popularModels": "Popular models"
+    },
+    "newCars": {
+      "banner": "Research new cars in Bangladesh — prices, reviews and comparisons",
+      "findTitle": "Find New Cars",
+      "findDesc": "Browse new car listings on BanglarChaka",
+      "compareTitle": "Car Comparisons",
+      "compareDesc": "Compare cars and spot trim differences",
+      "reviewsTitle": "Reviews",
+      "reviewsDesc": "Read reviews and buying angles by model",
+      "pricesTitle": "Prices",
+      "pricesDesc": "See asking prices for new listings",
+      "onRoadTitle": "On road price",
+      "onRoadDesc": "Use pricing guides before you budget",
+      "dealersTitle": "New Car Dealers",
+      "dealersDesc": "Find dealers posting new inventory",
+      "popularBrands": "Popular brands",
+      "popularNewCars": "Popular new cars"
+    },
+    "bikes": {
+      "banner": "Bikes for sale in Bangladesh.",
+      "findUsedTitle": "Find Used Bikes",
+      "findUsedDesc": "Find your next bike from live listings",
+      "listingsTitle": "Used Bikes Listings",
+      "listingsDesc": "Search thousands of used bike ads",
+      "featuredTitle": "Featured Used Bikes",
+      "featuredDesc": "Boosted picks from sellers",
+      "sellTitle": "Sell Your Bike",
+      "sellDesc": "Post a free ad and sell quickly",
+      "usedDealersTitle": "Used Bike Dealers",
+      "usedDealersDesc": "Browse dealer-posted used bikes",
+      "findNewTitle": "Find New Bikes",
+      "findNewDesc": "See new bike listings on BanglarChaka",
+      "compareTitle": "Bike Comparisons",
+      "compareDesc": "Compare bikes and spot differences",
+      "reviewsTitle": "Bike Reviews",
+      "reviewsDesc": "Read rider and expert reviews",
+      "newPricesTitle": "New Bikes Prices",
+      "newPricesDesc": "Check pricing trends for new bikes",
+      "newDealersTitle": "New Bike Dealers",
+      "newDealersDesc": "Find dealers listing new bikes",
+      "popularNewBikes": "Popular new bikes",
+      "popularUsedBikes": "Popular used bikes"
+    },
+    "autoStore": {
+      "storeTitle": "BanglarChaka Auto Store",
+      "storeDesc": "Buy auto parts & accessories directly from marketplace sellers",
+      "findPartsTitle": "Find Auto Parts",
+      "findPartsDesc": "Search accessories, oils and spares by category",
+      "sellPartsTitle": "Sell Car Parts",
+      "sellPartsDesc": "Post a free ad and sell your parts quickly"
+    }
+  },
+  "moreNav": {
+    "tools": "Tools",
+    "bikesStore": "Bikes & store",
+    "legal": "Legal",
+    "compareCars": "Compare cars",
+    "carReviews": "Car reviews",
+    "sitemap": "Sitemap",
+    "newBikes": "New bikes",
+    "bikePrices": "Bike prices",
+    "bikeReviews": "Bike reviews",
+    "accessories": "Accessories",
+    "wheelsTyres": "Wheels & tyres",
+    "engineParts": "Engine parts",
+    "carCare": "Car care",
+    "terms": "Terms & conditions",
+    "privacy": "Privacy policy"
+  },
+  "postAd": {
+    "sellYourCar": "Sell Your Car",
+    "sellYourBike": "Sell Your Bike",
+    "sellAccessory": "Sell Accessory",
+    "usedCar": "Used car",
+    "newCar": "New car",
+    "usedBike": "Used bike",
+    "autoPart": "Auto part",
+    "accessory": "Accessory",
+    "service": "Service"
+  },
+  "dealers": {
+    "featuredHeading": "Featured dealers",
+    "dealerDirectoryBadge": "Dealer directory",
+    "introLead": "Connect with verified showrooms across Bangladesh — live ",
+    "introBold": "inventory counts",
+    "introTrail": " from the BanglarChaka API.",
+    "viewAllDealers": "View all dealers",
+    "trustVerifiedTitle": "Verified dealers",
+    "trustVerifiedBody": "Badges reflect showroom profiles moderated on-platform.",
+    "trustPricingTitle": "Transparent pricing",
+    "trustPricingBody": "Browse listings first, then message dealers with context.",
+    "trustContactTitle": "Easy contact",
+    "trustContactBody": "WhatsApp and showroom links route straight from each profile.",
+    "emptyDirectory": "No dealers in the directory yet.",
+    "registerShowroom": "Register your showroom",
+    "ariaPrevDealers": "Previous dealers",
+    "ariaNextDealers": "Next dealers",
+    "liveListings": "live listings",
+    "responseRate": "Response rate · ~{{pct}}%",
+    "viewProfile": "View profile",
+    "noWhatsappTitle": "No WhatsApp on file",
+    "footerPreferSearch": "Prefer search filters?",
+    "dealerOnlyListings": "Dealer-only listings"
+  },
+  "homeSections": {
+    "browseByMakeTitle": "Browse Used Cars by Make",
+    "viewAllBrands": "View all brands",
+    "usedBikesTitle": "Used Bikes for Sale",
+    "usedBikesSubtitle": "Find your perfect ride at the best price",
+    "viewAllBikes": "View All Bikes →",
+    "browseListings": "Browse listings"
+  },
+  "feeds": {
+    "freshUsedInventory": "Fresh used inventory",
+    "newCarListings": "New car listings",
+    "usedCars": "Used cars",
+    "usedBikes": "Used bikes",
+    "usedCarAskingPrices": "Used car asking prices",
+    "popularUsedCars": "Popular used cars",
+    "hybridPicks": "Hybrid picks",
+    "newBikeListings": "New bike listings",
+    "usedBikesForSale": "Used bikes for sale",
+    "featuredBikes": "Featured bikes",
+    "accessoryListings": "Accessory listings",
+    "autoParts": "Auto parts",
+    "tyresAndRims": "Tyres & rims",
+    "relatedParts": "Related parts",
+    "partsInventory": "Parts inventory",
+    "serviceListings": "Service listings",
+    "partsConsumables": "Parts & consumables",
+    "trendingUsedCars": "Trending used cars",
+    "featuredInventory": "Featured inventory",
+    "latestDealerListings": "Latest dealer listings",
+    "recentUsedCars": "Recent used cars",
+    "recentlySoldStyles": "Recently sold styles",
+    "importStyleListings": "Import-style listings"
+  },
+  "footer": {
+    "tagline": "Bangladesh's marketplace for vehicles & parts.",
+    "subscribeTitle": "Subscribe for deals",
+    "subscribePlaceholder": "Email address",
+    "subscribeButton": "Subscribe",
+    "subscribeToast": "Thanks — you're on the list (demo).",
+    "invalidEmail": "Please enter a valid email.",
+    "careersToast": "Careers — openings will be posted here soon.",
+    "carsByMake": "Cars by make",
+    "carsByCity": "Cars by city",
+    "explore": "Explore BanglarChaka",
+    "company": "BanglarChaka.com",
+    "carsByCategory": "Cars by category",
+    "carsByBody": "Cars by body type",
+    "bikesByCc": "Bikes by engine size",
+    "social": "Follow us",
+    "copyright": "© {{year}} BanglarChaka. All rights reserved.",
+    "copyrightLine": "Copyright © {{year}} BanglarChaka — All rights reserved.",
+    "termsOfService": "Terms of Service",
+    "privacyPolicyLink": "Privacy Policy",
+    "reproductionNote": "Reproduction of material from any BanglarChaka pages without permission is strictly prohibited.",
+    "sellOnTitle": "Sell on BanglarChaka",
+    "newsletterHeading": "Subscribe to our newsletter",
+    "followUs": "Follow us",
+    "downloadApps": "Download mobile apps",
+    "googlePlay": "Google Play",
+    "appStore": "App Store",
+    "appComingSoon": "BanglarChaka app — coming soon.",
+    "coolRides": "Cool rides",
+    "about": "About BanglarChaka",
+    "products": "Our products",
+    "advertise": "Advertise with us",
+    "howToPay": "How to pay",
+    "faqs": "FAQs",
+    "careers": "Careers",
+    "contactUs": "Contact us",
+    "suv4x4": "SUV & 4×4",
+    "japaneseCars": "Japanese cars",
+    "importedCars": "Imported cars",
+    "automaticCars": "Automatic cars",
+    "budgetPicks": "Budget picks",
+    "hybridCars": "Hybrid cars",
+    "cc660": "660cc cars",
+    "cc1300": "1300cc cars",
+    "sedan": "Sedan",
+    "hatchback": "Hatchback",
+    "suv": "SUV",
+    "crossover": "Crossover",
+    "mpv": "MPV",
+    "pickup": "Pickup",
+    "coupe": "Coupe",
+    "wagon": "Wagon",
+    "bike70to100": "70–100cc bikes",
+    "bike100to150": "100–150cc bikes",
+    "bike150plus": "150cc+ bikes",
+    "bikeSports": "Sports bikes",
+    "bikeStandard": "Standard bikes",
+    "bikeScooters": "Scooters",
+    "usedCars": "Used Cars",
+    "usedBikes": "Used Bikes",
+    "newCars": "New Cars",
+    "partsAccessories": "Auto Parts & Accessories",
+    "forums": "Forums",
+    "videos": "Videos",
+    "blog": "Blog",
+    "carsByColour": "Cars by colour",
+    "carsByDivision": "Cars by division",
+    "brandToyota": "Toyota",
+    "brandSuzuki": "Suzuki",
+    "brandHonda": "Honda",
+    "brandNissan": "Nissan",
+    "brandMitsubishi": "Mitsubishi",
+    "brandHyundai": "Hyundai",
+    "brandMercedes": "Mercedes-Benz",
+    "brandBmw": "BMW",
+    "brandKia": "Kia",
+    "cityDhaka": "Dhaka",
+    "cityChattogram": "Chattogram",
+    "citySylhet": "Sylhet",
+    "cityRajshahi": "Rajshahi",
+    "cityKhulna": "Khulna",
+    "cityGazipur": "Gazipur",
+    "cityCumilla": "Cumilla",
+    "cityNarayanganj": "Narayanganj",
+    "cityJessore": "Jessore",
+    "cityBarishal": "Barishal",
+    "cityRangpur": "Rangpur",
+    "cityMymensingh": "Mymensingh",
+    "whiteCars": "White cars",
+    "blackCars": "Black cars",
+    "silverCars": "Silver cars",
+    "greyCars": "Grey cars",
+    "blueCars": "Blue cars",
+    "redCars": "Red cars",
+    "greenCars": "Green cars",
+    "goldCars": "Gold cars",
+    "divisionDhaka": "Dhaka Division",
+    "divisionChattogram": "Chattogram Division",
+    "divisionSylhet": "Sylhet Division",
+    "divisionRajshahi": "Rajshahi Division",
+    "divisionKhulna": "Khulna Division",
+    "divisionBarishal": "Barishal Division",
+    "divisionRangpur": "Rangpur Division",
+    "divisionMymensingh": "Mymensingh Division",
+    "socialTwitter": "Twitter",
+    "socialFacebook": "Facebook",
+    "socialLinkedIn": "LinkedIn",
+    "socialInstagram": "Instagram",
+    "socialYouTube": "YouTube"
+  },
+  "home": {
+    "seoTitle": "BanglarChaka — Cars, bikes & parts",
+    "seoDesc": "Buy and sell used and new cars, bikes, auto parts, tyres, accessories, and services across Bangladesh."
+  },
+  "hero": {
+    "savedSearches": "Saved searches",
+    "searchPlaceholder": "Search keyword e.g. Honda Civic, hybrid SUV…",
+    "cityLabel": "City",
+    "brandLabel": "Brand",
+    "typeLabel": "Listing type",
+    "usedCars": "Used cars",
+    "newCars": "New cars",
+    "usedBikes": "Used bikes",
+    "autoParts": "Auto parts",
+    "searchButton": "Search listings",
+    "clearFilters": "Clear filters",
+    "filtersHeading": "Filters",
+    "minPrice": "Min price (BDT)",
+    "maxPrice": "Max price (BDT)",
+    "minYear": "Min year",
+    "maxYear": "Max year",
+    "fuelType": "Fuel type",
+    "transmission": "Transmission",
+    "condition": "Condition",
+    "verifiedDealersOnly": "Verified dealers only",
+    "dealerInventoryOnly": "Dealer inventory only",
+    "allFuel": "Any fuel",
+    "petrol": "Petrol",
+    "diesel": "Diesel",
+    "hybrid": "Hybrid",
+    "electric": "Electric",
+    "cng": "CNG",
+    "anyTransmission": "Any transmission",
+    "automatic": "Automatic",
+    "manual": "Manual",
+    "anyCondition": "Any condition",
+    "used": "Used",
+    "reconditioned": "Reconditioned",
+    "new": "New",
+    "headline": "Find Used Cars in Bangladesh",
+    "subhead": "With thousands of cars, we have just the right one for you",
+    "tabBikes": "Bikes",
+    "anyMake": "Any Make",
+    "anyCity": "Any City",
+    "modelKeywordPlaceholder": "Model or keyword",
+    "searchShort": "Search",
+    "advancedFiltersHide": "Hide Advanced Filters «",
+    "advancedFiltersShow": "Advanced Filters »",
+    "clearShort": "Clear",
+    "saveSearch": "Save Search",
+    "placeholderMinPrice": "Min Price (BDT)",
+    "placeholderMaxPrice": "Max Price (BDT)",
+    "placeholderMinYear": "Min Year",
+    "placeholderMaxYear": "Max Year",
+    "anyFuelType": "Any Fuel Type",
+    "anyTransmissionShort": "Any Transmission",
+    "anyConditionShort": "Any Condition",
+    "dealerListingsOnly": "Dealer listings only",
+    "applyAdvancedFilters": "Apply advanced filters",
+    "statCarsForSale": "Cars for Sale",
+    "statBikesForSale": "Bikes for Sale",
+    "statDealers": "Dealers",
+    "statAutoPartsShort": "Auto Parts",
+    "savedSearchUsedCars": "Used cars",
+    "savedSearchNewCars": "New cars",
+    "savedSearchBikes": "Bikes",
+    "savedSearchParts": "Auto parts"
+  },
+  "browseUsed": {
+    "title": "Browse Used Cars",
+    "tabCategory": "Category",
+    "tabCity": "City",
+    "tabMake": "Make",
+    "tabModel": "Model",
+    "tabBudget": "Budget",
+    "tabBody": "Body Type",
+    "allBrands": "All brands",
+    "ariaPrev": "Previous page",
+    "ariaNext": "Next page",
+    "ariaPage": "Page {{page}}",
+    "tileSeater5": "5 Seater",
+    "tileAutomaticCars": "Automatic cars",
+    "tileFamilyCars": "Family Cars",
+    "tileBigCars": "Big cars",
+    "tileSmallCars": "Small cars",
+    "tileDoor5": "5 Door",
+    "tileOldCars": "Old Cars",
+    "tileDoor4": "4 Door",
+    "tileImportedCarsTile": "Imported cars",
+    "tileCc1000": "1000cc cars",
+    "tileCc1300Tile": "1300cc cars",
+    "tileJapaneseCarsTile": "Japanese cars",
+    "tileHybridTile": "Hybrid",
+    "tileElectricTile": "Electric",
+    "tilePetrolTile": "Petrol",
+    "tileDieselTile": "Diesel",
+    "tileLuxury": "Luxury",
+    "tileCompactSuv": "Compact SUV",
+    "tileSedanTile": "Sedan",
+    "tileStationWagon": "Station wagon",
+    "tileSunroof": "Sunroof",
+    "tileLowMileage": "Low mileage",
+    "tileSingleOwner": "Single owner",
+    "tileNonAccidental": "Non accidental",
+    "tileBudgetPicksTile": "Budget picks",
+    "tileFeaturedAds": "Featured ads",
+    "tileDealerCars": "Dealer cars",
+    "tileManualGearbox": "Manual gearbox",
+    "tileRecentImports": "Recent imports",
+    "tileAwd": "All-wheel drive",
+    "tileSilverColour": "Silver colour",
+    "tileWhiteColour": "White colour",
+    "tileBlackColour": "Black colour",
+    "tileSunshineCars": "Sunshine cars",
+    "tileFinanceOk": "Finance OK",
+    "tileBrowseAll": "Browse all",
+    "budgetUnder5L": "Under ৳5 Lac",
+    "budget5to10": "৳5L – ৳10L",
+    "budget10to15": "৳10L – ৳15L",
+    "budget15to25": "৳15L – ৳25L",
+    "budget25to40": "৳25L – ৳40L",
+    "budget40to60": "৳40L – ৳60L",
+    "budgetAbove60": "Above ৳60L",
+    "budgetBestValue": "Best value",
+    "budgetPremium": "Premium segment",
+    "budgetMidRange": "Mid range",
+    "budgetStarter": "Starter cars",
+    "budgetAny": "Any budget",
+    "bodyMpvVan": "MPV / Van",
+    "bodyMicrobus": "Microbus",
+    "bodyConvertible": "Convertible",
+    "bodyOffRoad": "Off-road",
+    "bodyOther": "Other body"
+  },
+  "homeFeatured": {
+    "title": "Featured Used Cars",
+    "feedHint": "Popular listings — sellers can boost ads to appear here.",
+    "viewAll": "View All Cars →",
+    "badge": "FEATURED",
+    "na": "N/A"
+  },
+  "quickLinks": {
+    "popularTitle": "Popular searches",
+    "browseByCity": "Browse by city",
+    "promoCatalogTitle": "Live catalog",
+    "promoCatalogBody": "Cars, bikes & parts from real sellers",
+    "promoSearchTitle": "Smart search",
+    "promoSearchBody": "Filters by city, price, specs & more",
+    "promoDealersTitle": "Dealers",
+    "promoDealersBody": "Browse showroom listings where available",
+    "promoSafeTitle": "Safe browsing",
+    "promoSafeBody": "Read listings fully before you contact"
+  },
+  "auth": {
+    "seoTitle": "Sign in · BanglarChaka",
+    "seoDesc": "Log in to manage listings, messages, and wishlist.",
+    "title": "Sign in",
+    "subtitle": "Use email and password, Google, or phone OTP.",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Password",
+    "signInEmail": "Sign in with email",
+    "sendOtp": "Send OTP",
+    "otpPlaceholder": "OTP code",
+    "phonePlaceholder": "Mobile number",
+    "signInOtp": "Sign in with OTP",
+    "orContinue": "Or continue with",
+    "otpSent": "OTP sent",
+    "otpHintDev": "Dev OTP: {{code}}",
+    "otpSentSms": "OTP sent — check SMS when wired.",
+    "googleSignInFailed": "Google sign-in failed",
+    "loginFailed": "Login failed",
+    "otpSendFailed": "OTP send failed",
+    "otpLoginFailed": "OTP login failed",
+    "phoneOtpHeading": "Phone OTP",
+    "clearSession": "Clear session",
+    "backHome": "Back to home"
+  },
+  "dealerPublic": {
+    "loading": "Loading dealer…",
+    "notFound": "Dealer not found.",
+    "seoNotFound": "Dealer not found · BanglarChaka",
+    "seoDealerTitle": "{{name}} · Dealers · BanglarChaka",
+    "seoDealerDescFallback": "{{name}} — listings and contact on BanglarChaka.",
+    "backHome": "Back to home",
+    "verified": "Verified",
+    "messageShowroom": "Message showroom",
+    "signInToMessage": "Sign in to message this showroom on BanglarChaka.",
+    "whatsapp": "WhatsApp",
+    "website": "Website",
+    "responseLine": "Response rate ~{{rate}}% · avg reply {{mins}} min",
+    "responseLineNoAvg": "Response rate ~{{rate}}% · avg reply —",
+    "locations": "Locations",
+    "branchFallback": "Branch",
+    "listingsHeading": "Cars & listings",
+    "noListings": "No published listings on this showroom yet."
+  },
+  "apiHint": {
+    "title": "Can't reach API",
+    "body": "Start Laravel at {{url}} (see frontend VITE_DEV_API_PROXY), then reload."
+  },
+  "innerUi": {
+    "whatYouCanDo": "What you can do here",
+    "handPicked": "Hand-picked from live marketplace listings",
+    "browseAll": "Browse all",
+    "noListingsMatch": "No listings match this filter yet — check back soon.",
+    "postFirstAd": "Post the first ad",
+    "viewInventory": "View inventory",
+    "noDealersYet": "No dealers published yet.",
+    "relatedPages": "Related pages",
+    "listingsCount": "{{count}} listings",
+    "defaultCountry": "Bangladesh",
+    "seoTitle": "{{title}} · BanglarChaka"
+  },
+  "inner": {
+    "videos": {
+      "title": "Videos",
+      "subtitle": "Watch latest walkarounds, ownership reviews, and expert buying guides.",
+      "highlights": [
+        "Browse featured video reviews for cars and bikes",
+        "Watch price update explainers and ownership tips",
+        "Explore maintenance and troubleshooting videos",
+        "Find new launch highlights and comparisons"
+      ],
+      "quickLinks": [
+        { "label": "Car Reviews", "to": "/car-reviews" },
+        { "label": "Bike Reviews", "to": "/bike-reviews" },
+        { "label": "Blog", "to": "/blog" }
+      ]
+    },
+    "forums": {
+      "title": "Forums",
+      "subtitle": "Join community discussions with buyers, owners, and auto enthusiasts.",
+      "highlights": [
+        "Ask buying questions and get expert suggestions",
+        "Discuss ownership costs and reliability",
+        "Share modifications and maintenance experiences",
+        "Track market trends and resale insights"
+      ],
+      "quickLinks": [
+        { "label": "Used Cars", "to": "/listings?type=used_car" },
+        { "label": "Used Bikes", "to": "/listings?type=used_bike" }
+      ]
+    },
+    "carPrices": {
+      "title": "Car Prices",
+      "subtitle": "Track current market price ranges before you buy or sell.",
+      "highlights": [
+        "Check new and used car market pricing",
+        "Compare trims and model-year value shifts",
+        "Review city-wise price differences",
+        "Use pricing insight before negotiation"
+      ],
+      "quickLinks": [
+        { "label": "New Cars", "to": "/listings?type=new_car" },
+        { "label": "Used Cars", "to": "/listings?type=used_car" }
+      ]
+    },
+    "carReviews": {
+      "title": "Car Reviews",
+      "subtitle": "Explore expert and owner feedback before making a decision.",
+      "highlights": [
+        "Read owner experience summaries",
+        "Compare comfort, features, and reliability",
+        "Check value-for-money analysis by segment",
+        "Find pros/cons for top models"
+      ],
+      "quickLinks": [
+        { "label": "Blog", "to": "/blog" },
+        { "label": "Videos", "to": "/videos" }
+      ]
+    },
+    "newBikes": {
+      "title": "New Bikes",
+      "subtitle": "Discover latest bike models and expected launch updates.",
+      "highlights": [
+        "Browse upcoming bike launches",
+        "Review expected prices and specs",
+        "Compare commuter and sports options",
+        "Find launch offers and availability insights"
+      ],
+      "quickLinks": [
+        { "label": "Used Bikes", "to": "/listings?type=used_bike" },
+        { "label": "Bike Prices", "to": "/bike-prices" }
+      ]
+    },
+    "bikePrices": {
+      "title": "Bike Prices",
+      "subtitle": "Stay updated with bike pricing trends across categories.",
+      "highlights": [
+        "Check latest market prices for popular bikes",
+        "Track recent price hikes and reductions",
+        "Compare similar bikes by budget",
+        "Use real-time pricing while buying/selling"
+      ],
+      "quickLinks": [
+        { "label": "New Bikes", "to": "/new-bikes" },
+        { "label": "Used Bikes", "to": "/listings?type=used_bike" }
+      ]
+    },
+    "bikeReviews": {
+      "title": "Bike Reviews",
+      "subtitle": "Learn from rider feedback and expert test reports.",
+      "highlights": [
+        "See performance and mileage-focused reviews",
+        "Compare riding comfort for daily use",
+        "Evaluate maintenance and spare parts insights",
+        "Review user-reported issues before purchase"
+      ],
+      "quickLinks": [
+        { "label": "Bikes Listings", "to": "/listings?type=used_bike" },
+        { "label": "Videos", "to": "/videos" }
+      ]
+    },
+    "accessories": {
+      "title": "Accessories",
+      "subtitle": "Find add-ons and styling options for your vehicle.",
+      "highlights": [
+        "Browse interior and exterior accessories",
+        "Compare pricing from multiple sellers",
+        "Check compatibility and fitment guidance",
+        "Discover seasonal offers and bundles"
+      ],
+      "quickLinks": [
+        { "label": "Auto Parts", "to": "/listings?type=auto_part" },
+        { "label": "Wheels & Tyres", "to": "/wheels-tyres" }
+      ]
+    },
+    "wheelsTyres": {
+      "title": "Wheels & Tyres",
+      "subtitle": "Compare tyre options and wheel upgrades by size and usage.",
+      "highlights": [
+        "Filter tyres by size and vehicle type",
+        "Compare performance and durability classes",
+        "Estimate replacement and balancing cost",
+        "Find dealer inventory and quick contact"
+      ],
+      "quickLinks": [
+        { "label": "Auto Parts", "to": "/listings?type=auto_part" },
+        { "label": "Car Care", "to": "/car-care" }
+      ]
+    },
+    "engineParts": {
+      "title": "Engine Parts",
+      "subtitle": "Search critical engine components with confidence.",
+      "highlights": [
+        "Discover OEM and aftermarket options",
+        "Verify part fitment and model compatibility",
+        "Compare trusted suppliers by price",
+        "Reduce downtime with quick sourcing"
+      ],
+      "quickLinks": [
+        { "label": "Auto Parts", "to": "/listings?type=auto_part" },
+        { "label": "Accessories", "to": "/accessories" }
+      ]
+    },
+    "carCare": {
+      "title": "Car Care",
+      "subtitle": "Keep your vehicle healthy with regular care and detailing.",
+      "highlights": [
+        "Find cleaning and detailing products",
+        "Discover preventive maintenance checklists",
+        "Compare routine service consumables",
+        "Track seasonal care recommendations"
+      ],
+      "quickLinks": [
+        { "label": "Auto Parts", "to": "/listings?type=auto_part" },
+        { "label": "Blog", "to": "/blog" }
+      ]
+    },
+    "terms": {
+      "title": "Terms & Conditions",
+      "subtitle": "Understand platform usage rules and service boundaries.",
+      "highlights": [
+        "User responsibilities and acceptable use",
+        "Listing moderation and content policy",
+        "Transaction and dispute disclaimers",
+        "Account suspension and enforcement rules"
+      ],
+      "quickLinks": [
+        { "label": "Privacy Policy", "to": "/privacy" },
+        { "label": "Sitemap", "to": "/sitemap" }
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "subtitle": "How your data is collected, used, and protected.",
+      "highlights": [
+        "Information we collect from users",
+        "How data is used for marketplace features",
+        "Cookies and session management",
+        "Retention, deletion, and contact rights"
+      ],
+      "quickLinks": [
+        { "label": "Terms & Conditions", "to": "/terms" },
+        { "label": "Sitemap", "to": "/sitemap" }
+      ]
+    },
+    "usedCarsFeatured": {
+      "title": "Featured Used Cars",
+      "subtitle": "Boosted listings sellers chose to highlight — shown ahead of regular results.",
+      "highlights": [
+        "Curated visibility for quality inventory",
+        "Filter further from the main used car search",
+        "Compare asking prices side by side",
+        "Contact sellers while listings are fresh"
+      ],
+      "quickLinks": [
+        { "label": "All used cars", "to": "/listings?type=used_car" },
+        { "label": "Post an ad", "to": "/post-ad" }
+      ]
+    },
+    "usedCarDealers": {
+      "title": "Used Car Dealers",
+      "subtitle": "Find verified dealers and browse inventory posted under dealer accounts.",
+      "highlights": [
+        "Filter dealer-posted stock in one place",
+        "See response metrics where available",
+        "Jump into each dealer’s public profile",
+        "Mix dealer listings with private sellers from search"
+      ],
+      "quickLinks": [
+        { "label": "Verified dealers only (search)", "to": "/listings?type=used_car&verified_dealer_only=1" },
+        { "label": "Home", "to": "/" }
+      ]
+    },
+    "certifiedCars": {
+      "title": "Certified Cars",
+      "subtitle": "Learn how we surface listings that pass extra checks — availability varies by seller.",
+      "highlights": [
+        "Clearer expectations on condition and paperwork",
+        "Badged listings when inspection data exists",
+        "Always confirm details before payment",
+        "Report listings that misrepresent condition"
+      ],
+      "quickLinks": [
+        { "label": "Browse used cars", "to": "/listings?type=used_car" },
+        { "label": "Featured picks", "to": "/used-cars/featured" }
+      ]
+    },
+    "carInspection": {
+      "title": "Car Inspection",
+      "subtitle": "Professional inspection partnerships are rolling out — reserve and attach reports to your listing.",
+      "highlights": [
+        "Structured checklist covering mechanical basics",
+        "Optional report badge on approved listings",
+        "Better confidence for remote buyers",
+        "City-by-city rollout — watch this space"
+      ],
+      "quickLinks": [
+        { "label": "Used cars", "to": "/listings?type=used_car" },
+        { "label": "Dealers", "to": "/used-car-dealers" }
+      ]
+    },
+    "sellItForMe": {
+      "title": "Sell It For Me",
+      "subtitle": "Let our team handle photography, chats, and viewing coordination — you approve the final price.",
+      "highlights": [
+        "Less time spent on tire-kickers",
+        "Listing copy tuned for search",
+        "Coordinated handover once sold",
+        "Contact support to join the pilot programme"
+      ],
+      "quickLinks": [
+        { "label": "Post an ad yourself", "to": "/used-cars/sell" },
+        { "label": "Car prices", "to": "/car-prices" }
+      ]
+    },
+    "auctionVerification": {
+      "title": "Auction Sheet Verification",
+      "subtitle": "Verify auction-grade paperwork for imports when sellers upload scans — service expanding by port city.",
+      "highlights": [
+        "Cross-check auction sheet metadata",
+        "Flag common tampering patterns",
+        "Works best with original scans",
+        "Adds confidence but is not a substitute for physical inspection"
+      ],
+      "quickLinks": [
+        { "label": "Browse used cars", "to": "/listings?type=used_car" },
+        { "label": "Blog", "to": "/blog" }
+      ]
+    },
+    "sitemap": {
+      "title": "Sitemap",
+      "subtitle": "Navigate all important sections from one place.",
+      "highlights": [
+        "Marketplace sections for cars, bikes, and parts",
+        "Dealer and admin utility pages",
+        "Knowledge sections like blog and forums",
+        "Policy pages for terms and privacy"
+      ],
+      "quickLinks": [
+        { "label": "Home", "to": "/" },
+        { "label": "Listings", "to": "/listings" },
+        { "label": "Compare", "to": "/compare" },
+        { "label": "Post Ad", "to": "/post-ad" },
+        { "label": "Admin Moderation", "to": "/admin/moderation" },
+        { "label": "Blog", "to": "/blog" }
+      ]
+    }
+  }
+}
