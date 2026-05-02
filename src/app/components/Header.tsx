@@ -117,7 +117,7 @@ export function Header({
       <div className="border-b border-white/10 text-white/95">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center py-1.5 text-[12px] sm:text-[13px]">
           <div className="flex gap-4 sm:gap-6 min-w-0 items-center">
-            <span className="hover:text-white cursor-default truncate transition">{t('nav.downloadAppSms')}</span>
+            {/* <span className="hover:text-white cursor-default truncate transition"></span> */}
             <MarketRegionSwitcher />
             <LanguageSwitcher />
           </div>
@@ -228,7 +228,7 @@ export function Header({
                   </div>
                 </div>
               </div>
-              <div className="group/autostore">
+              <div className="relative group/autostore">
                 <Link
                   to="/listings?type=auto_part"
                   className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/autostore:bg-white group-hover/autostore:text-gray-900 group-hover/autostore:border-white group-hover/autostore:border-b-white group-hover/autostore:shadow-[0_1px_0_0_white]"
@@ -237,10 +237,8 @@ export function Header({
                   {t('nav.autoStore')}{' '}
                   <ChevronDown className="w-3.5 h-3.5 opacity-80 transition-colors group-hover/autostore:text-[#C4161C]" />
                 </Link>
-                <div className="pointer-events-none invisible opacity-0 group-hover/autostore:pointer-events-auto group-hover/autostore:visible group-hover/autostore:opacity-100 transition-opacity duration-150 absolute left-0 right-0 top-full z-50 pt-1">
-                  <div className="w-full min-w-0 flex justify-start">
-                    <AutoStoreMegaMenuPanel />
-                  </div>
+                <div className="pointer-events-none invisible opacity-0 group-hover/autostore:pointer-events-auto group-hover/autostore:visible group-hover/autostore:opacity-100 transition-opacity duration-150 absolute left-0 top-full z-50 pt-1 w-max max-w-[min(22rem,calc(100vw-2rem))]">
+                  <AutoStoreMegaMenuPanel />
                 </div>
               </div>
               <Link to="/videos" className={navLinkElevated}>
