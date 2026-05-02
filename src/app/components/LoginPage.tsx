@@ -7,11 +7,12 @@ import {
   loginWithEmailPassword,
   loginWithGoogleIdToken,
   registerBuyer,
+  verifyRegistrationOtp,
   logoutLocal,
   resolvePostLoginPath,
   type MeResponse,
 } from '@/lib/auth';
-import { loginWithPhoneOtp, sendLoginOtp } from '@/lib/engagement';
+import { loginWithPhoneOtp, sendLoginOtp, sendRegisterOtpEmail } from '@/lib/engagement';
 import { useTranslation } from 'react-i18next';
 import { setPageSeo } from '@/lib/seo';
 import { toast } from 'sonner';
@@ -53,9 +54,20 @@ export function LoginPage({ variant }: { variant: Tab }) {
   const [submittingLogin, setSubmittingLogin] = useState(false);
   const [submittingRegister, setSubmittingRegister] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
+  const [regOtpStep, setRegOtpStep] = useState(false);
+  const [regEmailMask, setRegEmailMask] = useState('');
+  const [regOtpCode, setRegOtpCode] = useState('');
+  const [regOtpHint, setRegOtpHint] = useState('');
+  const [regOtpSendBusy, setRegOtpSendBusy] = useState(false);
+  const [regOtpVerifyBusy, setRegOtpVerifyBusy] = useState(false);
+  const [regOtpResendSec, setRegOtpResendSec] = useState(0);
 
   useEffect(() => {
     setTab(variant);
+    setRegOtpStep(false);
+    setRegOtpCode('');
+    setRegOtpHint('');
+    setRegOtpResendSec(0);
   }, [variant]);
 
   useEffect(() => {
@@ -76,6 +88,12 @@ export function LoginPage({ variant }: { variant: Tab }) {
     const id = window.setTimeout(() => setOtpResendSec((s) => Math.max(0, s - 1)), 1000);
     return () => clearTimeout(id);
   }, [otpResendSec]);
+
+  useEffect(() => {
+    if (regOtpResendSec <= 0) return;
+    const id = window.setTimeout(() => setRegOtpResendSec((s) => Math.max(0, s - 1)), 1000);
+    return () => clearTimeout(id);
+  }, [regOtpResendSec]);
 
   const doLogin = async () => {
     setSubmittingLogin(true);
@@ -100,26 +118,94 @@ export function LoginPage({ variant }: { variant: Tab }) {
       toast.error(t('auth.passwordMismatch'));
       return;
     }
+    const email = regEmail.trim();
+    if (!email) {
+      toast.error(t('auth.enterEmail'));
+      return;
+    }
     setSubmittingRegister(true);
     try {
       const data = await registerBuyer({
         name: regName.trim(),
-        email: regEmail.trim(),
+        email,
         password: regPassword,
         password_confirmation: regPassword2,
-        phone: regPhone.trim() || undefined,
+        ...(regPhone.trim() ? { phone: regPhone.trim() } : {}),
       });
-      let meFresh = await fetchMe();
-      if (!meFresh && data.user.roles?.length) {
-        meFresh = data.user as MeResponse;
+      if ('requires_otp' in data && data.requires_otp) {
+        setRegEmailMask(data.email_mask || email);
+        setRegOtpStep(true);
+        setRegOtpCode('');
+        if (data.debug_code) {
+          setRegOtpHint(t('auth.otpHintDev', { code: data.debug_code }));
+          toast.success(t('auth.otpHintDev', { code: data.debug_code }));
+        } else {
+          setRegOtpHint('');
+          toast.success(t('auth.registrationOtpSent'));
+        }
+        setRegOtpResendSec(45);
+        return;
       }
-      setMe(meFresh || data.user);
+      const auth = data;
+      let meFresh = await fetchMe();
+      if (!meFresh && auth.user.roles?.length) {
+        meFresh = auth.user as MeResponse;
+      }
+      setMe(meFresh || auth.user);
       toast.success(t('auth.accountCreated'));
       navigate(resolvePostLoginPath(meFresh, returnTo));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t('auth.registerFailed'));
     } finally {
       setSubmittingRegister(false);
+    }
+  };
+
+  const doResendRegisterOtp = async () => {
+    const email = regEmail.trim();
+    if (!email) return;
+    setRegOtpSendBusy(true);
+    try {
+      const res = await sendRegisterOtpEmail(email);
+      if (res.debugCode) {
+        setRegOtpHint(t('auth.otpHintDev', { code: res.debugCode }));
+        toast.success(t('auth.otpHintDev', { code: res.debugCode }));
+      } else {
+        setRegOtpHint('');
+        toast.success(t('auth.registrationOtpSent'));
+      }
+      setRegOtpResendSec(45);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : t('auth.otpSendFailed'));
+    } finally {
+      setRegOtpSendBusy(false);
+    }
+  };
+
+  const doVerifyRegisterOtp = async () => {
+    const email = regEmail.trim();
+    if (!email || !regOtpCode.trim()) {
+      toast.error(t('auth.emailOtpRequired'));
+      return;
+    }
+    setRegOtpVerifyBusy(true);
+    try {
+      const auth = await verifyRegistrationOtp(email, regOtpCode.trim());
+      let meFresh = await fetchMe();
+      if (!meFresh && auth.user.roles?.length) {
+        meFresh = auth.user as MeResponse;
+      }
+      setMe(meFresh || auth.user);
+      setRegOtpStep(false);
+      setRegOtpCode('');
+      setRegOtpHint('');
+      setRegOtpResendSec(0);
+      toast.success(t('auth.accountCreated'));
+      navigate(resolvePostLoginPath(meFresh, returnTo));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : t('auth.verifyRegistrationFailed'));
+    } finally {
+      setRegOtpVerifyBusy(false);
     }
   };
 
@@ -430,6 +516,60 @@ export function LoginPage({ variant }: { variant: Tab }) {
                   </div>
                 </details>
               </div>
+            ) : regOtpStep ? (
+              <div className="space-y-4 max-w-md mx-auto lg:mx-0">
+                <div className="flex items-start gap-3 rounded-xl border border-[#233D7B]/20 bg-[#233D7B]/5 p-4">
+                  <ShieldCheck className="w-8 h-8 shrink-0 text-[#233D7B]" aria-hidden />
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">{t('auth.verifyEmailTitle')}</h3>
+                    <p className="text-sm text-slate-600 mt-1">{t('auth.verifyEmailBlurb', { mask: regEmailMask })}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  disabled={regOtpSendBusy || regOtpResendSec > 0}
+                  onClick={() => void doResendRegisterOtp()}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-[#233D7B]/25 bg-[#233D7B]/8 text-[#233D7B] py-3 text-sm font-semibold hover:bg-[#233D7B]/12 disabled:opacity-50 disabled:pointer-events-none transition"
+                >
+                  {regOtpSendBusy ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : null}
+                  {regOtpResendSec > 0 ? `${t('auth.resendOtp')} (${regOtpResendSec}s)` : t('auth.resendOtp')}
+                </button>
+                <label className="block">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t('auth.otpPlaceholder')}</span>
+                  <input
+                    value={regOtpCode}
+                    onChange={(e) => setRegOtpCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                    className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-center text-lg font-mono tracking-[0.4em] text-slate-900 outline-none ring-[#C4161C]/20 focus:ring-2"
+                    placeholder="••••••"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={8}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') void doVerifyRegisterOtp();
+                    }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  disabled={regOtpVerifyBusy}
+                  onClick={() => void doVerifyRegisterOtp()}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#C4161C] text-white py-3.5 text-[15px] font-semibold shadow-md shadow-[#C4161C]/20 hover:bg-red-800 disabled:opacity-60 transition"
+                >
+                  {regOtpVerifyBusy ? <Loader2 className="w-5 h-5 animate-spin" aria-hidden /> : null}
+                  {t('auth.verifyAndActivate')}
+                </button>
+                {regOtpHint ? (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50/95 px-3 py-3 text-xs text-amber-950 tabular-nums">
+                    {import.meta.env.DEV ? <p className="font-semibold text-amber-900 mb-1">Development</p> : null}
+                    <p>{regOtpHint}</p>
+                  </div>
+                ) : null}
+                <p className="text-center text-xs text-slate-500 pt-2">
+                  <Link to="/login" className="font-semibold text-[#233D7B] hover:underline">
+                    {t('nav.signIn')}
+                  </Link>
+                </p>
+              </div>
             ) : (
               <div className="space-y-4 max-w-md mx-auto lg:mx-0">
                 <p className="text-sm text-slate-600 mb-2">{t('auth.registerSeoDesc')}</p>
@@ -461,6 +601,7 @@ export function LoginPage({ variant }: { variant: Tab }) {
                     onChange={(e) => setRegPhone(e.target.value)}
                     className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-[15px] outline-none focus:bg-white focus:ring-2 ring-[#233D7B]/30"
                     placeholder="+880…"
+                    autoComplete="tel"
                   />
                 </label>
                 <label className="block">
