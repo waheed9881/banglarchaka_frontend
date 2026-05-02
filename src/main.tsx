@@ -3,7 +3,6 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import { i18nReady } from "./i18n/config";
 import App from "./app/App.tsx";
-import { MarketPrefsProvider } from "./app/context/MarketPrefsContext.tsx";
 import { RootErrorBoundary } from "./app/components/RootErrorBoundary.tsx";
 import "sonner/dist/styles.css";
 import "./styles/index.css";
@@ -14,20 +13,16 @@ const googleClientId =
 const tree = googleClientId ? (
   <GoogleOAuthProvider clientId={googleClientId}>
     <BrowserRouter>
-      <MarketPrefsProvider>
-        <RootErrorBoundary>
-          <App />
-        </RootErrorBoundary>
-      </MarketPrefsProvider>
+      <RootErrorBoundary>
+        <App />
+      </RootErrorBoundary>
     </BrowserRouter>
   </GoogleOAuthProvider>
 ) : (
   <BrowserRouter>
-    <MarketPrefsProvider>
-      <RootErrorBoundary>
-        <App />
-      </RootErrorBoundary>
-    </MarketPrefsProvider>
+    <RootErrorBoundary>
+      <App />
+    </RootErrorBoundary>
   </BrowserRouter>
 );
 

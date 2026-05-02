@@ -1,5 +1,5 @@
 import { User, Menu, X, ChevronDown, LogOut } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { useMarketPrefs } from '@/app/context/MarketPrefsContext';
@@ -40,6 +40,8 @@ export function Header({
   const [autoStoreMobileOpen, setAutoStoreMobileOpen] = useState(false);
   const [postAdMobileOpen, setPostAdMobileOpen] = useState(false);
   const [moreMobileOpen, setMoreMobileOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
   const [msg, setMsg] = useState('');
 
   useEffect(() => {
@@ -108,6 +110,21 @@ export function Header({
     };
   }, [mobileNavOpen]);
 
+  useEffect(() => {
+    setAccountMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!accountMenuOpen) return;
+    const onDocMouseDown = (e: MouseEvent) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(e.target as Node)) {
+        setAccountMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocMouseDown);
+    return () => document.removeEventListener('mousedown', onDocMouseDown);
+  }, [accountMenuOpen]);
+
   const mobileAccordionBtn =
     'text-left px-3 py-3 rounded-md hover:bg-white/10 flex items-center justify-between gap-2 w-full text-white';
 
@@ -142,23 +159,74 @@ export function Header({
                 </Link>
               </div>
             ) : (
-              <div className="flex flex-wrap gap-x-3 gap-y-1 items-center justify-end">
-                <button type="button" onClick={() => onNavigate('/wishlist')} className="hover:text-white transition text-[11px] sm:text-xs">
-                  {t('nav.wishlist')}
+              <div className="relative flex justify-end" ref={accountMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setAccountMenuOpen((o) => !o)}
+                  className="flex items-center gap-1 sm:gap-1.5 rounded-md px-1.5 sm:px-2 py-1 text-white/95 hover:bg-white/10 hover:text-white transition max-w-[min(52vw,14rem)] sm:max-w-[16rem]"
+                  aria-expanded={accountMenuOpen}
+                  aria-haspopup="menu"
+                >
+                  <User className="w-3.5 h-3.5 shrink-0 opacity-95" aria-hidden />
+                  <span className="truncate text-left text-[11px] sm:text-xs font-medium">{me.name}</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 shrink-0 opacity-80 transition ${accountMenuOpen ? 'rotate-180' : ''}`}
+                    aria-hidden
+                  />
                 </button>
-                <button type="button" onClick={() => onNavigate('/my-listings')} className="hover:text-white transition text-[11px] sm:text-xs">
-                  {t('nav.myListings')}
-                </button>
-                <button type="button" onClick={() => onNavigate('/messages')} className="hover:text-white transition text-[11px] sm:text-xs">
-                  {t('nav.messages')}
-                </button>
-                <span className="text-[11px] sm:text-xs flex items-center gap-1 max-w-[120px] sm:max-w-none truncate">
-                  <User className="w-3.5 h-3.5 shrink-0" /> {me.name}
-                </span>
-                <button type="button" onClick={doLogout} className="hover:text-white transition flex items-center gap-1 text-[11px] sm:text-xs">
-                  <LogOut className="w-3.5 h-3.5" />
-                  {t('nav.logout')}
-                </button>
+                {accountMenuOpen ? (
+                  <div
+                    className="absolute right-0 top-full z-[250] mt-1 min-w-[13.5rem] rounded-lg border border-white/10 bg-white py-1 text-gray-900 shadow-xl"
+                    role="menu"
+                  >
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="flex w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
+                      onClick={() => {
+                        setAccountMenuOpen(false);
+                        onNavigate('/wishlist');
+                      }}
+                    >
+                      {t('nav.wishlist')}
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="flex w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
+                      onClick={() => {
+                        setAccountMenuOpen(false);
+                        onNavigate('/my-listings');
+                      }}
+                    >
+                      {t('nav.myListings')}
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="flex w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
+                      onClick={() => {
+                        setAccountMenuOpen(false);
+                        onNavigate('/messages');
+                      }}
+                    >
+                      {t('nav.messages')}
+                    </button>
+                    <div className="my-1 border-t border-gray-100" />
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                      onClick={() => {
+                        setAccountMenuOpen(false);
+                        doLogout();
+                      }}
+                    >
+                      <LogOut className="w-4 h-4 shrink-0 opacity-70" aria-hidden />
+                      {t('nav.logout')}
+                    </button>
+                  </div>
+                ) : null}
               </div>
             )}
           </div>
