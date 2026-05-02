@@ -64,6 +64,7 @@ export function Hero() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [brands, setBrands] = useState<BrandDto[]>([]);
+  const [brandsLoading, setBrandsLoading] = useState(true);
   const [type, setType] = useState<ListingType>('used_car');
   const [brandId, setBrandId] = useState('');
   const [city, setCity] = useState('');
@@ -83,7 +84,8 @@ export function Hero() {
   useEffect(() => {
     fetchBrands()
       .then((rows) => setBrands(rows))
-      .catch(() => setBrands([]));
+      .catch(() => setBrands([]))
+      .finally(() => setBrandsLoading(false));
   }, []);
 
   useEffect(() => {
@@ -234,20 +236,29 @@ export function Hero() {
                 submitSearch();
               }}
             >
-              <select
-                value={brandId}
-                onChange={(e) => setBrandId(e.target.value)}
-                className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white"
-                style={{ fontSize: '13px' }}
-                aria-label={t('hero.brandLabel')}
-              >
-                <option value="">{t('hero.anyMake')}</option>
-                {brands.map((b) => (
-                  <option value={String(b.id)} key={b.id}>
-                    {b.name}
-                  </option>
-                ))}
-              </select>
+              {brandsLoading ? (
+                <div
+                  className="px-3 py-2.5 border border-gray-200 rounded-md bg-gray-100 animate-pulse min-h-[42px]"
+                  role="status"
+                  aria-busy="true"
+                  aria-label={t('hero.brandLabel')}
+                />
+              ) : (
+                <select
+                  value={brandId}
+                  onChange={(e) => setBrandId(e.target.value)}
+                  className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white"
+                  style={{ fontSize: '13px' }}
+                  aria-label={t('hero.brandLabel')}
+                >
+                  <option value="">{t('hero.anyMake')}</option>
+                  {brands.map((b) => (
+                    <option value={String(b.id)} key={b.id}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+              )}
               <input
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}

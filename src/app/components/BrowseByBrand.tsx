@@ -3,14 +3,26 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { fetchBrands, type BrandDto } from '@/lib/marketplace';
 
+function BrandTileSkeleton() {
+  return (
+    <div className="animate-pulse border border-gray-200 rounded-lg p-4 ring-1 ring-gray-100">
+      <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-2" />
+      <div className="h-4 bg-gray-200 rounded-md w-3/4 mx-auto mb-2" />
+      <div className="h-3 bg-gray-200 rounded-md w-1/2 mx-auto" />
+    </div>
+  );
+}
+
 export function BrowseByBrand() {
   const { t } = useTranslation();
   const [brands, setBrands] = useState<BrandDto[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchBrands()
       .then((rows) => setBrands(rows.slice(0, 8)))
-      .catch(() => setBrands([]));
+      .catch(() => setBrands([]))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -19,7 +31,11 @@ export function BrowseByBrand() {
         <h2 className="text-3xl font-bold text-gray-900 mb-8">{t('homeSections.browseByMakeTitle')}</h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-          {brands.map((brand) => (
+          {loading ? (
+            Array.from({ length: 8 }, (_, i) => <BrandTileSkeleton key={i} />)
+          ) : null}
+          {!loading &&
+            brands.map((brand) => (
             <Link
               key={brand.id}
               to={`/listings?type=used_car&brand_id=${brand.id}`}

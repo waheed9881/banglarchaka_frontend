@@ -3,8 +3,33 @@ import { Link } from 'react-router';
 import { useEffect, useState } from 'react';
 import { fetchEditorialTestimonials, type EditorialTestimonialDto } from '@/lib/marketplace';
 
+function TestimonialCardSkeleton() {
+  return (
+    <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-6 animate-pulse flex flex-col">
+      <div className="flex gap-1 mb-4">
+        {Array.from({ length: 5 }, (_, i) => (
+          <div key={i} className="w-5 h-5 rounded-sm bg-gray-200" />
+        ))}
+      </div>
+      <div className="space-y-2 mb-6 flex-1">
+        <div className="h-3 bg-gray-200 rounded-md w-full" />
+        <div className="h-3 bg-gray-200 rounded-md w-[94%]" />
+        <div className="h-3 bg-gray-200 rounded-md w-[78%]" />
+      </div>
+      <div className="flex gap-3 pt-4 border-t border-blue-100">
+        <div className="w-12 h-12 rounded-full bg-gray-200 shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 bg-gray-200 rounded-md w-[55%]" />
+          <div className="h-3 bg-gray-200 rounded-md w-[72%]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Testimonials() {
   const [rows, setRows] = useState<EditorialTestimonialDto[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -14,6 +39,9 @@ export function Testimonials() {
       })
       .catch(() => {
         if (!cancelled) setRows([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
@@ -28,7 +56,18 @@ export function Testimonials() {
           <p className="text-gray-600 text-lg">Approved reviews pulled from the marketplace (not paid placements)</p>
         </div>
 
-        {rows.length === 0 ? (
+        {loading ? (
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+            role="status"
+            aria-busy="true"
+            aria-label="Loading testimonials"
+          >
+            {Array.from({ length: 4 }, (_, i) => (
+              <TestimonialCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : rows.length === 0 ? (
           <div className="text-center py-12 px-4 rounded-xl bg-gray-50 border border-gray-100 max-w-lg mx-auto">
             <p className="text-gray-700 mb-4">Buyer reviews will show here once they’re published for dealers.</p>
             <Link to="/used-car-dealers" className="text-[#233D7B] font-semibold hover:underline">

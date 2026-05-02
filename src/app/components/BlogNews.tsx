@@ -13,12 +13,34 @@ import {
 const FALLBACK_COVER =
   'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1080&q=80';
 
+function BlogNewsCardSkeleton() {
+  return (
+    <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-100 animate-pulse">
+      <div className="h-48 bg-gray-200" />
+      <div className="p-5 space-y-3">
+        <div className="h-5 bg-gray-200 rounded-md w-[92%]" />
+        <div className="h-4 bg-gray-200 rounded-md w-full" />
+        <div className="h-4 bg-gray-200 rounded-md w-[70%]" />
+        <div className="flex gap-4 pt-2">
+          <div className="h-3 w-20 bg-gray-200 rounded-md" />
+          <div className="h-3 w-24 bg-gray-200 rounded-md" />
+        </div>
+        <div className="flex justify-between pt-4 border-t border-gray-100 mt-2">
+          <div className="h-3 w-16 bg-gray-200 rounded-md" />
+          <div className="h-3 w-14 bg-gray-200 rounded-md" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type FeedCard =
   | ({ kind: 'news' } & BrandNewsArticleDto)
   | ({ kind: 'listing' } & ListingDto);
 
 export function BlogNews() {
   const [cards, setCards] = useState<FeedCard[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -35,6 +57,8 @@ export function BlogNews() {
         setCards(listings.map((row) => ({ kind: 'listing', ...row })));
       } catch {
         if (!cancelled) setCards([]);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     })();
     return () => {
@@ -66,7 +90,18 @@ export function BlogNews() {
           </Link>
         </div>
 
-        {cards.length === 0 ? (
+        {loading ? (
+          <div
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+            role="status"
+            aria-busy="true"
+            aria-label="Loading news"
+          >
+            {Array.from({ length: 6 }, (_, i) => (
+              <BlogNewsCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : cards.length === 0 ? (
           <p className="text-gray-600 text-center py-12">Connect the API and seed data to load stories.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

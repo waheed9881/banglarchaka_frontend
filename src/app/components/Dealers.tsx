@@ -35,9 +35,29 @@ function DealerLogo({
   );
 }
 
+function DealerCardSkeleton() {
+  return (
+    <div className="snap-start shrink-0 w-[min(100%,280px)] sm:w-[260px] rounded-2xl border border-gray-200 bg-white p-5 animate-pulse flex flex-col">
+      <div className="flex gap-4 mb-4">
+        <div className="h-[72px] w-[72px] shrink-0 rounded-2xl bg-gray-200" />
+        <div className="min-w-0 flex-1 space-y-2 pt-1">
+          <div className="h-5 bg-gray-200 rounded-md w-[88%]" />
+          <div className="h-3 bg-gray-200 rounded-md w-[55%]" />
+        </div>
+      </div>
+      <div className="h-4 bg-gray-200 rounded-md w-[62%] mb-4 flex-1" />
+      <div className="flex gap-2 mt-auto">
+        <div className="h-10 flex-1 bg-gray-200 rounded-xl" />
+        <div className="h-10 w-12 bg-gray-200 rounded-xl shrink-0" />
+      </div>
+    </div>
+  );
+}
+
 export function Dealers() {
   const { t } = useTranslation();
   const [dealers, setDealers] = useState<DealerDto[]>([]);
+  const [loading, setLoading] = useState(true);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,7 +73,8 @@ export function Dealers() {
         });
         setDealers(sorted);
       })
-      .catch(() => setDealers([]));
+      .catch(() => setDealers([]))
+      .finally(() => setLoading(false));
   }, []);
 
   const scrollCarousel = useCallback((dir: -1 | 1) => {
@@ -140,7 +161,20 @@ export function Dealers() {
           ))}
         </div>
 
-        {dealers.length === 0 ? (
+        {loading ? (
+          <div
+            className="relative"
+            role="status"
+            aria-busy="true"
+            aria-label={t('dealers.featuredHeading')}
+          >
+            <div className="flex gap-4 overflow-x-auto scroll-smooth pb-2 md:px-12 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory">
+              {Array.from({ length: 4 }, (_, i) => (
+                <DealerCardSkeleton key={i} />
+              ))}
+            </div>
+          </div>
+        ) : dealers.length === 0 ? (
           <p className="text-center text-gray-500 py-10 text-sm">
             {t('dealers.emptyDirectory')}{' '}
             <Link to="/dealer/portal" className="font-semibold text-[#233D7B] hover:underline">

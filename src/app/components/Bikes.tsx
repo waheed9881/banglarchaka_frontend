@@ -14,17 +14,33 @@ import {
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1080&q=80';
 
+function BikeCardSkeleton() {
+  return (
+    <div className="animate-pulse rounded-lg bg-white shadow overflow-hidden ring-1 ring-gray-100">
+      <div className="h-48 bg-gray-200" />
+      <div className="p-4 space-y-3">
+        <div className="h-5 bg-gray-200 rounded-md w-[88%]" />
+        <div className="h-7 bg-gray-200 rounded-md w-[36%]" />
+        <div className="h-3 bg-gray-200 rounded-md w-full" />
+        <div className="h-3 bg-gray-200 rounded-md w-3/5" />
+      </div>
+    </div>
+  );
+}
+
 /** Brands with strong presence in Bangladesh (commuter + sport segments). */
 const BIKE_BRANDS = ['Honda', 'Yamaha', 'Suzuki', 'Bajaj', 'TVS', 'Hero', 'Runner'] as const;
 
 export function Bikes() {
   const { t } = useTranslation();
   const [bikes, setBikes] = useState<ListingDto[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchListings({ listing_type: 'used_bike', sort: 'newest', per_page: 8 })
       .then((rows) => setBikes(rows))
-      .catch(() => setBikes([]));
+      .catch(() => setBikes([]))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -41,7 +57,11 @@ export function Bikes() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {bikes.map((bike) => (
+          {loading ? (
+            Array.from({ length: 8 }, (_, i) => <BikeCardSkeleton key={i} />)
+          ) : null}
+          {!loading &&
+            bikes.map((bike) => (
             <Link
               key={bike.id}
               to={listingPublicHref(bike)}
