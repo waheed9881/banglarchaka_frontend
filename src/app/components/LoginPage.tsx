@@ -157,7 +157,7 @@ export function LoginPage({ variant }: { variant: Tab }) {
     try {
       const res = await sendRegisterOtpEmail(em);
       if (res.debugCode) {
-        toast.success(t('auth.otpHintDev', { code: res.debugCode }));
+        // toast.success(t('auth.otpHintDev', { code: res.debugCode }));
       } else {
         toast.success(t('auth.registrationOtpSent'));
       }
