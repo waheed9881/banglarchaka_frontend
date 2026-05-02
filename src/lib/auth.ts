@@ -64,16 +64,36 @@ export async function loginWithEmailPassword(email: string, password: string): P
   return data;
 }
 
+export type RegisterPendingResponse = {
+  requires_otp: true;
+  message: string;
+  email_mask?: string;
+  debug_code?: string;
+};
+
 export async function registerBuyer(params: {
   name: string;
   email: string;
   password: string;
   password_confirmation: string;
   phone?: string;
-}): Promise<AuthResponse> {
-  const data = await apiFetch<AuthResponse>('/auth/register', {
+}): Promise<AuthResponse | RegisterPendingResponse> {
+  const data = await apiFetch<AuthResponse | RegisterPendingResponse>('/auth/register', {
     method: 'POST',
     body: JSON.stringify(params),
+  });
+  if ('requires_otp' in data && data.requires_otp) {
+    return data;
+  }
+  const auth = data as AuthResponse;
+  setAuthToken(auth.token);
+  return auth;
+}
+
+export async function verifyRegistrationOtp(email: string, otp: string): Promise<AuthResponse> {
+  const data = await apiFetch<AuthResponse>('/auth/register/verify-otp', {
+    method: 'POST',
+    body: JSON.stringify({ email: email.trim().toLowerCase(), otp: otp.trim() }),
   });
   setAuthToken(data.token);
   return data;
