@@ -1,5 +1,5 @@
-import { Search } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Search, X } from 'lucide-react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { BD_CITIES, CITY_LABEL_KEYS } from '@/i18n/bdCities';
@@ -153,6 +153,14 @@ export function Hero() {
           : '';
     const label = `${typeLabel}${cityLabel}${s.keyword ? ` · ${s.keyword}` : ''}`;
     const next = [{ label, query: params }, ...savedSearches.filter((x) => x.query !== params)].slice(0, 5);
+    setSavedSearches(next);
+    localStorage.setItem('hero_saved_searches', JSON.stringify(next));
+  };
+
+  const removeSavedSearch = (query: string, e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const next = savedSearches.filter((x) => x.query !== query);
     setSavedSearches(next);
     localStorage.setItem('hero_saved_searches', JSON.stringify(next));
   };
@@ -385,14 +393,26 @@ export function Hero() {
             <div className="text-xs font-semibold text-blue-100 mb-2">{t('hero.savedSearches')}</div>
             <div className="flex flex-wrap gap-2">
               {savedSearches.map((s) => (
-                <button
+                <div
                   key={s.query}
-                  type="button"
-                  onClick={() => navigate(`/listings?${s.query}`)}
-                  className="px-3 py-1.5 rounded-full bg-white/15 text-white text-xs hover:bg-white/25 transition"
+                  className="inline-flex items-center max-w-full gap-0.5 rounded-full bg-white/15 text-white text-xs hover:bg-white/25 transition pl-3 pr-1 py-1"
                 >
-                  {s.label}
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/listings?${s.query}`)}
+                    className="min-w-0 truncate py-0.5 text-left hover:underline"
+                  >
+                    {s.label}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => removeSavedSearch(s.query, e)}
+                    className="shrink-0 rounded-full p-1 hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-white/80"
+                    aria-label={t('hero.removeSavedSearch')}
+                  >
+                    <X className="w-3.5 h-3.5" strokeWidth={2.5} />
+                  </button>
+                </div>
               ))}
             </div>
           </div>

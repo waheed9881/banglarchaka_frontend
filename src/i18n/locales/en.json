@@ -915,6 +915,7 @@
   },
   "hero": {
     "savedSearches": "Saved searches",
+    "removeSavedSearch": "Remove saved search",
     "searchPlaceholder": "Search keyword e.g. Honda Civic, hybrid SUV…",
     "cityLabel": "City",
     "brandLabel": "Brand",

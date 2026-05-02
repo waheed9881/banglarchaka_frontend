@@ -915,6 +915,7 @@
   },
   "hero": {
     "savedSearches": "সংরক্ষিত সার্চ",
+    "removeSavedSearch": "সংরক্ষিত সার্চ সরান",
     "searchPlaceholder": "কীওয়ার্ড লিখুন—যেমন হোন্ডা সিভিক, হাইব্রিড এসইউভি…",
     "cityLabel": "শহর",
     "brandLabel": "ব্র্যান্ড",
