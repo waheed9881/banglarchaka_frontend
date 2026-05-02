@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 import { Link } from 'react-router';
 import { fetchBrands, resolveMediaUrl, type BrandDto } from '@/lib/marketplace';
 import { ImageWithFallback } from './figma/ImageWithFallback';
@@ -28,11 +29,14 @@ export function BrowseByBrand() {
   }, []);
 
   return (
-    <section className="bg-white py-16 md:py-20">
+    <section className="border-y border-slate-100 bg-white py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-4">
-        <h2 className="mb-10 text-center text-3xl font-bold tracking-tight text-[#00236f] md:text-4xl">
-          {t('homeSections.browseByMakeTitle')}
-        </h2>
+        <PremiumSectionHeading
+          align="center"
+          eyebrow={t('homePremiumHeading.browseByMakeEyebrow')}
+          title={t('homeSections.browseByMakeTitle')}
+          subtitle={t('homePremiumHeading.browseByMakeSubtitle')}
+        />
 
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-8">
           {loading ? (

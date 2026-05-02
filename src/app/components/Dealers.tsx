@@ -6,7 +6,6 @@ import {
   MessageCircle,
   Phone,
   ShieldCheck,
-  Store,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +13,7 @@ import { Link } from 'react-router';
 import { fetchDealers, resolveMediaUrl, type DealerDto } from '@/lib/marketplace';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { SkeletonBox } from '@/app/components/PremiumSkeleton';
+import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 
 function DealerLogo({
   name,
@@ -102,26 +102,25 @@ export function Dealers() {
       />
 
       <div className="relative max-w-7xl mx-auto px-4">
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
-          <div className="max-w-xl">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#00236f]">
-              <Store className="h-3.5 w-3.5" aria-hidden />
-              {t('dealers.dealerDirectoryBadge')}
-            </div>
-            <h2 className="text-3xl font-bold tracking-tight text-[#00236f] sm:text-4xl">{t('dealers.featuredHeading')}</h2>
-            <p className="text-gray-600 mt-2 text-base leading-relaxed">
+        <PremiumSectionHeading
+          eyebrow={t('dealers.dealerDirectoryBadge')}
+          title={t('dealers.featuredHeading')}
+          subtitle={
+            <>
               {t('dealers.introLead')}
-              <span className="font-semibold text-gray-800">{t('dealers.introBold')}</span>
+              <span className="font-semibold text-slate-800">{t('dealers.introBold')}</span>
               {t('dealers.introTrail')}
-            </p>
-          </div>
-          <Link
-            to="/used-car-dealers"
-            className="inline-flex items-center justify-center self-start rounded-xl border-2 border-[#00236f] bg-white px-7 py-3 text-sm font-bold text-[#00236f] shadow-sm transition hover:bg-[#00236f] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00236f]/40 focus-visible:ring-offset-2 lg:self-end"
-          >
-            {t('dealers.viewAllDealers')}
-          </Link>
-        </div>
+            </>
+          }
+          action={
+            <Link
+              to="/used-car-dealers"
+              className="inline-flex items-center justify-center self-start rounded-xl border-2 border-[#00236f] bg-white px-7 py-3 text-sm font-bold text-[#00236f] shadow-sm transition hover:bg-[#00236f] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00236f]/40 focus-visible:ring-offset-2 lg:self-end"
+            >
+              {t('dealers.viewAllDealers')}
+            </Link>
+          }
+        />
 
         {/* Trust strip — compact benefit row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10">

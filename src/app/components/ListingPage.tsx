@@ -1,16 +1,8 @@
-import { ImageWithFallback } from './figma/ImageWithFallback';
 import {
-  Heart,
-  MapPin,
-  Calendar,
-  Gauge,
-  Settings,
   SlidersHorizontal,
   Grid,
   List,
   ChevronUp,
-  Link2,
-  Check,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,10 +12,8 @@ import { addToWishlist, fetchWishlistListings, removeFromWishlist } from '@/lib/
 import {
   fetchBrands,
   fetchListingsPaged,
-  formatMoney,
   listingPaginationPages,
   listingPublicHref,
-  resolveMediaUrl,
   type BrandDto,
   type ListingDto,
   type ListingsPageMeta,
@@ -36,9 +26,8 @@ import {
   PakListingRow,
   UsedCarsListingFooter,
 } from './listing/ListingResultsPak';
-
-const FALLBACK_IMAGE =
-  'https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=1080&q=80';
+import { ListingGridCard } from './listing/ListingGridCard';
+import { SkeletonBox } from '@/app/components/PremiumSkeleton';
 
 const PER_PAGE_OPTIONS = ['24', '48', '72'] as const;
 
@@ -58,13 +47,17 @@ function ListingCardSkeleton({ viewMode }: { viewMode: 'grid' | 'list' }) {
   }
 
   return (
-    <div className="animate-pulse overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
-      <div className="h-48 bg-gray-200" />
-      <div className="space-y-3 p-4">
-        <div className="h-5 rounded bg-gray-200 w-[88%]" />
-        <div className="h-7 rounded bg-gray-200 w-[36%]" />
-        <div className="h-3 rounded bg-gray-200 w-full" />
-        <div className="h-3 rounded bg-gray-200 w-2/3" />
+    <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+      <SkeletonBox className="aspect-[16/10] w-full" rounded="rounded-none" />
+      <div className="space-y-3 p-5">
+        <SkeletonBox className="h-5 w-[88%]" rounded="rounded-md" />
+        <SkeletonBox className="h-7 w-[38%]" rounded="rounded-md" />
+        <SkeletonBox className="h-px w-full max-w-[90%]" rounded="rounded-full" />
+        <div className="grid grid-cols-3 gap-2 pt-1">
+          <SkeletonBox className="mx-auto h-8 w-14" rounded="rounded-lg" />
+          <SkeletonBox className="mx-auto h-8 w-14" rounded="rounded-lg" />
+          <SkeletonBox className="mx-auto h-8 w-14" rounded="rounded-lg" />
+        </div>
       </div>
     </div>
   );
@@ -924,104 +917,32 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                     setPhoneRevealId={setPhoneRevealId}
                   />
                 ) : (
-                  <div
+                  <ListingGridCard
                     key={car.id}
-                    onClick={() => onOpenDetail?.(car.id)}
-                    className="bg-white rounded-lg shadow hover:shadow-xl transition cursor-pointer overflow-hidden"
-                  >
-                    <div className="relative">
-                      <ImageWithFallback
-                        src={resolveMediaUrl(car.media?.[0]?.path) || FALLBACK_IMAGE}
-                        alt={car.title}
-                        className="w-full h-48 object-cover"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <button
-                        type="button"
-                        className="absolute top-3 right-14 bg-white/90 p-2 rounded-full hover:bg-white transition z-10"
-                        onClick={(e) => copyListingUrl(car, e)}
-                        aria-label={
-                          copiedListingId === car.id ? t('listingPage.copyListingCopiedAria') : t('listingPage.copyListingLinkAria')
-                        }
-                        title={t('listingPage.copyLinkTitle')}
-                      >
-                        {copiedListingId === car.id ? (
-                          <Check className="h-5 w-5 text-emerald-600" strokeWidth={2.25} />
-                        ) : (
-                          <Link2 className="h-5 w-5 text-gray-600" strokeWidth={2} />
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        className="absolute top-3 right-3 bg-white/90 p-2 rounded-full hover:bg-white transition z-10"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!getAuthToken()) {
-                            window.alert(t('listingPage.signInFavouritesBar'));
-                            return;
-                          }
-                          const saved = wishlistedIds.has(car.id);
-                          (saved ? removeFromWishlist(car.id) : addToWishlist(car.id))
-                            .then(() =>
-                              setWishlistedIds((prev) => {
-                                const next = new Set(prev);
-                                if (saved) next.delete(car.id);
-                                else next.add(car.id);
-                                return next;
-                              }),
-                            )
-                            .catch((err) => window.alert(err instanceof Error ? err.message : t('listingBrowse.wishlistFailed')));
-                        }}
-                        aria-label={
-                          wishlistedIds.has(car.id) ? t('listingPage.removeWishlistAria') : t('listingPage.saveWishlistAria')
-                        }
-                      >
-                        <Heart
-                          className={`w-5 h-5 ${wishlistedIds.has(car.id) ? 'text-[#C4161C] fill-current' : 'text-gray-600'}`}
-                        />
-                      </button>
-                      {car.featured && (
-                        <div className="absolute top-3 left-3 bg-[#C4161C] text-white px-3 py-1 rounded text-xs font-bold">
-                          {t('listingBrowse.featured')}
-                        </div>
-                      )}
-                      {car.has_live_auction ? (
-                        <div className="absolute bottom-3 left-3 bg-[#233D7B] text-white px-2.5 py-1 rounded text-[11px] font-bold shadow">
-                          {t('listingBrowse.auctionBadge')}
-                        </div>
-                      ) : null}
-                    </div>
-
-                    <div className="p-4">
-                      <h3 className="font-bold text-lg text-gray-900 mb-2">{car.title}</h3>
-                      <div className="text-[#3EB549] font-bold text-xl mb-3">{formatMoney(car.price, car.currency)}</div>
-
-                      <div className="space-y-2 text-sm text-gray-600 mb-3">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4" />
-                          {car.location_city || t('homeFeatured.na')}
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
-                            {car.vehicle_year || t('homeFeatured.na')}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Gauge className="w-4 h-4" />
-                            {car.mileage_km ? t('listingDetail.mileageKm', { n: car.mileage_km.toLocaleString() }) : t('homeFeatured.na')}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Settings className="w-4 h-4" />
-                          {car.transmission || t('homeFeatured.na')}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {t('listingPage.sellerLabel')} {car.seller?.name || t('listingPage.unknownSeller')}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    car={car}
+                    onOpen={() => onOpenDetail?.(car.id)}
+                    wishlisted={wishlistedIds.has(car.id)}
+                    copied={copiedListingId === car.id}
+                    onCopyLink={(e) => copyListingUrl(car, e)}
+                    onToggleWishlist={(e) => {
+                      e.stopPropagation();
+                      if (!getAuthToken()) {
+                        window.alert(t('listingPage.signInFavouritesBar'));
+                        return;
+                      }
+                      const saved = wishlistedIds.has(car.id);
+                      (saved ? removeFromWishlist(car.id) : addToWishlist(car.id))
+                        .then(() =>
+                          setWishlistedIds((prev) => {
+                            const next = new Set(prev);
+                            if (saved) next.delete(car.id);
+                            else next.add(car.id);
+                            return next;
+                          }),
+                        )
+                        .catch((err) => window.alert(err instanceof Error ? err.message : t('listingBrowse.wishlistFailed')));
+                    }}
+                  />
                 ),
               )}
             </div>

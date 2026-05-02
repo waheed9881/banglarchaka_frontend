@@ -1,11 +1,13 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { BD_POPULAR_USED_CAR_MODELS } from '@/app/data/bdPopularCars';
 import { fetchBrands, fetchListings, resolveMediaUrl, type BrandDto, type ListingDto } from '@/lib/marketplace';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 
-const ACCENT = '#3483D1';
+const ACCENT = '#00236f';
 
 /** Curated Unsplash assets — car-care / parts aesthetic, consistent crop */
 const IMG = {
@@ -283,6 +285,7 @@ function PartTile({ label, to, image }: PartCard) {
 }
 
 export function AutoParts() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<TabKey>('sub');
   const [page, setPage] = useState(0);
   const [brands, setBrands] = useState<BrandDto[]>([]);
@@ -387,42 +390,35 @@ export function AutoParts() {
   const canNext = safePage < pageCount - 1;
 
   return (
-    <section className="py-8 sm:py-12 bg-[#f5f6f8] border-y border-gray-100">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-4 mb-5 sm:mb-6">
-          <div className="min-w-0">
-            <h2 className="text-xl sm:text-3xl font-bold text-gray-900 leading-tight">Auto Store Car Parts &amp; Accessories</h2>
-            <p className="mt-1.5 max-w-2xl text-xs sm:text-sm text-gray-500 leading-relaxed">
-              Category tiles use real listing photos from BanglarChaka when inventory matches; otherwise you still see clean stock references.
-            </p>
-          </div>
-          <Link
-            to="/listings?type=auto_part"
-            className="inline-flex items-center justify-center rounded-lg border border-[#3483D1]/30 bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:bg-slate-50 shrink-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:hover:bg-transparent"
-            style={{ color: ACCENT }}
-          >
-            View all parts →
-          </Link>
-        </div>
+    <section className="border-y border-slate-100 bg-[#f8f9fa] py-12 sm:py-16 md:py-20">
+      <div className="mx-auto max-w-7xl px-3 sm:px-4">
+        <PremiumSectionHeading
+          eyebrow={t('homePremiumHeading.autoPartsEyebrow')}
+          title={t('homePremiumHeading.autoPartsTitle')}
+          subtitle={t('homePremiumHeading.autoPartsSubtitle')}
+          action={
+            <Link
+              to="/listings?type=auto_part"
+              className="inline-flex shrink-0 items-center justify-center rounded-lg border border-[#00236f]/20 bg-white px-4 py-2.5 text-sm font-bold text-[#ba0035] shadow-sm transition hover:bg-slate-50 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:hover:bg-transparent"
+            >
+              View all parts →
+            </Link>
+          }
+        />
 
-        <div className="flex gap-1 overflow-x-auto overscroll-x-contain border-b border-gray-200 mb-6 sm:mb-8 pb-px [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory">
+        <div className="mb-6 flex gap-1 overflow-x-auto overscroll-x-contain border-b border-slate-200 pb-px [-ms-overflow-style:none] [scrollbar-width:none] sm:mb-8 [&::-webkit-scrollbar]:hidden snap-x snap-mandatory">
           {TABS.map(({ key, label }) => (
             <button
               key={key}
               type="button"
               onClick={() => setTab(key)}
-              className={`shrink-0 snap-start px-3 sm:px-4 py-2.5 sm:py-3 text-[13px] sm:text-sm font-semibold transition-colors relative whitespace-nowrap ${
-                tab === key ? '' : 'text-gray-600 hover:text-gray-900'
+              className={`relative shrink-0 snap-start whitespace-nowrap px-3 py-2.5 text-[13px] font-semibold transition-colors sm:px-4 sm:py-3 sm:text-sm ${
+                tab === key ? 'text-[#00236f]' : 'text-slate-600 hover:text-slate-900'
               }`}
-              style={tab === key ? { color: ACCENT } : undefined}
             >
               {label}
               {tab === key ? (
-                <span
-                  className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full"
-                  style={{ backgroundColor: ACCENT }}
-                  aria-hidden
-                />
+                <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-[#ba0035]" aria-hidden />
               ) : null}
             </button>
           ))}

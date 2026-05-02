@@ -1,8 +1,10 @@
-import { ArrowRight, Bike, Car, GitCompare, Gauge, Fuel, Wallet } from 'lucide-react';
+import { ArrowRight, Bike, Car, Gauge, Fuel, Wallet } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router';
 import { fetchListings, resolveMediaUrl, type ListingDto } from '@/lib/marketplace';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 
 const FALLBACK_CAR =
   'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=640&q=80';
@@ -24,6 +26,7 @@ function optLabel(row: ListingDto): string {
 }
 
 export function CompareSection() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [items, setItems] = useState<ListingDto[]>([]);
   const [a, setA] = useState('');
@@ -93,16 +96,18 @@ export function CompareSection() {
       <div className="relative max-w-7xl mx-auto px-4">
         {featuredPair ? (
           <div className="mb-12 md:mb-14">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">Car Comparisons</h2>
-              <Link
-                to={{ pathname: '/', hash: 'compare-tool' }}
-                className="text-sm md:text-base font-semibold hover:underline shrink-0"
-                style={{ color: '#3483D1' }}
-              >
-                All Car Comparisons
-              </Link>
-            </div>
+            <PremiumSectionHeading
+              eyebrow={t('homePremiumHeading.compareCarouselEyebrow')}
+              title={t('homePremiumHeading.compareCarouselTitle')}
+              action={
+                <Link
+                  to={{ pathname: '/', hash: 'compare-tool' }}
+                  className="shrink-0 text-sm font-bold text-[#ba0035] underline-offset-4 hover:underline md:text-base"
+                >
+                  {t('homePremiumHeading.compareCarouselLink')}
+                </Link>
+              }
+            />
 
             <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
               <div
@@ -185,36 +190,29 @@ export function CompareSection() {
           </div>
         ) : null}
 
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-10">
-          <div className="max-w-xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#233D7B] ring-1 ring-[#233D7B]/15 mb-4">
-              <GitCompare className="w-3.5 h-3.5" aria-hidden />
-              Side-by-side
+        <PremiumSectionHeading
+          eyebrow={t('homePremiumHeading.compareToolEyebrow')}
+          title={t('homePremiumHeading.compareToolTitle')}
+          subtitle={t('homePremiumHeading.compareToolSubtitle')}
+          action={
+            <div className="flex flex-wrap gap-3 lg:justify-end">
+              <Link
+                to="/listings?type=used_car"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-[#00236f] shadow-sm transition hover:border-[#00236f]/25 hover:bg-slate-50"
+              >
+                <Car className="h-4 w-4 opacity-80" aria-hidden />
+                Browse cars
+              </Link>
+              <Link
+                to="/listings?type=used_bike"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-[#00236f] shadow-sm transition hover:border-[#00236f]/25 hover:bg-slate-50"
+              >
+                <Bike className="h-4 w-4 opacity-80" aria-hidden />
+                Browse bikes
+              </Link>
             </div>
-            <h2 className="mb-3 text-3xl font-bold tracking-tight text-[#00236f] sm:text-4xl">Compare vehicles</h2>
-            <p className="text-base leading-relaxed text-slate-600">
-              Choose two or three listings from live inventory and open a detailed comparison — price, specs, mileage, and
-              more in one view.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3 lg:justify-end">
-            <Link
-              to="/listings?type=used_car"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#233D7B] ring-1 ring-gray-200 shadow-sm hover:bg-gray-50 transition"
-            >
-              <Car className="w-4 h-4 opacity-80" aria-hidden />
-              Browse cars
-            </Link>
-            <Link
-              to="/listings?type=used_bike"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#233D7B] ring-1 ring-gray-200 shadow-sm hover:bg-gray-50 transition"
-            >
-              <Bike className="w-4 h-4 opacity-80" aria-hidden />
-              Browse bikes
-            </Link>
-          </div>
-        </div>
+          }
+        />
 
         <div
           id="compare-tool"

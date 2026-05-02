@@ -2,6 +2,7 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Calendar, User } from 'lucide-react';
 import { Link } from 'react-router';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   fetchBrandNews,
   fetchListings,
@@ -10,6 +11,7 @@ import {
   type ListingDto,
 } from '@/lib/marketplace';
 import { SkeletonBox } from '@/app/components/PremiumSkeleton';
+import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 
 const FALLBACK_COVER =
   'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1080&q=80';
@@ -34,6 +36,7 @@ type FeedCard =
   | ({ kind: 'listing' } & ListingDto);
 
 export function BlogNews() {
+  const { t } = useTranslation();
   const [cards, setCards] = useState<FeedCard[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -73,17 +76,18 @@ export function BlogNews() {
   };
 
   return (
-    <section className="bg-[#f8f9fa] py-16 md:py-20">
+    <section className="border-y border-slate-100 bg-white py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="mb-10 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight text-[#00236f] md:text-4xl">Latest News & Reviews</h2>
-            <p className="mt-2 text-slate-600">Editorial notes from brands plus fresh marketplace highlights</p>
-          </div>
-          <Link to="/blog" className="shrink-0 text-sm font-bold text-[#ba0035] underline-offset-4 hover:underline">
-            View all →
-          </Link>
-        </div>
+        <PremiumSectionHeading
+          eyebrow={t('homePremiumHeading.blogEyebrow')}
+          title={t('homePremiumHeading.blogTitle')}
+          subtitle={t('homePremiumHeading.blogSubtitle')}
+          action={
+            <Link to="/blog" className="shrink-0 text-sm font-bold text-[#ba0035] underline-offset-4 hover:underline">
+              View all →
+            </Link>
+          }
+        />
 
         {loading ? (
           <div

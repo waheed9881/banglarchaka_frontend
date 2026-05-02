@@ -16,7 +16,10 @@ export function HomeSellCta() {
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/40" aria-hidden />
           <div className="relative z-10 mx-auto max-w-2xl">
-            <h2 className="mb-4 text-3xl font-bold tracking-tight text-white md:text-4xl">
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[#ffb3c1]">
+              {t('homePremiumHeading.sellEyebrow')}
+            </p>
+            <h2 className="mb-4 text-3xl font-bold tracking-[-0.02em] text-white md:text-4xl md:leading-tight">
               {t('homePremium.sellCtaTitle')}
             </h2>
             <p className="mb-10 text-lg text-slate-300">{t('homePremium.sellCtaBody')}</p>

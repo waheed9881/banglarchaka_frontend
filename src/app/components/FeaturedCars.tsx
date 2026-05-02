@@ -70,22 +70,23 @@ export function FeaturedCars() {
             <Link
               key={car.id}
               to={`${listingPublicHref(car)}${car.has_live_auction ? '#detail-auction' : ''}`}
-              className="group block overflow-hidden rounded-2xl border border-slate-100/80 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00236f]/40"
+              className="group block overflow-hidden rounded-2xl border border-slate-200/90 bg-white text-left shadow-[0_8px_30px_-6px_rgba(0,35,111,0.08)] outline-none transition duration-300 hover:-translate-y-0.5 hover:border-slate-200 hover:shadow-[0_20px_44px_-12px_rgba(0,35,111,0.14)] focus-visible:ring-2 focus-visible:ring-[#00236f]/35 focus-visible:ring-offset-2"
             >
-              <div className="relative h-48 overflow-hidden">
+              <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                 <ImageWithFallback
                   src={resolveMediaUrl(car.media?.[0]?.path) || FALLBACK_IMAGE}
                   alt={car.title}
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  className="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.04]"
                 />
+                <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/20 to-transparent p-3 pb-10" aria-hidden />
                 <div className="absolute left-3 top-3 z-10 flex flex-wrap gap-2">
                   {car.featured ? (
-                    <span className="rounded bg-[#00236f] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                    <span className="rounded-md bg-[#00236f] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
                       {t('homeFeatured.badge')}
                     </span>
                   ) : null}
                   {car.has_live_auction ? (
-                    <span className="rounded bg-[#ba0035] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                    <span className="rounded-md bg-[#ba0035] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
                       {t('listingBrowse.auctionBadge')}
                     </span>
                   ) : null}
@@ -93,25 +94,34 @@ export function FeaturedCars() {
               </div>
 
               <div className="p-5">
-                <h3 className="mb-2 line-clamp-2 text-lg font-bold text-[#00236f]">{car.title}</h3>
-                <div className="mb-3 text-xl font-bold text-emerald-700">{formatMoney(car.price, car.currency)}</div>
+                <h3 className="line-clamp-2 min-h-[2.75rem] text-base font-semibold leading-snug tracking-tight text-[#00236f]">
+                  {car.title}
+                </h3>
+                <p className="mt-2 font-sans text-xl font-bold tabular-nums tracking-tight text-[#00236f]">
+                  {formatMoney(car.price, car.currency)}
+                </p>
 
-                <div className="mb-0 space-y-1.5 border-t border-slate-100 pt-4 text-[11px] font-bold uppercase tracking-tight text-slate-500">
-                  <div className="flex items-center gap-2 font-medium normal-case text-slate-500">
-                    <MapPin className="h-3.5 w-3.5 shrink-0" />
-                    {car.location_city || t('homeFeatured.na')}
+                <div className="my-4 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+
+                <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                  <MapPin className="h-4 w-4 shrink-0 text-slate-400" strokeWidth={1.75} aria-hidden />
+                  <span className="truncate font-medium">{car.location_city || t('homeFeatured.na')}</span>
+                </div>
+
+                <div className="mt-3 grid grid-cols-3 gap-1 border-t border-slate-100 pt-3 text-center">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-slate-400" strokeWidth={1.75} aria-hidden />
+                    <span className="text-xs font-semibold tabular-nums text-slate-700">{car.vehicle_year || '—'}</span>
                   </div>
-                  <div className="flex flex-wrap justify-between gap-2">
-                    <span className="flex items-center gap-1 normal-case">
-                      <Calendar className="h-3.5 w-3.5" />
-                      {car.vehicle_year || '—'}
-                    </span>
-                    <span className="flex items-center gap-1 normal-case">
-                      <Gauge className="h-3.5 w-3.5" />
+                  <div className="flex flex-col items-center gap-1.5 border-x border-slate-100 px-1">
+                    <Gauge className="h-3.5 w-3.5 text-slate-400" strokeWidth={1.75} aria-hidden />
+                    <span className="text-xs font-semibold tabular-nums text-slate-700">
                       {car.mileage_km ? `${car.mileage_km.toLocaleString()} km` : '—'}
                     </span>
-                    <span className="flex items-center gap-1 normal-case">
-                      <Settings className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5">
+                    <Settings className="h-3.5 w-3.5 text-slate-400" strokeWidth={1.75} aria-hidden />
+                    <span className="line-clamp-2 min-h-[2rem] text-xs font-semibold leading-tight text-slate-700">
                       {car.transmission || '—'}
                     </span>
                   </div>

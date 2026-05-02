@@ -28,6 +28,7 @@ import { Link } from 'react-router';
 import { BD_POPULAR_USED_CAR_MODELS } from '@/app/data/bdPopularCars';
 import { BD_CITIES, CITY_LABEL_KEYS } from '@/i18n/bdCities';
 import { fetchBrands, type BrandDto } from '@/lib/marketplace';
+import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 
 function listingsQs(extra: Record<string, string>) {
   const p = new URLSearchParams({ type: 'used_car', ...extra });
@@ -247,23 +248,27 @@ export function BrowseUsedCarsSection() {
   const canNext = safePage < pageCount - 1;
 
   return (
-    <section className="py-8 sm:py-12 bg-[#f5f6f8] border-y border-gray-100">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4">
-        <h2 className="text-xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">{t('browseUsed.title')}</h2>
+    <section className="border-y border-slate-100 bg-[#f8f9fa] py-12 sm:py-16 md:py-20">
+      <div className="mx-auto max-w-7xl px-3 sm:px-4">
+        <PremiumSectionHeading
+          eyebrow={t('homePremiumHeading.browseUsedEyebrow')}
+          title={t('browseUsed.title')}
+          subtitle={t('homePremiumHeading.browseUsedSubtitle')}
+        />
 
-        <div className="flex gap-1 overflow-x-auto overscroll-x-contain border-b border-gray-200 mb-6 sm:mb-8 pb-px [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory">
+        <div className="mb-6 flex gap-1 overflow-x-auto overscroll-x-contain border-b border-slate-200 pb-px [-ms-overflow-style:none] [scrollbar-width:none] sm:mb-8 [&::-webkit-scrollbar]:hidden snap-x snap-mandatory">
           {TAB_DEFS.map(({ key, labelKey }) => (
             <button
               key={key}
               type="button"
               onClick={() => setTab(key)}
-              className={`shrink-0 snap-start px-3 sm:px-4 py-2.5 sm:py-3 text-[13px] sm:text-sm font-semibold transition-colors relative whitespace-nowrap ${
-                tab === key ? 'text-[#233D7B]' : 'text-gray-600 hover:text-gray-900'
+              className={`relative shrink-0 snap-start whitespace-nowrap px-3 py-2.5 text-[13px] font-semibold transition-colors sm:px-4 sm:py-3 sm:text-sm ${
+                tab === key ? 'text-[#00236f]' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               {t(labelKey)}
               {tab === key ? (
-                <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#233D7B] rounded-full" aria-hidden />
+                <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-[#ba0035]" aria-hidden />
               ) : null}
             </button>
           ))}

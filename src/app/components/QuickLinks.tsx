@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 import { BD_POPULAR_QUICK_SEARCHES } from '@/app/data/bdPopularCars';
 
 const QUICK_CITIES = [
@@ -40,17 +41,25 @@ export function QuickLinks() {
   ] as const;
 
   return (
-    <section className="py-12 bg-white border-t border-gray-200">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+    <section className="border-t border-slate-200 bg-white py-14 md:py-16">
+      <div className="mx-auto max-w-7xl px-4">
+        <PremiumSectionHeading
+          align="center"
+          className="mb-12 md:mb-14"
+          eyebrow={t('homePremiumHeading.quickLinksEyebrow')}
+          title={t('homePremiumHeading.quickLinksTitle')}
+          subtitle={t('homePremiumHeading.quickLinksSubtitle')}
+        />
+
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
           <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">{t('quickLinks.popularTitle')}</h3>
+            <h3 className="mb-4 text-lg font-bold tracking-tight text-[#00236f] md:text-xl">{t('quickLinks.popularTitle')}</h3>
             <div className="flex flex-wrap gap-2">
               {BD_POPULAR_QUICK_SEARCHES.map((item) => (
                 <Link
                   key={`${item.listingType}-${item.q}`}
                   to={`/listings?type=${item.listingType}&q=${encodeURIComponent(item.q)}`}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-[#233D7B] hover:text-white transition"
+                  className="rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-700 transition hover:bg-[#00236f] hover:text-white"
                 >
                   {item.label}
                 </Link>
@@ -59,13 +68,13 @@ export function QuickLinks() {
           </div>
 
           <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">{t('quickLinks.browseByCity')}</h3>
+            <h3 className="mb-4 text-lg font-bold tracking-tight text-[#00236f] md:text-xl">{t('quickLinks.browseByCity')}</h3>
             <div className="flex flex-wrap gap-2">
               {QUICK_CITIES.map(({ param, labelKey }) => (
                 <Link
                   key={param}
                   to={`/listings?type=used_car&city=${encodeURIComponent(param)}`}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-[#233D7B] hover:text-white transition"
+                  className="rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-700 transition hover:bg-[#00236f] hover:text-white"
                 >
                   {t(labelKey)}
                 </Link>

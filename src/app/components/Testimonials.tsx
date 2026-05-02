@@ -1,6 +1,8 @@
 import { Star, Quote } from 'lucide-react';
 import { Link } from 'react-router';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 import { fetchEditorialTestimonials, type EditorialTestimonialDto } from '@/lib/marketplace';
 
 function TestimonialCardSkeleton() {
@@ -28,6 +30,7 @@ function TestimonialCardSkeleton() {
 }
 
 export function Testimonials() {
+  const { t } = useTranslation();
   const [rows, setRows] = useState<EditorialTestimonialDto[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,12 +52,15 @@ export function Testimonials() {
   }, []);
 
   return (
-    <section className="py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-3">What buyers say about dealers</h2>
-          <p className="text-gray-600 text-lg">Approved reviews pulled from the marketplace (not paid placements)</p>
-        </div>
+    <section className="border-y border-slate-100 bg-[#f8f9fa] py-16 md:py-20">
+      <div className="mx-auto max-w-7xl px-4">
+        <PremiumSectionHeading
+          align="center"
+          className="mb-12"
+          eyebrow={t('homePremiumHeading.testimonialsEyebrow')}
+          title={t('homePremiumHeading.testimonialsTitle')}
+          subtitle={t('homePremiumHeading.testimonialsSubtitle')}
+        />
 
         {loading ? (
           <div

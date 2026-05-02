@@ -6,10 +6,11 @@ import {
   ClipboardCheck,
   Globe2,
   ShieldCheck,
-  Sparkles,
   Wrench,
 } from 'lucide-react';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
+import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 
 type ServiceTile = {
   icon: LucideIcon;
@@ -89,6 +90,7 @@ const SECONDARY_HINTS: Record<string, { label: string; to: string }> = {
 };
 
 export function Services() {
+  const { t } = useTranslation();
   return (
     <section className="relative overflow-hidden border-y border-slate-100 bg-white py-16 md:py-20">
       <div
@@ -97,18 +99,13 @@ export function Services() {
       />
 
       <div className="relative mx-auto max-w-7xl px-4">
-        <div className="mx-auto mb-12 max-w-2xl text-center md:mb-14">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#00236f]">
-            <Sparkles className="h-3.5 w-3.5" aria-hidden />
-            Marketplace shortcuts
-          </div>
-          <h2 className="text-3xl font-bold tracking-tight text-[#00236f] sm:text-4xl">Services &amp; entry points</h2>
-          <p className="mt-3 text-base leading-relaxed text-slate-600">
-            Every tile opens a{' '}
-            <span className="font-semibold text-gray-800">real BanglarChaka page</span> — live listing filters, seller
-            flows, or service hubs wired to the same API as search.
-          </p>
-        </div>
+        <PremiumSectionHeading
+          align="center"
+          className="md:mb-14"
+          eyebrow={t('homePremiumHeading.servicesEyebrow')}
+          title={t('homePremiumHeading.servicesTitle')}
+          subtitle={t('homePremiumHeading.servicesSubtitle')}
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-6">
           {TILES.map((tile) => {

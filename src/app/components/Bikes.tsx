@@ -11,6 +11,7 @@ import {
   type ListingDto,
 } from '@/lib/marketplace';
 import { SkeletonCardGrid } from '@/app/components/PremiumSkeleton';
+import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1080&q=80';
@@ -31,19 +32,18 @@ export function Bikes() {
   }, []);
 
   return (
-    <section className="bg-white py-16 md:py-20">
+    <section className="border-y border-slate-100 bg-white py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="mb-10 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight text-[#00236f] md:text-4xl">
-              {t('homeSections.usedBikesTitle')}
-            </h2>
-            <p className="mt-2 text-slate-600">{t('homeSections.usedBikesSubtitle')}</p>
-          </div>
-          <Link to="/used-bikes" className="shrink-0 text-sm font-bold text-[#ba0035] underline-offset-4 hover:underline">
-            {t('homeSections.viewAllBikes')}
-          </Link>
-        </div>
+        <PremiumSectionHeading
+          eyebrow={t('homePremiumHeading.usedBikesEyebrow')}
+          title={t('homeSections.usedBikesTitle')}
+          subtitle={t('homeSections.usedBikesSubtitle')}
+          action={
+            <Link to="/used-bikes" className="shrink-0 text-sm font-bold text-[#ba0035] underline-offset-4 hover:underline">
+              {t('homeSections.viewAllBikes')}
+            </Link>
+          }
+        />
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {loading ? <SkeletonCardGrid count={8} /> : null}

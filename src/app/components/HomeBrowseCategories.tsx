@@ -1,6 +1,7 @@
 import { Car, Truck, Zap, Bike, Bus, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 
 const TILES: Array<{ slug: string; icon: typeof Car; href: string }> = [
   { slug: 'sedan', icon: Car, href: '/listings?type=used_car&q=sedan' },
@@ -15,11 +16,14 @@ export function HomeBrowseCategories() {
   const { t } = useTranslation();
 
   return (
-    <section className="bg-[#f8f9fa] py-16 md:py-20">
+    <section className="border-y border-slate-100 bg-slate-50 py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-4">
-        <h2 className="mb-10 text-center text-3xl font-bold tracking-tight text-[#00236f] md:text-4xl">
-          {t('homePremium.browseByCategory')}
-        </h2>
+        <PremiumSectionHeading
+          align="center"
+          eyebrow={t('homePremiumHeading.browseByCategoryEyebrow')}
+          title={t('homePremium.browseByCategory')}
+          subtitle={t('homePremiumHeading.browseByCategorySubtitle')}
+        />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6 md:gap-4">
           {TILES.map(({ slug, icon: Icon, href }) => (
             <Link

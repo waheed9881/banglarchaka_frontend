@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, Globe2, Star } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import {
   fetchListings,
@@ -11,6 +12,7 @@ import {
 } from '@/lib/marketplace';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { SkeletonBox } from '@/app/components/PremiumSkeleton';
+import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1705747401901-28363172fe7e?auto=format&fit=crop&w=1080&q=80';
@@ -181,6 +183,7 @@ function NewCarCarouselCardSkeleton() {
 }
 
 export function NewCars() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<TabKey>('newly_launched');
   const [lists, setLists] = useState<Record<TabKey, ListingDto[]>>({
     popular: [],
@@ -271,26 +274,19 @@ export function NewCars() {
   return (
     <section className="border-y border-slate-100 bg-[#f8f9fa] py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-[#00236f] sm:text-3xl md:text-4xl">
-              New Cars in Bangladesh
-            </h2>
-            <p className="mt-2 max-w-3xl text-sm text-slate-600">
-              Each tab mixes{' '}
-              <span className="font-medium text-gray-700">BanglarChaka showroom listings</span> with{' '}
-              <span className="font-medium text-gray-700">live Bangladesh automotive headlines</span> from Google News RSS. Our
-              server fills in thumbnails from article pages when possible, and matches brand names in headlines to curated car
-              photos when not — refreshed automatically while you browse.
-            </p>
-          </div>
-          <Link
-            to="/listings?type=new_car"
-            className="shrink-0 text-sm font-bold text-[#ba0035] underline-offset-4 hover:underline"
-          >
-            View All New Cars →
-          </Link>
-        </div>
+        <PremiumSectionHeading
+          eyebrow={t('homePremiumHeading.newCarsEyebrow')}
+          title={t('homePremiumHeading.newCarsTitle')}
+          subtitle={t('homePremiumHeading.newCarsSubtitle')}
+          action={
+            <Link
+              to="/listings?type=new_car"
+              className="shrink-0 text-sm font-bold text-[#ba0035] underline-offset-4 hover:underline"
+            >
+              View All New Cars →
+            </Link>
+          }
+        />
 
         <div className="mb-8 flex flex-wrap gap-1 border-b border-slate-200">
           {TABS.map(({ key, label }) => (

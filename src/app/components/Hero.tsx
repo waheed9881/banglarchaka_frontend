@@ -1,20 +1,13 @@
-import { Search, X } from 'lucide-react';
-import { useEffect, useState, type MouseEvent } from 'react';
+import { Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { BD_CITIES, CITY_LABEL_KEYS } from '@/i18n/bdCities';
 import { fetchBrands, type BrandDto } from '@/lib/marketplace';
 import { SkeletonHeroCard, SkeletonLiveRegion } from '@/app/components/PremiumSkeleton';
-
-const HERO_BG =
-  'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=2000&q=80';
+import { HeroBannerCarousel } from '@/app/components/hero/HeroBannerCarousel';
 
 type ListingType = 'used_car' | 'new_car' | 'used_bike' | 'auto_part';
-
-type SavedSearch = {
-  label: string;
-  query: string;
-};
 
 type SearchPatch = Partial<{
   listingType: ListingType;
@@ -83,24 +76,12 @@ export function Hero() {
   const [verifiedDealerOnly, setVerifiedDealerOnly] = useState(false);
   const [dealerOnly, setDealerOnly] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
 
   useEffect(() => {
     fetchBrands()
       .then((rows) => setBrands(rows))
       .catch(() => setBrands([]))
       .finally(() => setBrandsLoading(false));
-  }, []);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('hero_saved_searches');
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as SavedSearch[];
-      if (Array.isArray(parsed)) setSavedSearches(parsed.slice(0, 5));
-    } catch {
-      setSavedSearches([]);
-    }
   }, []);
 
   const snapshot = (patch: SearchPatch = {}) => ({
@@ -139,38 +120,6 @@ export function Hero() {
     setDealerOnly(s.dealerOnly);
   };
 
-  const saveCurrentSearch = () => {
-    const params = buildListingParams(snapshot()).toString();
-    if (!params.includes('type=')) return;
-    const s = snapshot();
-    const typeLabel =
-      s.listingType === 'used_car'
-        ? t('hero.savedSearchUsedCars')
-        : s.listingType === 'new_car'
-          ? t('hero.savedSearchNewCars')
-          : s.listingType === 'used_bike'
-            ? t('hero.savedSearchBikes')
-            : t('hero.savedSearchParts');
-    const cityLabel =
-      s.city && s.city in CITY_LABEL_KEYS
-        ? ` · ${t(CITY_LABEL_KEYS[s.city as keyof typeof CITY_LABEL_KEYS])}`
-        : s.city
-          ? ` · ${s.city}`
-          : '';
-    const label = `${typeLabel}${cityLabel}${s.keyword ? ` · ${s.keyword}` : ''}`;
-    const next = [{ label, query: params }, ...savedSearches.filter((x) => x.query !== params)].slice(0, 5);
-    setSavedSearches(next);
-    localStorage.setItem('hero_saved_searches', JSON.stringify(next));
-  };
-
-  const removeSavedSearch = (query: string, e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const next = savedSearches.filter((x) => x.query !== query);
-    setSavedSearches(next);
-    localStorage.setItem('hero_saved_searches', JSON.stringify(next));
-  };
-
   const clearFilters = () => {
     setBrandId('');
     setCity('');
@@ -187,39 +136,30 @@ export function Hero() {
     navigate(`/listings?type=${type}`);
   };
 
-  const quickChips: Array<{ chipKey: string; label: string; patch: SearchPatch }> = [
-    { chipKey: 'used_car', label: t('footer.usedCars'), patch: { listingType: 'used_car' } },
-    { chipKey: 'new_car', label: t('footer.newCars'), patch: { listingType: 'new_car' } },
-    { chipKey: 'used_bike', label: t('hero.tabBikes'), patch: { listingType: 'used_bike' } },
-    { chipKey: 'auto_part', label: t('hero.autoParts'), patch: { listingType: 'auto_part' } },
-    { chipKey: 'hybrid', label: t('hero.hybrid'), patch: { fuelType: 'hybrid' } },
-    { chipKey: 'auto', label: t('hero.automatic'), patch: { transmission: 'automatic' } },
-    { chipKey: 'manual', label: t('hero.manual'), patch: { transmission: 'manual' } },
-    { chipKey: 'used', label: t('hero.used'), patch: { condition: 'used' } },
-  ];
-
   return (
-    <section className="relative flex min-h-[min(88vh,900px)] flex-col justify-end overflow-hidden py-12 md:justify-center md:py-16">
-      <div className="absolute inset-0 z-0" aria-hidden>
-        <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/65 via-black/40 to-black/80" />
-        <img src={HERO_BG} alt="" className="h-full w-full object-cover" fetchPriority="high" decoding="async" />
-      </div>
+    <section className="relative isolate min-h-[min(88vh,900px)] overflow-hidden bg-slate-950">
+      <HeroBannerCarousel />
+      <div
+        className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/60 via-black/30 to-black/85"
+        aria-hidden
+      />
 
-      <div className="relative z-20 mx-auto flex w-full max-w-7xl flex-col items-center px-4 text-center">
-        <h1 className="mb-3 text-4xl font-bold tracking-tight text-white drop-shadow-lg md:text-5xl lg:text-6xl">
-          {t('hero.headline')}
-        </h1>
-        <p className="mb-8 max-w-2xl text-base text-slate-200 md:text-lg">{t('hero.subhead')}</p>
+      <div className="relative z-10 mx-auto flex min-h-[min(88vh,900px)] w-full max-w-7xl flex-col px-4 pb-6 pt-10 md:pb-10 md:pt-14">
+        <div className="mx-auto max-w-3xl text-center md:mx-0 md:text-left">
+          <h1 className="text-4xl font-bold tracking-tight text-white drop-shadow-md md:text-5xl lg:text-6xl">
+            {t('hero.headline')}
+          </h1>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-200/95 md:text-base">{t('hero.subhead')}</p>
+        </div>
 
-        <div className="w-full max-w-5xl">
+        <div className="mt-auto w-full max-w-5xl self-center space-y-5 pt-10 md:pt-14">
           {brandsLoading ? (
             <>
               <SkeletonLiveRegion>{t('common.loading')}</SkeletonLiveRegion>
               <SkeletonHeroCard />
             </>
           ) : (
-            <>
-            <div className="rounded-2xl border border-white/30 bg-white/95 p-5 text-left text-gray-900 shadow-2xl backdrop-blur-md md:p-8">
+            <div className="rounded-2xl border border-white/35 bg-white/95 p-5 text-left text-gray-900 shadow-2xl backdrop-blur-md md:p-8">
               <div className="mb-5 flex gap-2 overflow-x-auto border-b border-slate-200 pb-4">
                 {(
                   [
@@ -314,22 +254,13 @@ export function Hero() {
                 >
                   {showAdvanced ? t('hero.advancedFiltersHide') : t('hero.advancedFiltersShow')}
                 </button>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={clearFilters}
-                    className="text-[13px] font-semibold text-[#00236f] hover:underline"
-                  >
-                    {t('hero.clearShort')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={saveCurrentSearch}
-                    className="text-[13px] font-semibold text-[#00236f] hover:underline"
-                  >
-                    {t('hero.saveSearch')}
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="text-[13px] font-semibold text-[#00236f] hover:underline"
+                >
+                  {t('hero.clearShort')}
+                </button>
               </div>
 
               {showAdvanced ? (
@@ -410,54 +341,9 @@ export function Hero() {
                 </div>
               ) : null}
             </div>
-
-            <div className="mt-6 flex flex-wrap justify-center gap-2">
-              {quickChips.map((chip) => (
-                <button
-                  key={chip.chipKey}
-                  type="button"
-                  onClick={() => submitSearch(chip.patch)}
-                  className="rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-semibold text-white backdrop-blur transition hover:bg-white/20"
-                >
-                  {chip.label}
-                </button>
-              ))}
-            </div>
-          </>
           )}
-        </div>
 
-        {savedSearches.length > 0 ? (
-          <div className="mx-auto mt-6 w-full max-w-5xl rounded-xl border border-white/20 bg-white/10 px-4 py-3 backdrop-blur-sm">
-            <div className="mb-2 text-xs font-semibold text-slate-100">{t('hero.savedSearches')}</div>
-            <div className="flex flex-wrap gap-2">
-              {savedSearches.map((s) => (
-                <div
-                  key={s.query}
-                  className="inline-flex items-center max-w-full gap-0.5 rounded-full bg-white/15 text-white text-xs hover:bg-white/25 transition pl-3 pr-1 py-1"
-                >
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/listings?${s.query}`)}
-                    className="min-w-0 truncate py-0.5 text-left hover:underline"
-                  >
-                    {s.label}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => removeSavedSearch(s.query, e)}
-                    className="shrink-0 rounded-full p-1 hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-white/80"
-                    aria-label={t('hero.removeSavedSearch')}
-                  >
-                    <X className="w-3.5 h-3.5" strokeWidth={2.5} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        <div className="mx-auto mt-8 grid w-full max-w-5xl grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-4">
           <button
             type="button"
             onClick={() => navigate('/listings?type=used_car')}
@@ -490,6 +376,7 @@ export function Hero() {
             <div className="text-xl font-bold text-white">100K+</div>
             <div className="text-xs text-slate-200">{t('hero.statAutoPartsShort')}</div>
           </button>
+          </div>
         </div>
       </div>
     </section>
