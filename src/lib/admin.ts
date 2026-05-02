@@ -100,6 +100,21 @@ export async function fetchPendingListings(params: {
   return parsePaginated<ListingDto>(payload);
 }
 
+/** All listings for admin; pass `status` to filter (omit or `all` = every status). */
+export async function fetchAdminListings(params: {
+  page?: number;
+  per_page?: number;
+  status?: string;
+} = {}): Promise<PaginatedResult<ListingDto>> {
+  const query = new URLSearchParams();
+  if (params.page) query.set('page', String(params.page));
+  if (params.per_page) query.set('per_page', String(params.per_page));
+  if (params.status && params.status !== 'all') query.set('status', params.status);
+  const suffix = query.toString() ? `?${query.toString()}` : '';
+  const payload = await apiFetch<unknown>(`/admin/listings${suffix}`);
+  return parsePaginated<ListingDto>(payload);
+}
+
 export async function approveListing(id: string): Promise<void> {
   await apiFetch(`/admin/listings/${id}/approve`, { method: 'POST' });
 }
@@ -109,6 +124,14 @@ export async function rejectListing(id: string, reason: string): Promise<void> {
     method: 'POST',
     body: JSON.stringify({ reason }),
   });
+}
+
+export async function disableListing(id: string): Promise<void> {
+  await apiFetch(`/admin/listings/${id}/disable`, { method: 'POST' });
+}
+
+export async function enableListing(id: string): Promise<void> {
+  await apiFetch(`/admin/listings/${id}/enable`, { method: 'POST' });
 }
 
 export async function fetchPendingReviews(params: {

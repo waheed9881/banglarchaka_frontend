@@ -2,6 +2,7 @@ import { Camera, X } from 'lucide-react';
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router';
+import { ADMIN_MOD_ROLES, fetchMe, hasStaffRole, type MeResponse } from '@/lib/auth';
 import { apiFetch, getAuthToken } from '@/lib/api';
 import { createPaymentIntent } from '@/lib/payments';
 import {
@@ -61,9 +62,20 @@ export function EditListingPage({ listingPublicId }: { listingPublicId?: string 
   const [boostMethod, setBoostMethod] = useState<'cash' | 'bank_transfer' | 'rocket'>('cash');
   const [planBusy, setPlanBusy] = useState(false);
   const [boostBusy, setBoostBusy] = useState(false);
+  const [me, setMe] = useState<MeResponse | null>(null);
+
+  const staffModeration = useMemo(() => hasStaffRole(me, ADMIN_MOD_ROLES), [me]);
 
   useEffect(() => {
     fetchBrands().then(setBrands).catch(() => setBrands([]));
+  }, []);
+
+  useEffect(() => {
+    if (!getAuthToken()) {
+      setMe(null);
+      return;
+    }
+    fetchMe().then(setMe).catch(() => setMe(null));
   }, []);
 
   useEffect(() => {
@@ -281,7 +293,23 @@ export function EditListingPage({ listingPublicId }: { listingPublicId?: string 
       if (showVehicleFields && year) body.vehicle_year = Number(year);
       if (showVehicleFields) body.mileage_km = mileage === '' ? null : Number(mileage);
 
-      body.status = listingStatus;
+      if (staffModeration) {
+        body.status = listingStatus;
+      } else if (listing) {
+        const statusLockedForSeller = ['paused', 'rejected', 'disabled', 'sold'].includes(listing.status);
+        if (statusLockedForSeller) {
+          // Field-only edits; moderation controls status.
+        } else {
+          const liveNow = listing.status === 'active' && !!listing.approved_at;
+          if (liveNow) {
+            if (listingStatus === 'sold') {
+              body.status = 'sold';
+            }
+          } else {
+            body.status = listingStatus;
+          }
+        }
+      }
 
       await updateListing(listingPublicId, body as Record<string, string | number | boolean | null | undefined>);
 
@@ -371,19 +399,52 @@ export function EditListingPage({ listingPublicId }: { listingPublicId?: string 
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700">Status</label>
-                <select
-                  value={listingStatus}
-                  onChange={(e) => setListingStatus(e.target.value)}
-                  className="w-full rounded-lg border-2 border-gray-300 px-4 py-3"
-                >
-                  <option value="draft">Draft</option>
-                  <option value="pending_review">Pending review</option>
-                  <option value="active">Active</option>
-                  <option value="sold">Sold</option>
-                  <option value="rejected" disabled={listing.status !== 'rejected'}>
-                    Rejected
-                  </option>
-                </select>
+                {staffModeration ? (
+                  <select
+                    value={listingStatus}
+                    onChange={(e) => setListingStatus(e.target.value)}
+                    className="w-full rounded-lg border-2 border-gray-300 px-4 py-3"
+                  >
+                    <option value="draft">Draft</option>
+                    <option value="pending_review">Pending review</option>
+                    <option value="active">Active</option>
+                    <option value="sold">Sold</option>
+                    <option value="disabled">Disabled</option>
+                    <option value="rejected" disabled={listing.status !== 'rejected'}>
+                      Rejected
+                    </option>
+                  </select>
+                ) : listing.status === 'active' && !!listing.approved_at ? (
+                  <div className="space-y-2">
+                    <p className="rounded-lg border-2 border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                      Approved — listing is live. Mark as sold when you finalize the sale.
+                    </p>
+                    <select
+                      value={listingStatus}
+                      onChange={(e) => setListingStatus(e.target.value)}
+                      className="w-full rounded-lg border-2 border-gray-300 px-4 py-3"
+                    >
+                      <option value="active">Active (live)</option>
+                      <option value="sold">Sold</option>
+                    </select>
+                  </div>
+                ) : listing.status === 'paused' ||
+                  listing.status === 'rejected' ||
+                  listing.status === 'disabled' ||
+                  listing.status === 'sold' ? (
+                  <div className="rounded-lg border-2 border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    Current status: <strong>{listing.status}</strong>. You can still edit details; admins control publication / visibility for this state.
+                  </div>
+                ) : (
+                  <select
+                    value={listingStatus}
+                    onChange={(e) => setListingStatus(e.target.value)}
+                    className="w-full rounded-lg border-2 border-gray-300 px-4 py-3"
+                  >
+                    <option value="draft">Draft</option>
+                    <option value="pending_review">Awaiting admin approval</option>
+                  </select>
+                )}
               </div>
 
               <div>

@@ -3,10 +3,12 @@ import {
   approveListing,
   approveReview,
   assignQueueItem,
+  disableListing,
+  enableListing,
   fetchAdminDashboardStats,
+  fetchAdminListings,
   fetchAdminReports,
   fetchModerationQueue,
-  fetchPendingListings,
   fetchPendingReviews,
   rejectListing,
   rejectReview,
@@ -34,6 +36,7 @@ export function AdminModerationPage() {
   const [message, setMessage] = useState('');
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  const [listingStatusFilter, setListingStatusFilter] = useState('all');
   const [queueStatusFilter, setQueueStatusFilter] = useState('');
   const [reportStatusFilter, setReportStatusFilter] = useState('');
   const [page, setPage] = useState(1);
@@ -52,7 +55,11 @@ export function AdminModerationPage() {
         setTotal(reports.total);
         setLastPage(1);
       } else if (tab === 'listings') {
-        const data = await fetchPendingListings({ page, per_page: 20 });
+        const data = await fetchAdminListings({
+          page,
+          per_page: 20,
+          status: listingStatusFilter,
+        });
         setRows(data.rows);
         setLastPage(data.lastPage);
         setTotal(data.total);
@@ -101,7 +108,7 @@ export function AdminModerationPage() {
   useEffect(() => {
     if (!canModerate) return;
     load().catch(() => undefined);
-  }, [canModerate, tab, page, queueStatusFilter, reportStatusFilter]);
+  }, [canModerate, tab, page, listingStatusFilter, queueStatusFilter, reportStatusFilter]);
 
   const onApprove = async (id: string) => {
     try {
@@ -122,6 +129,26 @@ export function AdminModerationPage() {
       await load();
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Reject failed');
+    }
+  };
+
+  const onDisableListing = async (id: string) => {
+    try {
+      await disableListing(id);
+      setMessage('Listing disabled (site par ab nahi dikhegi)');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Disable failed');
+    }
+  };
+
+  const onEnableListing = async (id: string) => {
+    try {
+      await enableListing(id);
+      setMessage('Listing dubara enable ho gayi');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Enable failed');
     }
   };
 
@@ -304,13 +331,31 @@ export function AdminModerationPage() {
             </select>
           )}
           {tab === 'listings' && (
-            <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="px-3 py-2 border rounded">
-              <option value="">All listing types</option>
-              <option value="used_car">used_car</option>
-              <option value="new_car">new_car</option>
-              <option value="used_bike">used_bike</option>
-              <option value="auto_part">auto_part</option>
-            </select>
+            <>
+              <select
+                value={listingStatusFilter}
+                onChange={(e) => {
+                  setListingStatusFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="px-3 py-2 border rounded"
+              >
+                <option value="all">All statuses</option>
+                <option value="pending_review">Pending approval</option>
+                <option value="active">Live (active)</option>
+                <option value="disabled">Disabled by admin</option>
+                <option value="rejected">Rejected</option>
+                <option value="sold">Sold</option>
+                <option value="draft">Draft</option>
+              </select>
+              <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="px-3 py-2 border rounded">
+                <option value="">All listing types</option>
+                <option value="used_car">used_car</option>
+                <option value="new_car">new_car</option>
+                <option value="used_bike">used_bike</option>
+                <option value="auto_part">auto_part</option>
+              </select>
+            </>
           )}
         </div>
         {message && (
@@ -340,12 +385,50 @@ export function AdminModerationPage() {
                       <div>
                         <h3 className="font-semibold text-lg text-gray-900">{row.title}</h3>
                         <p className="text-sm text-gray-600">
+                          <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 mr-2">
+                            {row.status || 'unknown'}
+                          </span>
+                          {row.approved_at ? 'approved · ' : ''}
                           {row.listing_type} • {row.location_city || 'N/A'} • {formatMoney(row.price, row.currency)}
                         </p>
                       </div>
-                      <div className="flex gap-2">
-                        <button onClick={() => onApprove(row.id)} className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700">Approve</button>
-                        <button onClick={() => onReject(row.id)} className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700">Reject</button>
+                      <div className="flex flex-wrap gap-2">
+                        {row.status === 'pending_review' && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => onApprove(row.id)}
+                              className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => onReject(row.id)}
+                              className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+                        {row.status !== 'disabled' && (
+                          <button
+                            type="button"
+                            onClick={() => onDisableListing(row.id)}
+                            className="px-4 py-2 rounded border border-amber-600 text-amber-800 hover:bg-amber-50"
+                          >
+                            Disable
+                          </button>
+                        )}
+                        {row.status === 'disabled' && (
+                          <button
+                            type="button"
+                            onClick={() => onEnableListing(row.id)}
+                            className="px-4 py-2 rounded bg-[#233D7B] text-white hover:bg-[#1a2d5a]"
+                          >
+                            Enable
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
