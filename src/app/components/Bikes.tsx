@@ -1,6 +1,7 @@
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { MapPin, Calendar, Gauge } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import {
   fetchListings,
@@ -16,6 +17,7 @@ const FALLBACK_IMAGE =
 const BIKE_BRANDS = ['Honda', 'Yamaha', 'Suzuki', 'Bajaj'] as const;
 
 export function Bikes() {
+  const { t } = useTranslation();
   const [bikes, setBikes] = useState<ListingDto[]>([]);
 
   useEffect(() => {
@@ -29,11 +31,11 @@ export function Bikes() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">Used Bikes for Sale</h2>
-            <p className="text-gray-600 mt-2">Find your perfect ride at the best price</p>
+            <h2 className="text-3xl font-bold text-gray-900">{t('homeSections.usedBikesTitle')}</h2>
+            <p className="text-gray-600 mt-2">{t('homeSections.usedBikesSubtitle')}</p>
           </div>
           <Link to="/listings?type=used_bike" className="text-[#233D7B] hover:underline font-semibold">
-            View All Bikes →
+            {t('homeSections.viewAllBikes')}
           </Link>
         </div>
 
@@ -59,16 +61,16 @@ export function Bikes() {
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4 shrink-0" />
-                    {bike.location_city || 'N/A'}
+                    {bike.location_city || t('homeFeatured.na')}
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4 shrink-0" />
-                      {bike.vehicle_year || 'N/A'}
+                      {bike.vehicle_year || t('homeFeatured.na')}
                     </div>
                     <div className="flex items-center gap-1">
                       <Gauge className="w-4 h-4 shrink-0" />
-                      {bike.mileage_km ? `${bike.mileage_km.toLocaleString()} km` : 'N/A'}
+                      {bike.mileage_km ? `${bike.mileage_km.toLocaleString()} km` : t('homeFeatured.na')}
                     </div>
                   </div>
                 </div>
@@ -85,7 +87,7 @@ export function Bikes() {
               className="bg-white rounded-lg p-4 shadow hover:shadow-md transition text-center border-l-4 border-[#C4161C] ring-1 ring-gray-100 hover:ring-[#233D7B]/30"
             >
               <div className="text-2xl font-bold text-gray-900">{name}</div>
-              <div className="text-sm text-gray-600 mt-1">Browse listings</div>
+              <div className="text-sm text-gray-600 mt-1">{t('homeSections.browseListings')}</div>
             </Link>
           ))}
         </div>

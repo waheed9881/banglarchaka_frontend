@@ -19,6 +19,7 @@ import {
 import { fetchMe } from '@/lib/auth';
 import { fetchDealers, formatMoney, type DealerDto, type ListingDto } from '@/lib/marketplace';
 import { setPageSeo } from '@/lib/seo';
+import { Link } from 'react-router';
 
 export function AdminModerationPage() {
   const [tab, setTab] = useState<'dashboard' | 'listings' | 'reviews' | 'queue' | 'reports' | 'dealers'>('dashboard');
@@ -231,9 +232,24 @@ export function AdminModerationPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 py-10">
-          <div className="bg-white rounded shadow p-8 text-center">
-            <h1 className="text-xl font-bold text-gray-900 mb-2">Access denied</h1>
-            <p className="text-gray-600">You need admin/moderator role to access admin portal.</p>
+          <div className="bg-white rounded shadow p-8 text-center space-y-4">
+            <h1 className="text-xl font-bold text-gray-900">Access denied</h1>
+            <p className="text-gray-600">
+              Admin portal ke liye pehle login karein — account par <strong>super_admin</strong>,{' '}
+              <strong>admin</strong> ya <strong>moderator</strong> role honi chahiye.
+            </p>
+            <Link
+              to="/login"
+              className="inline-flex rounded-md bg-[#233D7B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a2d5a]"
+            >
+              Sign in
+            </Link>
+            {import.meta.env.DEV ? (
+              <p className="text-xs text-gray-500 pt-2 border-t border-gray-100">
+                Seed demo admin: <code className="bg-gray-100 px-1 rounded">admin@banglarchaka.local</code> /{' '}
+                <code className="bg-gray-100 px-1 rounded">BanglarAdmin1!</code>
+              </p>
+            ) : null}
           </div>
         </div>
       </div>

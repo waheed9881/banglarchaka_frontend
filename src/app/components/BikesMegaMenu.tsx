@@ -8,6 +8,7 @@ import {
   Tag,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 function MegaLink({
@@ -41,19 +42,17 @@ function BikeModelLink({ listingType, label, q }: { listingType: 'used_bike' | '
   );
 }
 
-export const BIKES_NAV_TOOLTIP = 'Bikes for sale in Bangladesh.';
-
-export const BIKES_MOBILE_LINKS: Array<{ label: string; to: string }> = [
-  { label: 'Find used bikes', to: '/listings?type=used_bike' },
-  { label: 'Used bikes listings', to: '/listings?type=used_bike' },
-  { label: 'Featured used bikes', to: '/listings?type=used_bike&featured=1' },
-  { label: 'Sell your bike', to: '/used-bikes/sell' },
-  { label: 'Used bike dealers', to: '/listings?type=used_bike&dealer_only=1' },
-  { label: 'Find new bikes', to: '/listings?type=new_bike' },
-  { label: 'Bike comparisons', to: '/compare' },
-  { label: 'Bike reviews', to: '/bike-reviews' },
-  { label: 'New bike prices', to: '/bike-prices' },
-  { label: 'New bike dealers', to: '/listings?type=new_bike&dealer_only=1' },
+export const BIKES_MOBILE_LINKS: Array<{ labelKey: string; to: string }> = [
+  { labelKey: 'nav.mobileBikesFindUsed', to: '/listings?type=used_bike' },
+  { labelKey: 'nav.mobileBikesListings', to: '/listings?type=used_bike' },
+  { labelKey: 'nav.mobileBikesFeatured', to: '/listings?type=used_bike&featured=1' },
+  { labelKey: 'nav.mobileBikesSell', to: '/used-bikes/sell' },
+  { labelKey: 'nav.mobileBikesDealersUsed', to: '/listings?type=used_bike&dealer_only=1' },
+  { labelKey: 'nav.mobileBikesFindNew', to: '/listings?type=new_bike' },
+  { labelKey: 'nav.mobileBikesCompare', to: '/compare' },
+  { labelKey: 'nav.mobileBikesReviews', to: '/bike-reviews' },
+  { labelKey: 'nav.mobileBikesPricesNew', to: '/bike-prices' },
+  { labelKey: 'nav.mobileBikesDealersNew', to: '/listings?type=new_bike&dealer_only=1' },
 ];
 
 const POPULAR_NEW_BIKES: Array<{ label: string; q: string }> = [
@@ -79,45 +78,47 @@ const POPULAR_USED_BIKES: Array<{ label: string; q: string }> = [
 ];
 
 export function BikesMegaMenuPanel({ className = '' }: { className?: string }) {
+  const { t } = useTranslation();
+
   return (
     <div
       className={`max-w-full rounded-tl-none rounded-tr-lg rounded-b-lg border border-t-0 border-gray-200 bg-white shadow-xl border-b-[3px] border-b-[#C4161C] ${className}`}
     >
       <div className="border-b border-gray-200 px-4 py-2.5 bg-white">
         <p className="inline-block max-w-xl rounded-sm border border-gray-900 px-2.5 py-1.5 text-[11px] leading-snug text-gray-800 shadow-[0_1px_2px_rgba(0,0,0,0.06)]">
-          {BIKES_NAV_TOOLTIP}
+          {t('mega.bikes.banner')}
         </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 divide-y xl:divide-y-0 xl:divide-x divide-gray-100">
         <div className="p-5 space-y-1">
           <MegaLink
-            title="Find Used Bikes"
-            desc="Find your next bike from live listings"
+            title={t('mega.bikes.findUsedTitle')}
+            desc={t('mega.bikes.findUsedDesc')}
             to="/listings?type=used_bike"
             icon={<Search className="w-5 h-5" />}
           />
           <MegaLink
-            title="Used Bikes Listings"
-            desc="Search thousands of used bike ads"
+            title={t('mega.bikes.listingsTitle')}
+            desc={t('mega.bikes.listingsDesc')}
             to="/listings?type=used_bike"
             icon={<Bike className="w-5 h-5" />}
           />
           <MegaLink
-            title="Featured Used Bikes"
-            desc="Boosted picks from sellers"
+            title={t('mega.bikes.featuredTitle')}
+            desc={t('mega.bikes.featuredDesc')}
             to="/listings?type=used_bike&featured=1"
             icon={<Star className="w-5 h-5" />}
           />
           <MegaLink
-            title="Sell Your Bike"
-            desc="Post a free ad and sell quickly"
+            title={t('mega.bikes.sellTitle')}
+            desc={t('mega.bikes.sellDesc')}
             to="/used-bikes/sell"
             icon={<Tag className="w-5 h-5" />}
           />
           <MegaLink
-            title="Used Bike Dealers"
-            desc="Browse dealer-posted used bikes"
+            title={t('mega.bikes.usedDealersTitle')}
+            desc={t('mega.bikes.usedDealersDesc')}
             to="/listings?type=used_bike&dealer_only=1"
             icon={<BookOpen className="w-5 h-5" />}
           />
@@ -125,32 +126,32 @@ export function BikesMegaMenuPanel({ className = '' }: { className?: string }) {
 
         <div className="p-5 space-y-1">
           <MegaLink
-            title="Find New Bikes"
-            desc="See new bike listings on BanglarChaka"
+            title={t('mega.bikes.findNewTitle')}
+            desc={t('mega.bikes.findNewDesc')}
             to="/listings?type=new_bike"
             icon={<Search className="w-5 h-5" />}
           />
           <MegaLink
-            title="Bike Comparisons"
-            desc="Compare bikes and spot differences"
+            title={t('mega.bikes.compareTitle')}
+            desc={t('mega.bikes.compareDesc')}
             to="/compare"
             icon={<GitCompare className="w-5 h-5" />}
           />
           <MegaLink
-            title="Bike Reviews"
-            desc="Read rider and expert reviews"
+            title={t('mega.bikes.reviewsTitle')}
+            desc={t('mega.bikes.reviewsDesc')}
             to="/bike-reviews"
             icon={<MessageSquare className="w-5 h-5" />}
           />
           <MegaLink
-            title="New Bikes Prices"
-            desc="Check pricing trends for new bikes"
+            title={t('mega.bikes.newPricesTitle')}
+            desc={t('mega.bikes.newPricesDesc')}
             to="/bike-prices"
             icon={<Tag className="w-5 h-5" />}
           />
           <MegaLink
-            title="New Bike Dealers"
-            desc="Find dealers listing new bikes"
+            title={t('mega.bikes.newDealersTitle')}
+            desc={t('mega.bikes.newDealersDesc')}
             to="/listings?type=new_bike&dealer_only=1"
             icon={<BookOpen className="w-5 h-5" />}
           />
@@ -159,7 +160,7 @@ export function BikesMegaMenuPanel({ className = '' }: { className?: string }) {
         <div className="p-5">
           <div className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-3">
             <Bike className="w-4 h-4 text-[#C4161C]" />
-            Popular new bikes
+            {t('mega.bikes.popularNewBikes')}
           </div>
           <nav className="flex flex-col">
             {POPULAR_NEW_BIKES.map((m) => (
@@ -171,7 +172,7 @@ export function BikesMegaMenuPanel({ className = '' }: { className?: string }) {
         <div className="p-5">
           <div className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-3">
             <Bike className="w-4 h-4 text-[#C4161C]" />
-            Popular used bikes
+            {t('mega.bikes.popularUsedBikes')}
           </div>
           <nav className="flex flex-col">
             {POPULAR_USED_BIKES.map((m) => (

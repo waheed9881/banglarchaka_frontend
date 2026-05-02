@@ -1,6 +1,7 @@
 import { CheckCircle2 } from 'lucide-react';
 import { Link, type To } from 'react-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   fetchDealers,
   fetchListings,
@@ -44,6 +45,7 @@ function ListingCardSkeleton() {
 }
 
 export function InnerPageHero({ title, subtitle }: { title: string; subtitle: string }) {
+  const { t } = useTranslation();
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-[#233D7B] via-[#1a3266] to-[#152a52] text-white">
       <div
@@ -58,7 +60,7 @@ export function InnerPageHero({ title, subtitle }: { title: string; subtitle: st
       <div className="relative max-w-6xl mx-auto px-4 pt-12 pb-14 border-b-4 border-[#C4161C]">
         <div className="text-sm text-white/75 mb-4 flex flex-wrap items-center gap-x-1 gap-y-1">
           <Link to="/" className="hover:text-white transition-colors font-medium">
-            Home
+            {t('common.home')}
           </Link>
           <span className="text-white/40">/</span>
           <span className="text-white font-medium">{title}</span>
@@ -85,16 +87,34 @@ export function InnerContentPage({
   listingsSections?: InnerListingFeed[];
   dealersPreview?: InnerDealersPreview;
 }) {
+  const { t } = useTranslation();
+
   useEffect(() => {
     const desc = subtitle.length > 168 ? `${subtitle.slice(0, 165)}…` : subtitle;
-    setPageSeo(`${title} · BanglarChaka`, desc);
-  }, [title, subtitle]);
+    setPageSeo(t('innerUi.seoTitle', { title }), desc);
+  }, [title, subtitle, t]);
 
   const [listingBlocks, setListingBlocks] = useState<Array<{ heading: string; items: ListingDto[] }>>([]);
   const [listingsLoading, setListingsLoading] = useState(!!listingsSections?.length);
   const [dealers, setDealers] = useState<DealerDto[]>([]);
   const [dealersLoading, setDealersLoading] = useState(!!dealersPreview);
 
+  /** Stable when only parent array identity changes (e.g. header re-render); updates when copy or filters change */
+  const listingsFingerprint = useMemo(
+    () =>
+      listingsSections?.length
+        ? listingsSections
+            .map((s) => `${s.heading}|${JSON.stringify(s.params)}|${s.per_page ?? 6}`)
+            .join('\u001f')
+        : '',
+    [listingsSections],
+  );
+
+  const dealersFingerprint = dealersPreview
+    ? `${dealersPreview.heading}|${dealersPreview.limit ?? 4}`
+    : '';
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- listingsFingerprint ignores recreated parent arrays with identical queries
   useEffect(() => {
     if (!listingsSections?.length) {
       setListingBlocks([]);
@@ -124,8 +144,9 @@ export function InnerContentPage({
     return () => {
       cancelled = true;
     };
-  }, [listingsSections]);
+  }, [listingsFingerprint]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- dealersFingerprint ignores recreated preview objects with same heading/limit
   useEffect(() => {
     if (!dealersPreview) {
       setDealers([]);
@@ -147,7 +168,7 @@ export function InnerContentPage({
     return () => {
       cancelled = true;
     };
-  }, [dealersPreview]);
+  }, [dealersFingerprint]);
 
   return (
     <div className="min-h-screen bg-[#f4f6fa]">
@@ -157,7 +178,7 @@ export function InnerContentPage({
         <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200/80 p-6 sm:p-8 mb-8">
           <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
             <span className="h-8 w-1 rounded-full bg-[#C4161C]" aria-hidden />
-            What you can do here
+            {t('innerUi.whatYouCanDo')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {highlights.map((item) => (
@@ -193,21 +214,21 @@ export function InnerContentPage({
                   <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
                     <div>
                       <h3 className="text-xl font-bold text-gray-900">{block.heading}</h3>
-                      <p className="text-sm text-gray-500 mt-1">Hand-picked from live marketplace listings</p>
+                      <p className="text-sm text-gray-500 mt-1">{t('innerUi.handPicked')}</p>
                     </div>
                     <Link
                       to="/listings"
                       className="inline-flex items-center gap-1 text-sm font-semibold text-[#233D7B] hover:text-[#C4161C] transition-colors"
                     >
-                      Browse all
+                      {t('innerUi.browseAll')}
                       <span aria-hidden>→</span>
                     </Link>
                   </div>
                   {block.items.length === 0 ? (
                     <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/50 px-6 py-12 text-center">
-                      <p className="text-gray-600 text-sm">No listings match this filter yet — check back soon.</p>
+                      <p className="text-gray-600 text-sm">{t('innerUi.noListingsMatch')}</p>
                       <Link to="/post-ad" className="inline-block mt-4 text-sm font-semibold text-[#C4161C] hover:underline">
-                        Post the first ad
+                        {t('innerUi.postFirstAd')}
                       </Link>
                     </div>
                   ) : (
@@ -258,7 +279,7 @@ export function InnerContentPage({
                 to="/listings"
                 className="inline-flex items-center gap-1 text-sm font-semibold text-[#233D7B] hover:text-[#C4161C] transition-colors"
               >
-                View inventory
+                {t('innerUi.viewInventory')}
                 <span aria-hidden>→</span>
               </Link>
             </div>
@@ -270,7 +291,7 @@ export function InnerContentPage({
               </div>
             ) : dealers.length === 0 ? (
               <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/50 px-6 py-10 text-center text-gray-600 text-sm">
-                No dealers published yet.
+                {t('innerUi.noDealersYet')}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -281,8 +302,10 @@ export function InnerContentPage({
                     className="rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50/50 p-5 hover:border-[#233D7B]/40 hover:shadow-md transition-all duration-200"
                   >
                     <div className="font-bold text-gray-900 line-clamp-2">{d.business_name}</div>
-                    <div className="text-xs text-gray-500 mt-2">{d.branches?.[0]?.city || 'Bangladesh'}</div>
-                    <div className="text-sm text-[#C4161C] mt-3 font-bold">{d.listings_count ?? 0} listings</div>
+                    <div className="text-xs text-gray-500 mt-2">{d.branches?.[0]?.city || t('innerUi.defaultCountry')}</div>
+                    <div className="text-sm text-[#C4161C] mt-3 font-bold">
+                      {t('innerUi.listingsCount', { count: d.listings_count ?? 0 })}
+                    </div>
                   </Link>
                 ))}
               </div>
@@ -292,7 +315,7 @@ export function InnerContentPage({
 
         {quickLinks && quickLinks.length > 0 && (
           <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200/80 p-6 sm:p-8">
-            <h3 className="text-lg font-bold text-gray-900 mb-5">Related pages</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-5">{t('innerUi.relatedPages')}</h3>
             <div className="flex flex-wrap gap-3">
               {quickLinks.map((link) => (
                 <Link

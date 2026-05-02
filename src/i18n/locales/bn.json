@@ -1,0 +1,835 @@
+{
+  "common": {
+    "home": "হোম",
+    "loading": "লোড হচ্ছে…",
+    "back": "ফিরে যান",
+    "new": "নতুন",
+    "browseDealers": "ডিলার দেখুন"
+  },
+  "lang": {
+    "en": "English",
+    "bn": "বাংলা",
+    "switcherAria": "ভাষা বেছে নিন"
+  },
+  "nav": {
+    "downloadAppSms": "এসএমএসে অ্যাপ ডাউনলোড",
+    "signIn": "সাইন ইন",
+    "wishlist": "উইশলিস্ট",
+    "myListings": "আমার বিজ্ঞাপন",
+    "messages": "মেসেজ",
+    "logout": "লগআউট",
+    "loggedOut": "লগআউট হয়েছে",
+    "usedCars": "ইউজড গাড়ি",
+    "newCars": "নতুন গাড়ি",
+    "bikes": "বাইক",
+    "autoStore": "অটো স্টোর",
+    "videos": "ভিডিও",
+    "forums": "ফোরাম",
+    "blog": "ব্লগ",
+    "admin": "অ্যাডমিন",
+    "hr": "এইচআর",
+    "finance": "ফাইন্যান্স",
+    "dealerPortal": "ডিলার পোর্টাল",
+    "more": "আরও",
+    "postAd": "বিজ্ঞাপন দিন",
+    "closeMenu": "মেনু বন্ধ",
+    "openMenu": "মেনু খুলুন",
+    "browseAllUsedCars": "সব ইউজড গাড়ি",
+    "featuredUsedCars": "ফিচার্ড ইউজড গাড়ি",
+    "sellYourCar": "গাড়ি বিক্রি করুন",
+    "usedCarDealers": "ইউজড গাড়ির ডিলার",
+    "carPrices": "গাড়ির দাম",
+    "otherListingTypes": "অন্যান্য বিজ্ঞাপন ধরন…",
+    "tooltipUsedCars": "বিক্রির জন্য ইউজড গাড়ি",
+    "tooltipAutoStore": "অটো পার্টস ও আনুষাঙ্গিক",
+    "tooltipPostAd": "বিজ্ঞাপন দিন — মেনু থেকে ক্যাটাগরি বেছে নিন",
+    "mobileNewCarsFindNew": "নতুন গাড়ি খুঁজুন",
+    "mobileNewCarsCompare": "গাড়ি তুলনা",
+    "mobileNewCarsReviews": "রিভিউ",
+    "mobileNewCarsPrices": "দাম",
+    "mobileNewCarsOnRoad": "অন-রোড প্রাইস গাইড",
+    "mobileNewCarsDealers": "নতুন গাড়ির ডিলার",
+    "mobileBikesFindUsed": "ইউজড বাইক খুঁজুন",
+    "mobileBikesListings": "ইউজড বাইক বিজ্ঞাপন",
+    "mobileBikesFeatured": "ফিচার্ড ইউজড বাইক",
+    "mobileBikesSell": "বাইক বিক্রি করুন",
+    "mobileBikesDealersUsed": "ইউজড বাইক ডিলার",
+    "mobileBikesFindNew": "নতুন বাইক খুঁজুন",
+    "mobileBikesCompare": "বাইক তুলনা",
+    "mobileBikesReviews": "বাইক রিভিউ",
+    "mobileBikesPricesNew": "নতুন বাইকের দাম",
+    "mobileBikesDealersNew": "নতুন বাইক ডিলার",
+    "mobileAutoStoreTitle": "বাংলারচাকা অটো স্টোর",
+    "mobileAutoStoreFindParts": "অটো পার্টস খুঁজুন",
+    "mobileAutoStoreSellParts": "গাড়ির পার্টস বিক্রি করুন"
+  },
+  "mega": {
+    "usedCars": {
+      "findTitle": "ইউজড গাড়ি খুঁজুন",
+      "findDesc": "হাজারো লাইভ বিজ্ঞাপন থেকে সার্চ করুন",
+      "featuredTitle": "ফিচার্ড ইউজড গাড়ি",
+      "featuredDesc": "হোমপেজে হাইলাইট করা নির্বাচিত গাড়ি",
+      "sellTitle": "গাড়ি বিক্রি করুন",
+      "sellDesc": "ফ্রি বিজ্ঞাপন দিন ও গম্ভীর ক্রেতাদের কাছে পৌঁছান",
+      "dealersTitle": "ইউজড গাড়ির ডিলার",
+      "dealersDesc": "যাচাইকৃত ডিলার খুঁজুন আপনার কাছাকাছি",
+      "pricesTitle": "গাড়ির দাম",
+      "pricesDesc": "কেনার আগে চাহিদামূল্য তুলনা করুন",
+      "certifiedTitle": "সার্টিফাইড গাড়ি",
+      "certifiedDesc": "অতিরিক্ত আস্থার সাথে যাচাই করা বিজ্ঞাপন",
+      "inspectionTitle": "গাড়ি ইন্সপেকশন",
+      "inspectionDesc": "পেশাদার ইন্সপেকশন রিপোর্ট (শীঘ্রই)",
+      "sellForMeTitle": "আমাদের মাধ্যমে বিক্রি",
+      "sellForMeDesc": "ছবি, চ্যাট ও হ্যান্ডওভার আমরা সামলাই",
+      "auctionTitle": "নিলাম শিট যাচাই",
+      "auctionDesc": "আমদানি কাগজপত্র স্ক্যান থাকলে যাচাই করুন",
+      "popularCities": "জনপ্রিয় শহর",
+      "popularModels": "জনপ্রিয় মডেল"
+    },
+    "newCars": {
+      "banner": "বাংলাদেশে নতুন গাড়ি — দাম, রিভিউ ও তুলনা",
+      "findTitle": "নতুন গাড়ি খুঁজুন",
+      "findDesc": "বাংলারচাকায় নতুন গাড়ির বিজ্ঞাপন ব্রাউজ করুন",
+      "compareTitle": "গাড়ি তুলনা",
+      "compareDesc": "ট্রিম ও ফিচারের পার্থক্য বোঝুন",
+      "reviewsTitle": "রিভিউ",
+      "reviewsDesc": "মডেল অনুযায়ী রিভিউ ও কেনার টিপস",
+      "pricesTitle": "দাম",
+      "pricesDesc": "নতুন বিজ্ঞাপনের চাহিদামূল্য দেখুন",
+      "onRoadTitle": "অন-রোড প্রাইস",
+      "onRoadDesc": "বাজেট করার আগে প্রাইস গাইড ব্যবহার করুন",
+      "dealersTitle": "নতুন গাড়ির ডিলার",
+      "dealersDesc": "নতুন স্টক পোস্ট করা ডিলার খুঁজুন",
+      "popularBrands": "জনপ্রিয় ব্র্যান্ড",
+      "popularNewCars": "জনপ্রিয় নতুন গাড়ি"
+    },
+    "bikes": {
+      "banner": "বাংলাদেশে বিক্রয়ের জন্য বাইক।",
+      "findUsedTitle": "ইউজড বাইক খুঁজুন",
+      "findUsedDesc": "লাইভ বিজ্ঞাপন থেকে বেছে নিন",
+      "listingsTitle": "ইউজড বাইক বিজ্ঞাপন",
+      "listingsDesc": "হাজারো ইউজড বাইক বিজ্ঞাপন সার্চ করুন",
+      "featuredTitle": "ফিচার্ড ইউজড বাইক",
+      "featuredDesc": "বিক্রেতাদের হাইলাইট করা বাইক",
+      "sellTitle": "বাইক বিক্রি করুন",
+      "sellDesc": "ফ্রি বিজ্ঞাপন দিয়ে দ্রুত বিক্রি করুন",
+      "usedDealersTitle": "ইউজড বাইক ডিলার",
+      "usedDealersDesc": "ডিলার পোস্ট করা ইউজড বাইক দেখুন",
+      "findNewTitle": "নতুন বাইক খুঁজুন",
+      "findNewDesc": "বাংলারচাকায় নতুন বাইকের বিজ্ঞাপন দেখুন",
+      "compareTitle": "বাইক তুলনা",
+      "compareDesc": "বাইক তুলনা করে পার্থক্য বোঝুন",
+      "reviewsTitle": "বাইক রিভিউ",
+      "reviewsDesc": "রাইডার ও এক্সপার্ট রিভিউ পড়ুন",
+      "newPricesTitle": "নতুন বাইকের দাম",
+      "newPricesDesc": "নতুন বাইকের দামের ট্রেন্ড দেখুন",
+      "newDealersTitle": "নতুন বাইক ডিলার",
+      "newDealersDesc": "নতুন বাইক লিস্ট করা ডিলার খুঁজুন",
+      "popularNewBikes": "জনপ্রিয় নতুন বাইক",
+      "popularUsedBikes": "জনপ্রিয় ইউজড বাইক"
+    },
+    "autoStore": {
+      "storeTitle": "বাংলারচাকা অটো স্টোর",
+      "storeDesc": "মার্কেটপ্লেস বিক্রেতাদের কাছ থেকে পার্টস ও আনুষাঙ্গিক কিনুন",
+      "findPartsTitle": "অটো পার্টস খুঁজুন",
+      "findPartsDesc": "ক্যাটাগরি অনুযায়ী আনুষাঙ্গিক, তেল ও স্পেয়ার্স",
+      "sellPartsTitle": "গাড়ির পার্টস বিক্রি করুন",
+      "sellPartsDesc": "ফ্রি বিজ্ঞাপন দিয়ে দ্রুত বিক্রি করুন"
+    }
+  },
+  "moreNav": {
+    "tools": "টুলস",
+    "bikesStore": "বাইক ও স্টোর",
+    "legal": "আইনি",
+    "compareCars": "গাড়ি তুলনা",
+    "carReviews": "গাড়ি রিভিউ",
+    "sitemap": "সাইটম্যাপ",
+    "newBikes": "নতুন বাইক",
+    "bikePrices": "বাইকের দাম",
+    "bikeReviews": "বাইক রিভিউ",
+    "accessories": "আনুষাঙ্গিক",
+    "wheelsTyres": "হুইল ও টায়ার",
+    "engineParts": "ইঞ্জিন পার্টস",
+    "carCare": "গাড়ি পরিচর্যা",
+    "terms": "শর্তাবলী",
+    "privacy": "গোপনীয়তা নীতি"
+  },
+  "postAd": {
+    "sellYourCar": "গাড়ি বিক্রি করুন",
+    "sellYourBike": "বাইক বিক্রি করুন",
+    "sellAccessory": "আনুষাঙ্গিক বিক্রি করুন",
+    "usedCar": "ইউজড গাড়ি",
+    "newCar": "নতুন গাড়ি",
+    "usedBike": "ইউজড বাইক",
+    "autoPart": "অটো পার্ট",
+    "accessory": "আনুষাঙ্গিক",
+    "service": "সেবা"
+  },
+  "dealers": {
+    "featuredHeading": "ফিচার্ড ডিলার",
+    "dealerDirectoryBadge": "ডিলার ডিরেক্টরি",
+    "introLead": "বাংলাদেশ জুড়ে যাচাইকৃত শোরুমের সাথে যোগাযোগ করুন — ",
+    "introBold": "লাইভ ইনভেন্টরি সংখ্যা",
+    "introTrail": " বাংলারচাকা এপিআই থেকে।",
+    "viewAllDealers": "সব ডিলার দেখুন",
+    "trustVerifiedTitle": "যাচাইকৃত ডিলার",
+    "trustVerifiedBody": "ব্যাজগুলো প্ল্যাটফর্মে মডারেট করা শোরুম প্রোফাইল প্রতিফলিত করে।",
+    "trustPricingTitle": "স্বচ্ছ মূল্য",
+    "trustPricingBody": "আগে বিজ্ঞাপন ব্রাউজ করুন, তারপর প্রসঙ্গ নিয়ে ডিলারকে মেসেজ করুন।",
+    "trustContactTitle": "সহজ যোগাযোগ",
+    "trustContactBody": "হোয়াটসঅ্যাপ ও শোরুম লিংক প্রতিটি প্রোফাইল থেকে সরাসরি খুলবে।",
+    "emptyDirectory": "এখনও ডিরেক্টরিতে কোনো ডিলার নেই।",
+    "registerShowroom": "আপনার শোরুম নিবন্ধন করুন",
+    "ariaPrevDealers": "আগের ডিলার",
+    "ariaNextDealers": "পরের ডিলার",
+    "liveListings": "লাইভ বিজ্ঞাপন",
+    "responseRate": "রেসপন্স রেট · ~{{pct}}%",
+    "viewProfile": "প্রোফাইল দেখুন",
+    "noWhatsappTitle": "হোয়াটসঅ্যাপ নেই",
+    "footerPreferSearch": "ফিল্টার দিয়ে খুঁজতে চান?",
+    "dealerOnlyListings": "শুধু ডিলার বিজ্ঞাপন"
+  },
+  "homeSections": {
+    "browseByMakeTitle": "ব্র্যান্ড অনুযায়ী ইউজড গাড়ি",
+    "viewAllBrands": "সব ব্র্যান্ড দেখুন",
+    "usedBikesTitle": "বিক্রয়ের ইউজড বাইক",
+    "usedBikesSubtitle": "সেরা দামে আপনার রাইড খুঁজুন",
+    "viewAllBikes": "সব বাইক দেখুন →",
+    "browseListings": "বিজ্ঞাপন ব্রাউজ করুন"
+  },
+  "feeds": {
+    "freshUsedInventory": "নতুন ইউজড স্টক",
+    "newCarListings": "নতুন গাড়ির বিজ্ঞাপন",
+    "usedCars": "ইউজড গাড়ি",
+    "usedBikes": "ইউজড বাইক",
+    "usedCarAskingPrices": "ইউজড গাড়ির চাহিদামূল্য",
+    "popularUsedCars": "জনপ্রিয় ইউজড গাড়ি",
+    "hybridPicks": "হাইব্রিড নির্বাচন",
+    "newBikeListings": "নতুন বাইক বিজ্ঞাপন",
+    "usedBikesForSale": "বিক্রয়ের ইউজড বাইক",
+    "featuredBikes": "ফিচার্ড বাইক",
+    "accessoryListings": "আনুষাঙ্গিক বিজ্ঞাপন",
+    "autoParts": "অটো পার্টস",
+    "tyresAndRims": "টায়ার ও রিম",
+    "relatedParts": "সংশ্লিষ্ট পার্টস",
+    "partsInventory": "পার্টস ইনভেন্টরি",
+    "serviceListings": "সেবার বিজ্ঞাপন",
+    "partsConsumables": "পার্টস ও উপখাত",
+    "trendingUsedCars": "ট্রেন্ডিং ইউজড গাড়ি",
+    "featuredInventory": "ফিচার্ড ইনভেন্টরি",
+    "latestDealerListings": "সাম্প্রতিক ডিলার বিজ্ঞাপন",
+    "recentUsedCars": "সাম্প্রতিক ইউজড গাড়ি",
+    "recentlySoldStyles": "সাম্প্রতিক বিক্রির মডেল",
+    "importStyleListings": "আমদানি স্টাইল বিজ্ঞাপন"
+  },
+  "footer": {
+    "tagline": "বাংলাদেশের গাড়ি, বাইক ও পার্টস মার্কেটপ্লেস।",
+    "subscribeTitle": "অফারের জন্য সাবস্ক্রাইব করুন",
+    "subscribePlaceholder": "ইমেইল ঠিকানা",
+    "subscribeButton": "সাবস্ক্রাইব",
+    "subscribeToast": "ধন্যবাদ — তালিকায় যোগ হয়েছে (ডেমো)।",
+    "invalidEmail": "সঠিক ইমেইল লিখুন।",
+    "careersToast": "ক্যারিয়ার — শীঘ্রই বিজ্ঞপ্তি দেওয়া হবে।",
+    "carsByMake": "ব্র্যান্ড অনুযায়ী গাড়ি",
+    "carsByCity": "শহর অনুযায়ী গাড়ি",
+    "explore": "বাংলারচাকা এক্সপ্লোর করুন",
+    "company": "BanglarChaka.com",
+    "carsByCategory": "ক্যাটাগরি অনুযায়ী গাড়ি",
+    "carsByBody": "বডি টাইপ অনুযায়ী গাড়ি",
+    "bikesByCc": "ইঞ্জিন সিসি অনুযায়ী বাইক",
+    "social": "আমাদের ফলো করুন",
+    "copyright": "© {{year}} বাংলারচাকা। সর্বস্বত্ব সংরক্ষিত।",
+    "copyrightLine": "কপিরাইট © {{year}} বাংলারচাকা — সর্বস্বত্ব সংরক্ষিত।",
+    "termsOfService": "সেবার শর্তাবলী",
+    "privacyPolicyLink": "গোপনীয়তা নীতি",
+    "reproductionNote": "বাংলারচাকার যেকোনো পৃষ্ঠার উপাদান অনুমতি ছাড়া পুনরুত্পাদন নিষেধ।",
+    "sellOnTitle": "বাংলারচাকায় বিক্রি করুন",
+    "newsletterHeading": "নিউজলেটার সাবস্ক্রাইব করুন",
+    "followUs": "আমাদের অনুসরণ করুন",
+    "downloadApps": "মোবাইল অ্যাপ ডাউনলোড",
+    "googlePlay": "গুগল প্লে",
+    "appStore": "অ্যাপ স্টোর",
+    "appComingSoon": "বাংলারচাকা অ্যাপ — শীঘ্রই।",
+    "coolRides": "দারুন রাইডস",
+    "about": "বাংলারচাকা সম্পর্কে",
+    "products": "আমাদের পণ্য",
+    "advertise": "আমাদের সাথে বিজ্ঞাপন দিন",
+    "howToPay": "কীভাবে পেমেন্ট করবেন",
+    "faqs": "জিজ্ঞাসা",
+    "careers": "ক্যারিয়ার",
+    "contactUs": "যোগাযোগ করুন",
+    "suv4x4": "এসইউভি ও ৪×৪",
+    "japaneseCars": "জাপানি গাড়ি",
+    "importedCars": "আমদানি গাড়ি",
+    "automaticCars": "অটোমেটিক গাড়ি",
+    "budgetPicks": "বাজেট ফ্রেন্ডলি",
+    "hybridCars": "হাইব্রিড গাড়ি",
+    "cc660": "৬৬০সিসি গাড়ি",
+    "cc1300": "১৩০০সিসি গাড়ি",
+    "sedan": "সেডান",
+    "hatchback": "হ্যাচব্যাক",
+    "suv": "এসইউভি",
+    "crossover": "ক্রসওভার",
+    "mpv": "এমপিভি",
+    "pickup": "পিকআপ",
+    "coupe": "কूपে",
+    "wagon": "ওয়াগন",
+    "bike70to100": "৭০–১০০সিসি বাইক",
+    "bike100to150": "১০০–১৫০সিসি বাইক",
+    "bike150plus": "১৫০সিসি+ বাইক",
+    "bikeSports": "স্পোর্টস বাইক",
+    "bikeStandard": "স্ট্যান্ডার্ড বাইক",
+    "bikeScooters": "স্কুটার",
+    "usedCars": "ইউজড গাড়ি",
+    "usedBikes": "ইউজড বাইক",
+    "newCars": "নতুন গাড়ি",
+    "partsAccessories": "অটো পার্টস ও আনুষাঙ্গিক",
+    "forums": "ফোরাম",
+    "videos": "ভিডিও",
+    "blog": "ব্লগ",
+    "carsByColour": "রঙ অনুযায়ী গাড়ি",
+    "carsByDivision": "বিভাগ অনুযায়ী গাড়ি",
+    "brandToyota": "টয়োটা",
+    "brandSuzuki": "সুজুকি",
+    "brandHonda": "হোন্ডা",
+    "brandNissan": "নিসান",
+    "brandMitsubishi": "মিতসুবিশি",
+    "brandHyundai": "হুন্ডাই",
+    "brandMercedes": "মার্সিডিজ-বেঞ্জ",
+    "brandBmw": "বিএমডব্লিউ",
+    "brandKia": "কিয়া",
+    "cityDhaka": "ঢাকা",
+    "cityChattogram": "চট্টগ্রাম",
+    "citySylhet": "সিলেট",
+    "cityRajshahi": "রাজশাহী",
+    "cityKhulna": "খুলনা",
+    "cityGazipur": "গাজীপুর",
+    "cityCumilla": "কুমিল্লা",
+    "cityNarayanganj": "নারায়ণগঞ্জ",
+    "cityJessore": "যশোর",
+    "cityBarishal": "বরিশাল",
+    "cityRangpur": "রংপুর",
+    "cityMymensingh": "ময়মনসিংহ",
+    "whiteCars": "সাদা গাড়ি",
+    "blackCars": "কালো গাড়ি",
+    "silverCars": "সিলভার গাড়ি",
+    "greyCars": "ধূসর গাড়ি",
+    "blueCars": "নীল গাড়ি",
+    "redCars": "লাল গাড়ি",
+    "greenCars": "সবুজ গাড়ি",
+    "goldCars": "সোনালি গাড়ি",
+    "divisionDhaka": "ঢাকা বিভাগ",
+    "divisionChattogram": "চট্টগ্রাম বিভাগ",
+    "divisionSylhet": "সিলেট বিভাগ",
+    "divisionRajshahi": "রাজশাহী বিভাগ",
+    "divisionKhulna": "খুলনা বিভাগ",
+    "divisionBarishal": "বরিশাল বিভাগ",
+    "divisionRangpur": "রংপুর বিভাগ",
+    "divisionMymensingh": "ময়মনসিংহ বিভাগ",
+    "socialTwitter": "টুইটার",
+    "socialFacebook": "ফেসবুক",
+    "socialLinkedIn": "লিঙ্কডইন",
+    "socialInstagram": "ইনস্টাগ্রাম",
+    "socialYouTube": "ইউটিউব"
+  },
+  "home": {
+    "seoTitle": "বাংলারচাকা — গাড়ি, বাইক ও পার্টস",
+    "seoDesc": "বাংলাদেশ জুড়ে ইউজড ও নতুন গাড়ি, বাইক, অটো পার্টস, টায়ার, আনুষাঙ্গিক ও সেবা কিনুন বা বিক্রি করুন।"
+  },
+  "hero": {
+    "savedSearches": "সংরক্ষিত সার্চ",
+    "searchPlaceholder": "কীওয়ার্ড লিখুন—যেমন হোন্ডা সিভিক, হাইব্রিড এসইউভি…",
+    "cityLabel": "শহর",
+    "brandLabel": "ব্র্যান্ড",
+    "typeLabel": "বিজ্ঞাপন ধরন",
+    "usedCars": "ইউজড গাড়ি",
+    "newCars": "নতুন গাড়ি",
+    "usedBikes": "ইউজড বাইক",
+    "autoParts": "অটো পার্টস",
+    "searchButton": "বিজ্ঞাপন সার্চ করুন",
+    "clearFilters": "ফিল্টার সাফ করুন",
+    "filtersHeading": "ফিল্টার",
+    "minPrice": "সর্বনিম্ন দাম (টাকা)",
+    "maxPrice": "সর্বোচ্চ দাম (টাকা)",
+    "minYear": "সর্বনিম্ন মডেল বছর",
+    "maxYear": "সর্বোচ্চ মডেল বছর",
+    "fuelType": "ফুয়েল টাইপ",
+    "transmission": "ট্রান্সমিশন",
+    "condition": "অবস্থা",
+    "verifiedDealersOnly": "শুধু যাচাইকৃত ডিলার",
+    "dealerInventoryOnly": "শুধু ডিলার স্টক",
+    "allFuel": "যেকোনো ফুয়েল",
+    "petrol": "পেট্রোল",
+    "diesel": "ডিজেল",
+    "hybrid": "হাইব্রিড",
+    "electric": "ইলেক্ট্রিক",
+    "cng": "সিএনজি",
+    "anyTransmission": "যেকোনো ট্রান্সমিশন",
+    "automatic": "অটোমেটিক",
+    "manual": "ম্যানুয়াল",
+    "anyCondition": "যেকোনো অবস্থা",
+    "used": "ইউজড",
+    "reconditioned": "রিকন্ডিশনড",
+    "new": "নতুন",
+    "headline": "বাংলাদেশে ইউজড গাড়ি খুঁজুন",
+    "subhead": "হাজার হাজার গাড়ির মধ্যে আপনার জন্য সঠিকটি খুঁজে নিন",
+    "tabBikes": "বাইক",
+    "anyMake": "যেকোনো ব্র্যান্ড",
+    "anyCity": "যেকোনো শহর",
+    "modelKeywordPlaceholder": "মডেল বা কীওয়ার্ড",
+    "searchShort": "সার্চ",
+    "advancedFiltersHide": "এডভান্স ফিল্টার লুকান «",
+    "advancedFiltersShow": "এডভান্স ফিল্টার »",
+    "clearShort": "মুছুন",
+    "saveSearch": "সার্চ সংরক্ষণ",
+    "placeholderMinPrice": "সর্বনিম্ন দাম (টাকা)",
+    "placeholderMaxPrice": "সর্বোচ্চ দাম (টাকা)",
+    "placeholderMinYear": "সর্বনিম্ন বছর",
+    "placeholderMaxYear": "সর্বোচ্চ বছর",
+    "anyFuelType": "যেকোনো ফুয়েল টাইপ",
+    "anyTransmissionShort": "যেকোনো ট্রান্সমিশন",
+    "anyConditionShort": "যেকোনো অবস্থা",
+    "dealerListingsOnly": "শুধু ডিলার বিজ্ঞাপন",
+    "applyAdvancedFilters": "এডভান্স ফিল্টার প্রয়োগ করুন",
+    "statCarsForSale": "বিক্রয়ের গাড়ি",
+    "statBikesForSale": "বিক্রয়ের বাইক",
+    "statDealers": "ডিলার",
+    "statAutoPartsShort": "অটো পার্টস",
+    "savedSearchUsedCars": "ইউজড গাড়ি",
+    "savedSearchNewCars": "নতুন গাড়ি",
+    "savedSearchBikes": "বাইক",
+    "savedSearchParts": "অটো পার্টস"
+  },
+  "browseUsed": {
+    "title": "ইউজড গাড়ি ব্রাউজ করুন",
+    "tabCategory": "ক্যাটাগরি",
+    "tabCity": "শহর",
+    "tabMake": "ব্র্যান্ড",
+    "tabModel": "মডেল",
+    "tabBudget": "বাজেট",
+    "tabBody": "বডি টাইপ",
+    "allBrands": "সব ব্র্যান্ড",
+    "ariaPrev": "আগের পাতা",
+    "ariaNext": "পরের পাতা",
+    "ariaPage": "পাতা {{page}}",
+    "tileSeater5": "৫ আসন",
+    "tileAutomaticCars": "অটোমেটিক গাড়ি",
+    "tileFamilyCars": "ফ্যামিলি গাড়ি",
+    "tileBigCars": "বড় গাড়ি",
+    "tileSmallCars": "ছোট গাড়ি",
+    "tileDoor5": "৫ দরজা",
+    "tileOldCars": "পুরনো গাড়ি",
+    "tileDoor4": "৪ দরজা",
+    "tileImportedCarsTile": "ইমপোর্টেড গাড়ি",
+    "tileCc1000": "১০০০সিসি গাড়ি",
+    "tileCc1300Tile": "১৩০০সিসি গাড়ি",
+    "tileJapaneseCarsTile": "জাপানি গাড়ি",
+    "tileHybridTile": "হাইব্রিড",
+    "tileElectricTile": "ইলেক্ট্রিক",
+    "tilePetrolTile": "পেট্রোল",
+    "tileDieselTile": "ডিজেল",
+    "tileLuxury": "লাক্সারি",
+    "tileCompactSuv": "কমপ্যাক্ট এসইউভি",
+    "tileSedanTile": "সেডান",
+    "tileStationWagon": "স্টেশন ওয়াগন",
+    "tileSunroof": "সানরুফ",
+    "tileLowMileage": "কম মাইলেজ",
+    "tileSingleOwner": "এক মালিক",
+    "tileNonAccidental": "দুর্ঘটনামুক্ত",
+    "tileBudgetPicksTile": "বাজেট পিক",
+    "tileFeaturedAds": "ফিচার্ড বিজ্ঞাপন",
+    "tileDealerCars": "ডিলার গাড়ি",
+    "tileManualGearbox": "ম্যানুয়াল গিয়ার",
+    "tileRecentImports": "সাম্প্রতিক ইমপোর্ট",
+    "tileAwd": "অল-হুইল ড্রাইভ",
+    "tileSilverColour": "সিলভার রং",
+    "tileWhiteColour": "সাদা রং",
+    "tileBlackColour": "কালো রং",
+    "tileSunshineCars": "ফ্রেশ গাড়ি",
+    "tileFinanceOk": "ফাইন্যান্স উপলব্ধ",
+    "tileBrowseAll": "সব দেখুন",
+    "budgetUnder5L": "৫ লক্ষ টাকার নিচে",
+    "budget5to10": "৫–১০ লক্ষ টাকা",
+    "budget10to15": "১০–১৫ লক্ষ টাকা",
+    "budget15to25": "১৫–২৫ লক্ষ টাকা",
+    "budget25to40": "২৫–৪০ লক্ষ টাকা",
+    "budget40to60": "৪০–৬০ লক্ষ টাকা",
+    "budgetAbove60": "৬০ লক্ষ টাকার উপরে",
+    "budgetBestValue": "সেরা মূল্য",
+    "budgetPremium": "প্রিমিয়াম সেগমেন্ট",
+    "budgetMidRange": "মিড রেঞ্জ",
+    "budgetStarter": "স্টার্টার গাড়ি",
+    "budgetAny": "যেকোনো বাজেট",
+    "bodyMpvVan": "এমপিভি / ভ্যান",
+    "bodyMicrobus": "মাইক্রোবাস",
+    "bodyConvertible": "কনভার্টিবল",
+    "bodyOffRoad": "অফ-রোড",
+    "bodyOther": "অন্যান্য বডি"
+  },
+  "homeFeatured": {
+    "title": "ফিচার্ড ইউজড গাড়ি",
+    "feedHint": "জনপ্রিয় বিজ্ঞাপন — বিজ্ঞাপন বুস্ট করে এখানে দেখাতে পারেন।",
+    "viewAll": "সব গাড়ি দেখুন →",
+    "badge": "ফিচার্ড",
+    "na": "নেই"
+  },
+  "quickLinks": {
+    "popularTitle": "জনপ্রিয় সার্চ",
+    "browseByCity": "শহর অনুযায়ী",
+    "promoCatalogTitle": "লাইভ ক্যাটালগ",
+    "promoCatalogBody": "বাস্তব বিক্রেতাদের গাড়ি, বাইক ও পার্টস",
+    "promoSearchTitle": "স্মার্ট সার্চ",
+    "promoSearchBody": "শহর, দাম, স্পেস ও আরও ফিল্টার",
+    "promoDealersTitle": "ডিলার",
+    "promoDealersBody": "যেখানে উপলব্ধ শোরুম বিজ্ঞাপন ব্রাউজ করুন",
+    "promoSafeTitle": "নিরাপদ ব্রাউজিং",
+    "promoSafeBody": "যোগাযোগের আগে বিজ্ঞাপন সম্পূর্ণ পড়ুন"
+  },
+  "auth": {
+    "seoTitle": "সাইন ইন · বাংলারচাকা",
+    "seoDesc": "বিজ্ঞাপন, মেসেজ ও উইশলিস্ট পরিচালনায় লগ ইন করুন।",
+    "title": "সাইন ইন",
+    "subtitle": "ইমেইল ও পাসওয়ার্ড, গুগল, অথবা ফোন ওটিপি ব্যবহার করুন।",
+    "emailPlaceholder": "ইমেইল",
+    "passwordPlaceholder": "পাসওয়ার্ড",
+    "signInEmail": "ইমেইল দিয়ে সাইন ইন",
+    "sendOtp": "ওটিপি পাঠান",
+    "otpPlaceholder": "ওটিপি কোড",
+    "phonePlaceholder": "মোবাইল নম্বর",
+    "signInOtp": "ওটিপি দিয়ে সাইন ইন",
+    "orContinue": "অথবা চালিয়ে যান",
+    "otpSent": "ওটিপি পাঠানো হয়েছে",
+    "otpHintDev": "ডেভ ওটিপি: {{code}}",
+    "otpSentSms": "ওটিপি পাঠানো হয়েছে — এসএমএস দেখুন।",
+    "googleSignInFailed": "গুগল সাইন-ইন ব্যর্থ",
+    "loginFailed": "লগইন ব্যর্থ",
+    "otpSendFailed": "ওটিপি পাঠাতে ব্যর্থ",
+    "otpLoginFailed": "ওটিপি লগইন ব্যর্থ",
+    "phoneOtpHeading": "ফোন ওটিপি",
+    "clearSession": "সেশন মুছুন",
+    "backHome": "হোমে ফিরে যান"
+  },
+  "dealerPublic": {
+    "loading": "ডিলার লোড হচ্ছে…",
+    "notFound": "ডিলার পাওয়া যায়নি।",
+    "seoNotFound": "ডিলার পাওয়া যায়নি · বাংলারচাকা",
+    "seoDealerTitle": "{{name}} · ডিলার · বাংলারচাকা",
+    "seoDealerDescFallback": "{{name}} — বিজ্ঞাপন ও যোগাযোগ বাংলারচাকায়।",
+    "backHome": "হোমে ফিরে যান",
+    "verified": "যাচাইকৃত",
+    "messageShowroom": "শোরুমে মেসেজ করুন",
+    "signInToMessage": "বাংলারচাকায় এই শোরুমে মেসেজ করতে সাইন ইন করুন।",
+    "whatsapp": "হোয়াটসঅ্যাপ",
+    "website": "ওয়েবসাইট",
+    "responseLine": "রেসপন্স রেট ~{{rate}}% · গড় উত্তর {{mins}} মিনিট",
+    "responseLineNoAvg": "রেসপন্স রেট ~{{rate}}% · গড় উত্তর —",
+    "locations": "ঠিকানাসমূহ",
+    "branchFallback": "শাখা",
+    "listingsHeading": "গাড়ি ও বিজ্ঞাপন",
+    "noListings": "এই শোরুমে এখনও কোনো প্রকাশিত বিজ্ঞাপন নেই।"
+  },
+  "apiHint": {
+    "title": "এপিআইতে সংযোগ করা যাচ্ছে না",
+    "body": "{{url}} এ Laravel চালু করুন (ফ্রন্টএন্ড VITE_DEV_API_PROXY দেখুন), তারপর রিলোড করুন।"
+  },
+  "innerUi": {
+    "whatYouCanDo": "এখানে আপনি যা করতে পারেন",
+    "handPicked": "লাইভ মার্কেটপ্লেস থেকে বাছাই করা",
+    "browseAll": "সব দেখুন",
+    "noListingsMatch": "এই ফিল্টারে এখনও বিজ্ঞাপন নেই — পরে চেক করুন।",
+    "postFirstAd": "প্রথম বিজ্ঞাপন দিন",
+    "viewInventory": "ইনভেন্টরি দেখুন",
+    "noDealersYet": "এখনও কোনো ডিলার প্রকাশিত হয়নি।",
+    "relatedPages": "সংশ্লিষ্ট পাতা",
+    "listingsCount": "{{count}} টি বিজ্ঞাপন",
+    "defaultCountry": "বাংলাদেশ",
+    "seoTitle": "{{title}} · বাংলারচাকা"
+  },
+  "inner": {
+    "videos": {
+      "title": "ভিডিও",
+      "subtitle": "ওয়াকআরাউন্ড, মালিকানার রিভিউ ও এক্সপার্ট কেনার গাইড দেখুন।",
+      "highlights": [
+        "Browse featured video reviews for cars and bikes",
+        "Watch price update explainers and ownership tips",
+        "Explore maintenance and troubleshooting videos",
+        "Find new launch highlights and comparisons"
+      ],
+      "quickLinks": [
+        { "label": "Car Reviews", "to": "/car-reviews" },
+        { "label": "Bike Reviews", "to": "/bike-reviews" },
+        { "label": "Blog", "to": "/blog" }
+      ]
+    },
+    "forums": {
+      "title": "ফোরাম",
+      "subtitle": "ক্রেতা, মালিক ও অটো উৎসাহীদের সাথে আলোচনায় যোগ দিন।",
+      "highlights": [
+        "Ask buying questions and get expert suggestions",
+        "Discuss ownership costs and reliability",
+        "Share modifications and maintenance experiences",
+        "Track market trends and resale insights"
+      ],
+      "quickLinks": [
+        { "label": "Used Cars", "to": "/listings?type=used_car" },
+        { "label": "Used Bikes", "to": "/listings?type=used_bike" }
+      ]
+    },
+    "carPrices": {
+      "title": "গাড়ির দাম",
+      "subtitle": "কেনা বা বিক্রির আগে বাজারের দামের পরিসীমা দেখুন।",
+      "highlights": [
+        "Check new and used car market pricing",
+        "Compare trims and model-year value shifts",
+        "Review city-wise price differences",
+        "Use pricing insight before negotiation"
+      ],
+      "quickLinks": [
+        { "label": "New Cars", "to": "/listings?type=new_car" },
+        { "label": "Used Cars", "to": "/listings?type=used_car" }
+      ]
+    },
+    "carReviews": {
+      "title": "গাড়ির রিভিউ",
+      "subtitle": "সিদ্ধান্ত নেওয়ার আগে এক্সপার্ট ও মালিকদের মতামত দেখুন।",
+      "highlights": [
+        "Read owner experience summaries",
+        "Compare comfort, features, and reliability",
+        "Check value-for-money analysis by segment",
+        "Find pros/cons for top models"
+      ],
+      "quickLinks": [
+        { "label": "Blog", "to": "/blog" },
+        { "label": "Videos", "to": "/videos" }
+      ]
+    },
+    "newBikes": {
+      "title": "নতুন বাইক",
+      "subtitle": "সর্বশেষ মডেল ও লঞ্চ আপডেট জানুন।",
+      "highlights": [
+        "Browse upcoming bike launches",
+        "Review expected prices and specs",
+        "Compare commuter and sports options",
+        "Find launch offers and availability insights"
+      ],
+      "quickLinks": [
+        { "label": "Used Bikes", "to": "/listings?type=used_bike" },
+        { "label": "Bike Prices", "to": "/bike-prices" }
+      ]
+    },
+    "bikePrices": {
+      "title": "বাইকের দাম",
+      "subtitle": "বিভিন্ন ক্যাটাগরিতে বাইকের দামের ট্রেন্ড জানুন।",
+      "highlights": [
+        "Check latest market prices for popular bikes",
+        "Track recent price hikes and reductions",
+        "Compare similar bikes by budget",
+        "Use real-time pricing while buying/selling"
+      ],
+      "quickLinks": [
+        { "label": "New Bikes", "to": "/new-bikes" },
+        { "label": "Used Bikes", "to": "/listings?type=used_bike" }
+      ]
+    },
+    "bikeReviews": {
+      "title": "বাইক রিভিউ",
+      "subtitle": "রাইডার ও এক্সপার্ট টেস্ট রিপোর্ট থেকে শিখুন।",
+      "highlights": [
+        "See performance and mileage-focused reviews",
+        "Compare riding comfort for daily use",
+        "Evaluate maintenance and spare parts insights",
+        "Review user-reported issues before purchase"
+      ],
+      "quickLinks": [
+        { "label": "Bikes Listings", "to": "/listings?type=used_bike" },
+        { "label": "Videos", "to": "/videos" }
+      ]
+    },
+    "accessories": {
+      "title": "আনুষাঙ্গিক",
+      "subtitle": "গাড়ির জন্য অ্যাড-অন ও স্টাইলিং অপশন খুঁজুন।",
+      "highlights": [
+        "Browse interior and exterior accessories",
+        "Compare pricing from multiple sellers",
+        "Check compatibility and fitment guidance",
+        "Discover seasonal offers and bundles"
+      ],
+      "quickLinks": [
+        { "label": "Auto Parts", "to": "/listings?type=auto_part" },
+        { "label": "Wheels & Tyres", "to": "/wheels-tyres" }
+      ]
+    },
+    "wheelsTyres": {
+      "title": "হুইল ও টায়ার",
+      "subtitle": "সাইজ ও ব্যবহার অনুযায়ী টায়ার ও হুইল আপগ্রেড তুলনা করুন।",
+      "highlights": [
+        "Filter tyres by size and vehicle type",
+        "Compare performance and durability classes",
+        "Estimate replacement and balancing cost",
+        "Find dealer inventory and quick contact"
+      ],
+      "quickLinks": [
+        { "label": "Auto Parts", "to": "/listings?type=auto_part" },
+        { "label": "Car Care", "to": "/car-care" }
+      ]
+    },
+    "engineParts": {
+      "title": "ইঞ্জিন পার্টস",
+      "subtitle": "গুরুত্বপূর্ণ ইঞ্জিন কম্পোনেন্ট আস্থায় খুঁজুন।",
+      "highlights": [
+        "Discover OEM and aftermarket options",
+        "Verify part fitment and model compatibility",
+        "Compare trusted suppliers by price",
+        "Reduce downtime with quick sourcing"
+      ],
+      "quickLinks": [
+        { "label": "Auto Parts", "to": "/listings?type=auto_part" },
+        { "label": "Accessories", "to": "/accessories" }
+      ]
+    },
+    "carCare": {
+      "title": "গাড়ি পরিচর্যা",
+      "subtitle": "নিয়মিত পরিচর্যা ও ডিটেইলিংয়ে গাড়ি সুস্থ রাখুন।",
+      "highlights": [
+        "Find cleaning and detailing products",
+        "Discover preventive maintenance checklists",
+        "Compare routine service consumables",
+        "Track seasonal care recommendations"
+      ],
+      "quickLinks": [
+        { "label": "Auto Parts", "to": "/listings?type=auto_part" },
+        { "label": "Blog", "to": "/blog" }
+      ]
+    },
+    "terms": {
+      "title": "শর্তাবলী",
+      "subtitle": "প্ল্যাটফর্ম ব্যবহারের নিয়ম ও সেবার সীমা বোঝুন।",
+      "highlights": [
+        "User responsibilities and acceptable use",
+        "Listing moderation and content policy",
+        "Transaction and dispute disclaimers",
+        "Account suspension and enforcement rules"
+      ],
+      "quickLinks": [
+        { "label": "Privacy Policy", "to": "/privacy" },
+        { "label": "Sitemap", "to": "/sitemap" }
+      ]
+    },
+    "privacy": {
+      "title": "গোপনীয়তা নীতি",
+      "subtitle": "আপনার ডেটা কীভাবে সংগ্রহ, ব্যবহার ও সুরক্ষিত হয়।",
+      "highlights": [
+        "Information we collect from users",
+        "How data is used for marketplace features",
+        "Cookies and session management",
+        "Retention, deletion, and contact rights"
+      ],
+      "quickLinks": [
+        { "label": "Terms & Conditions", "to": "/terms" },
+        { "label": "Sitemap", "to": "/sitemap" }
+      ]
+    },
+    "usedCarsFeatured": {
+      "title": "ফিচার্ড ইউজড গাড়ি",
+      "subtitle": "বিক্রেতারা হাইলাইট করেছে এমন বিজ্ঞাপন — সাধারণ ফলের উপরে দেখানো হয়।",
+      "highlights": [
+        "Curated visibility for quality inventory",
+        "Filter further from the main used car search",
+        "Compare asking prices side by side",
+        "Contact sellers while listings are fresh"
+      ],
+      "quickLinks": [
+        { "label": "All used cars", "to": "/listings?type=used_car" },
+        { "label": "Post an ad", "to": "/post-ad" }
+      ]
+    },
+    "usedCarDealers": {
+      "title": "ইউজড গাড়ির ডিলার",
+      "subtitle": "যাচাইকৃত ডিলার খুঁজুন ও ডিলার অ্যাকাউন্টের ইনভেন্টরি দেখুন।",
+      "highlights": [
+        "Filter dealer-posted stock in one place",
+        "See response metrics where available",
+        "Jump into each dealer’s public profile",
+        "Mix dealer listings with private sellers from search"
+      ],
+      "quickLinks": [
+        { "label": "Verified dealers only (search)", "to": "/listings?type=used_car&verified_dealer_only=1" },
+        { "label": "Home", "to": "/" }
+      ]
+    },
+    "certifiedCars": {
+      "title": "সার্টিফাইড গাড়ি",
+      "subtitle": "অতিরিক্ত চেক পাস করা বিজ্ঞাপন কীভাবে দেখাই — বিক্রেতা ভেদে থাকতে পারে।",
+      "highlights": [
+        "Clearer expectations on condition and paperwork",
+        "Badged listings when inspection data exists",
+        "Always confirm details before payment",
+        "Report listings that misrepresent condition"
+      ],
+      "quickLinks": [
+        { "label": "Browse used cars", "to": "/listings?type=used_car" },
+        { "label": "Featured picks", "to": "/used-cars/featured" }
+      ]
+    },
+    "carInspection": {
+      "title": "গাড়ি ইন্সপেকশন",
+      "subtitle": "পেশাদার ইন্সপেকশন পার্টনারশিপ চালু হচ্ছে — রিজার্ভ করে বিজ্ঞাপনে রিপোর্ট যোগ করুন।",
+      "highlights": [
+        "Structured checklist covering mechanical basics",
+        "Optional report badge on approved listings",
+        "Better confidence for remote buyers",
+        "City-by-city rollout — watch this space"
+      ],
+      "quickLinks": [
+        { "label": "Used cars", "to": "/listings?type=used_car" },
+        { "label": "Dealers", "to": "/used-car-dealers" }
+      ]
+    },
+    "sellItForMe": {
+      "title": "আমাদের মাধ্যমে বিক্রি",
+      "subtitle": "ছবি, চ্যাট ও ভিউয়িং আমাদের টিম সামলাক — চূড়ান্ত দাম আপনি অনুমোদন করবেন।",
+      "highlights": [
+        "Less time spent on tire-kickers",
+        "Listing copy tuned for search",
+        "Coordinated handover once sold",
+        "Contact support to join the pilot programme"
+      ],
+      "quickLinks": [
+        { "label": "Post an ad yourself", "to": "/used-cars/sell" },
+        { "label": "Car prices", "to": "/car-prices" }
+      ]
+    },
+    "auctionVerification": {
+      "title": "নিলাম শিট যাচাই",
+      "subtitle": "আমদানি গাড়ির নিলাম কাগজ বিক্রেতা স্ক্যান আপলোড করলে যাচাই করুন — বন্দর শহরে সম্প্রসারণ হচ্ছে।",
+      "highlights": [
+        "Cross-check auction sheet metadata",
+        "Flag common tampering patterns",
+        "Works best with original scans",
+        "Adds confidence but is not a substitute for physical inspection"
+      ],
+      "quickLinks": [
+        { "label": "Browse used cars", "to": "/listings?type=used_car" },
+        { "label": "Blog", "to": "/blog" }
+      ]
+    },
+    "sitemap": {
+      "title": "সাইটম্যাপ",
+      "subtitle": "এক জায়গা থেকে গুরুত্বপূর্ণ সেকশনে যান।",
+      "highlights": [
+        "Marketplace sections for cars, bikes, and parts",
+        "Dealer and admin utility pages",
+        "Knowledge sections like blog and forums",
+        "Policy pages for terms and privacy"
+      ],
+      "quickLinks": [
+        { "label": "Home", "to": "/" },
+        { "label": "Listings", "to": "/listings" },
+        { "label": "Compare", "to": "/compare" },
+        { "label": "Post Ad", "to": "/post-ad" },
+        { "label": "Admin Moderation", "to": "/admin/moderation" },
+        { "label": "Blog", "to": "/blog" }
+      ]
+    }
+  }
+}

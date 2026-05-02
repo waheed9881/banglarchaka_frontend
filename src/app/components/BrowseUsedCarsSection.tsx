@@ -20,24 +20,12 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
+import type { TFunction } from 'i18next';
 import { useEffect, useMemo, useState, type ComponentType } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { BD_CITIES, CITY_LABEL_KEYS } from '@/i18n/bdCities';
 import { fetchBrands, type BrandDto } from '@/lib/marketplace';
-
-const BD_CITIES = [
-  'Dhaka',
-  'Chattogram',
-  'Sylhet',
-  'Rajshahi',
-  'Khulna',
-  'Barishal',
-  'Rangpur',
-  'Gazipur',
-  'Cumilla',
-  'Mymensingh',
-  'Jessore',
-  'Narayanganj',
-];
 
 const POPULAR_MODELS: Array<{ label: string; q: string }> = [
   { label: 'Toyota Corolla', q: 'Toyota Corolla' },
@@ -87,95 +75,102 @@ function BrowseTile({ label, to, Icon }: CardDef) {
   );
 }
 
-const CATEGORY_PAGES: CardDef[][] = [
-  [
-    { label: '5 Seater', to: listingsQs({ q: '5 seater' }), Icon: Users },
-    { label: 'Automatic cars', to: listingsQs({ transmission: 'automatic' }), Icon: Settings2 },
-    { label: 'Family Cars', to: listingsQs({ q: 'family' }), Icon: Car },
-    { label: 'Big cars', to: listingsQs({ q: 'SUV' }), Icon: Truck },
-    { label: 'Small cars', to: listingsQs({ q: 'hatchback' }), Icon: CarFront },
-    { label: '5 Door', to: listingsQs({ q: '5 door' }), Icon: DoorOpen },
-    { label: 'Old Cars', to: listingsQs({ max_year: '2012' }), Icon: History },
-    { label: '4 Door', to: listingsQs({ q: 'sedan 4 door' }), Icon: CarFront },
-    { label: 'Imported cars', to: listingsQs({ q: 'imported recondition' }), Icon: Package },
-    { label: '1000cc cars', to: listingsQs({ q: '1000cc' }), Icon: Gauge },
-    { label: '1300cc cars', to: listingsQs({ q: '1300cc' }), Icon: Activity },
-    { label: 'Japanese cars', to: listingsQs({ q: 'Toyota Honda Mazda Nissan' }), Icon: BadgeJapaneseYen },
-  ],
-  [
-    { label: 'Hybrid', to: listingsQs({ fuel_type: 'hybrid' }), Icon: Leaf },
-    { label: 'Electric', to: listingsQs({ fuel_type: 'electric' }), Icon: Zap },
-    { label: 'Petrol', to: listingsQs({ fuel_type: 'petrol' }), Icon: Fuel },
-    { label: 'Diesel', to: listingsQs({ fuel_type: 'diesel' }), Icon: Fuel },
-    { label: 'Luxury', to: listingsQs({ q: 'luxury BMW Mercedes Audi' }), Icon: Crown },
-    { label: 'Compact SUV', to: listingsQs({ q: 'compact SUV crossover' }), Icon: Truck },
-    { label: 'Sedan', to: listingsQs({ q: 'sedan' }), Icon: CarFront },
-    { label: 'Station wagon', to: listingsQs({ q: 'wagon estate' }), Icon: Car },
-    { label: 'Sunroof', to: listingsQs({ q: 'sunroof' }), Icon: Globe },
-    { label: 'Low mileage', to: listingsQs({ sort: 'newest' }), Icon: Gauge },
-    { label: 'Single owner', to: listingsQs({ q: 'single owner' }), Icon: Users },
-    { label: 'Non accidental', to: listingsQs({ q: 'non accidental' }), Icon: Building2 },
-  ],
-  [
-    { label: 'Budget picks', to: listingsQs({ sort: 'price_asc' }), Icon: Banknote },
-    { label: 'Featured ads', to: listingsQs({ featured: '1' }), Icon: Crown },
-    { label: 'Dealer cars', to: listingsQs({ dealer_only: '1' }), Icon: Building2 },
-    { label: 'Manual gearbox', to: listingsQs({ transmission: 'manual' }), Icon: Settings2 },
-    { label: 'Recent imports', to: listingsQs({ q: 'auction grade' }), Icon: Globe },
-    { label: 'All-wheel drive', to: listingsQs({ q: 'AWD 4WD' }), Icon: Truck },
-    { label: 'Silver colour', to: listingsQs({ q: 'silver' }), Icon: Car },
-    { label: 'White colour', to: listingsQs({ q: 'white' }), Icon: CarFront },
-    { label: 'Black colour', to: listingsQs({ q: 'black' }), Icon: Car },
-    { label: 'Sunshine cars', to: listingsQs({ q: 'full fresh' }), Icon: Zap },
-    { label: 'Finance OK', to: listingsQs({ q: 'bank finance' }), Icon: Banknote },
-    { label: 'Browse all', to: listingsQs({}), Icon: Car },
-  ],
-];
+function buildCategorySlides(t: TFunction): CardDef[][] {
+  return [
+    [
+      { label: t('browseUsed.tileSeater5'), to: listingsQs({ q: '5 seater' }), Icon: Users },
+      { label: t('browseUsed.tileAutomaticCars'), to: listingsQs({ transmission: 'automatic' }), Icon: Settings2 },
+      { label: t('browseUsed.tileFamilyCars'), to: listingsQs({ q: 'family' }), Icon: Car },
+      { label: t('browseUsed.tileBigCars'), to: listingsQs({ q: 'SUV' }), Icon: Truck },
+      { label: t('browseUsed.tileSmallCars'), to: listingsQs({ q: 'hatchback' }), Icon: CarFront },
+      { label: t('browseUsed.tileDoor5'), to: listingsQs({ q: '5 door' }), Icon: DoorOpen },
+      { label: t('browseUsed.tileOldCars'), to: listingsQs({ max_year: '2012' }), Icon: History },
+      { label: t('browseUsed.tileDoor4'), to: listingsQs({ q: 'sedan 4 door' }), Icon: CarFront },
+      { label: t('browseUsed.tileImportedCarsTile'), to: listingsQs({ q: 'imported recondition' }), Icon: Package },
+      { label: t('browseUsed.tileCc1000'), to: listingsQs({ q: '1000cc' }), Icon: Gauge },
+      { label: t('browseUsed.tileCc1300Tile'), to: listingsQs({ q: '1300cc' }), Icon: Activity },
+      { label: t('browseUsed.tileJapaneseCarsTile'), to: listingsQs({ q: 'Toyota Honda Mazda Nissan' }), Icon: BadgeJapaneseYen },
+    ],
+    [
+      { label: t('browseUsed.tileHybridTile'), to: listingsQs({ fuel_type: 'hybrid' }), Icon: Leaf },
+      { label: t('browseUsed.tileElectricTile'), to: listingsQs({ fuel_type: 'electric' }), Icon: Zap },
+      { label: t('browseUsed.tilePetrolTile'), to: listingsQs({ fuel_type: 'petrol' }), Icon: Fuel },
+      { label: t('browseUsed.tileDieselTile'), to: listingsQs({ fuel_type: 'diesel' }), Icon: Fuel },
+      { label: t('browseUsed.tileLuxury'), to: listingsQs({ q: 'luxury BMW Mercedes Audi' }), Icon: Crown },
+      { label: t('browseUsed.tileCompactSuv'), to: listingsQs({ q: 'compact SUV crossover' }), Icon: Truck },
+      { label: t('browseUsed.tileSedanTile'), to: listingsQs({ q: 'sedan' }), Icon: CarFront },
+      { label: t('browseUsed.tileStationWagon'), to: listingsQs({ q: 'wagon estate' }), Icon: Car },
+      { label: t('browseUsed.tileSunroof'), to: listingsQs({ q: 'sunroof' }), Icon: Globe },
+      { label: t('browseUsed.tileLowMileage'), to: listingsQs({ sort: 'newest' }), Icon: Gauge },
+      { label: t('browseUsed.tileSingleOwner'), to: listingsQs({ q: 'single owner' }), Icon: Users },
+      { label: t('browseUsed.tileNonAccidental'), to: listingsQs({ q: 'non accidental' }), Icon: Building2 },
+    ],
+    [
+      { label: t('browseUsed.tileBudgetPicksTile'), to: listingsQs({ sort: 'price_asc' }), Icon: Banknote },
+      { label: t('browseUsed.tileFeaturedAds'), to: listingsQs({ featured: '1' }), Icon: Crown },
+      { label: t('browseUsed.tileDealerCars'), to: listingsQs({ dealer_only: '1' }), Icon: Building2 },
+      { label: t('browseUsed.tileManualGearbox'), to: listingsQs({ transmission: 'manual' }), Icon: Settings2 },
+      { label: t('browseUsed.tileRecentImports'), to: listingsQs({ q: 'auction grade' }), Icon: Globe },
+      { label: t('browseUsed.tileAwd'), to: listingsQs({ q: 'AWD 4WD' }), Icon: Truck },
+      { label: t('browseUsed.tileSilverColour'), to: listingsQs({ q: 'silver' }), Icon: Car },
+      { label: t('browseUsed.tileWhiteColour'), to: listingsQs({ q: 'white' }), Icon: CarFront },
+      { label: t('browseUsed.tileBlackColour'), to: listingsQs({ q: 'black' }), Icon: Car },
+      { label: t('browseUsed.tileSunshineCars'), to: listingsQs({ q: 'full fresh' }), Icon: Zap },
+      { label: t('browseUsed.tileFinanceOk'), to: listingsQs({ q: 'bank finance' }), Icon: Banknote },
+      { label: t('browseUsed.tileBrowseAll'), to: listingsQs({}), Icon: Car },
+    ],
+  ];
+}
 
-const BUDGET_BANDS: CardDef[] = [
-  { label: 'Under ৳5 Lac', to: listingsQs({ max_price: '500000' }), Icon: Banknote },
-  { label: '৳5L – ৳10L', to: listingsQs({ min_price: '500000', max_price: '1000000' }), Icon: Banknote },
-  { label: '৳10L – ৳15L', to: listingsQs({ min_price: '1000000', max_price: '1500000' }), Icon: Banknote },
-  { label: '৳15L – ৳25L', to: listingsQs({ min_price: '1500000', max_price: '2500000' }), Icon: Banknote },
-  { label: '৳25L – ৳40L', to: listingsQs({ min_price: '2500000', max_price: '4000000' }), Icon: Banknote },
-  { label: '৳40L – ৳60L', to: listingsQs({ min_price: '4000000', max_price: '6000000' }), Icon: Banknote },
-  { label: 'Above ৳60L', to: listingsQs({ min_price: '6000000' }), Icon: Crown },
-  { label: 'Best value', to: listingsQs({ sort: 'price_asc' }), Icon: Gauge },
-  { label: 'Premium segment', to: listingsQs({ min_price: '3500000', sort: 'price_desc' }), Icon: Crown },
-  { label: 'Mid range', to: listingsQs({ min_price: '1500000', max_price: '3500000' }), Icon: Car },
-  { label: 'Starter cars', to: listingsQs({ max_price: '800000' }), Icon: CarFront },
-  { label: 'Any budget', to: listingsQs({}), Icon: Banknote },
-];
+function buildBudgetBands(t: TFunction): CardDef[] {
+  return [
+    { label: t('browseUsed.budgetUnder5L'), to: listingsQs({ max_price: '500000' }), Icon: Banknote },
+    { label: t('browseUsed.budget5to10'), to: listingsQs({ min_price: '500000', max_price: '1000000' }), Icon: Banknote },
+    { label: t('browseUsed.budget10to15'), to: listingsQs({ min_price: '1000000', max_price: '1500000' }), Icon: Banknote },
+    { label: t('browseUsed.budget15to25'), to: listingsQs({ min_price: '1500000', max_price: '2500000' }), Icon: Banknote },
+    { label: t('browseUsed.budget25to40'), to: listingsQs({ min_price: '2500000', max_price: '4000000' }), Icon: Banknote },
+    { label: t('browseUsed.budget40to60'), to: listingsQs({ min_price: '4000000', max_price: '6000000' }), Icon: Banknote },
+    { label: t('browseUsed.budgetAbove60'), to: listingsQs({ min_price: '6000000' }), Icon: Crown },
+    { label: t('browseUsed.budgetBestValue'), to: listingsQs({ sort: 'price_asc' }), Icon: Gauge },
+    { label: t('browseUsed.budgetPremium'), to: listingsQs({ min_price: '3500000', sort: 'price_desc' }), Icon: Crown },
+    { label: t('browseUsed.budgetMidRange'), to: listingsQs({ min_price: '1500000', max_price: '3500000' }), Icon: Car },
+    { label: t('browseUsed.budgetStarter'), to: listingsQs({ max_price: '800000' }), Icon: CarFront },
+    { label: t('browseUsed.budgetAny'), to: listingsQs({}), Icon: Banknote },
+  ];
+}
 
-const BODY_TYPES: CardDef[] = [
-  { label: 'Hatchback', to: listingsQs({ q: 'hatchback' }), Icon: CarFront },
-  { label: 'Sedan', to: listingsQs({ q: 'sedan' }), Icon: CarFront },
-  { label: 'SUV', to: listingsQs({ q: 'SUV' }), Icon: Truck },
-  { label: 'Crossover', to: listingsQs({ q: 'crossover' }), Icon: Truck },
-  { label: 'MPV / Van', to: listingsQs({ q: 'MPV van Noah' }), Icon: Car },
-  { label: 'Coupe', to: listingsQs({ q: 'coupe' }), Icon: Car },
-  { label: 'Wagon', to: listingsQs({ q: 'wagon estate' }), Icon: Car },
-  { label: 'Pickup', to: listingsQs({ q: 'pickup truck' }), Icon: Truck },
-  { label: 'Microbus', to: listingsQs({ q: 'microbus Hiace' }), Icon: Car },
-  { label: 'Convertible', to: listingsQs({ q: 'convertible' }), Icon: Car },
-  { label: 'Off-road', to: listingsQs({ q: 'Prado Pajero off road' }), Icon: Truck },
-  { label: 'Other body', to: listingsQs({ q: 'car sale' }), Icon: Car },
-];
+function buildBodyTypes(t: TFunction): CardDef[] {
+  return [
+    { label: t('footer.hatchback'), to: listingsQs({ q: 'hatchback' }), Icon: CarFront },
+    { label: t('footer.sedan'), to: listingsQs({ q: 'sedan' }), Icon: CarFront },
+    { label: t('footer.suv'), to: listingsQs({ q: 'SUV' }), Icon: Truck },
+    { label: t('footer.crossover'), to: listingsQs({ q: 'crossover' }), Icon: Truck },
+    { label: t('browseUsed.bodyMpvVan'), to: listingsQs({ q: 'MPV van Noah' }), Icon: Car },
+    { label: t('footer.coupe'), to: listingsQs({ q: 'coupe' }), Icon: Car },
+    { label: t('footer.wagon'), to: listingsQs({ q: 'wagon estate' }), Icon: Car },
+    { label: t('footer.pickup'), to: listingsQs({ q: 'pickup truck' }), Icon: Truck },
+    { label: t('browseUsed.bodyMicrobus'), to: listingsQs({ q: 'microbus Hiace' }), Icon: Car },
+    { label: t('browseUsed.bodyConvertible'), to: listingsQs({ q: 'convertible' }), Icon: Car },
+    { label: t('browseUsed.bodyOffRoad'), to: listingsQs({ q: 'Prado Pajero off road' }), Icon: Truck },
+    { label: t('browseUsed.bodyOther'), to: listingsQs({ q: 'car sale' }), Icon: Car },
+  ];
+}
 
 type TabKey = 'category' | 'city' | 'make' | 'model' | 'budget' | 'body';
 
-const TABS: Array<{ key: TabKey; label: string }> = [
-  { key: 'category', label: 'Category' },
-  { key: 'city', label: 'City' },
-  { key: 'make', label: 'Make' },
-  { key: 'model', label: 'Model' },
-  { key: 'budget', label: 'Budget' },
-  { key: 'body', label: 'Body Type' },
+const TAB_DEFS: Array<{ key: TabKey; labelKey: string }> = [
+  { key: 'category', labelKey: 'browseUsed.tabCategory' },
+  { key: 'city', labelKey: 'browseUsed.tabCity' },
+  { key: 'make', labelKey: 'browseUsed.tabMake' },
+  { key: 'model', labelKey: 'browseUsed.tabModel' },
+  { key: 'budget', labelKey: 'browseUsed.tabBudget' },
+  { key: 'body', labelKey: 'browseUsed.tabBody' },
 ];
 
 const PER_VIEW = 12;
 
 export function BrowseUsedCarsSection() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<TabKey>('category');
   const [page, setPage] = useState(0);
   const [brands, setBrands] = useState<BrandDto[]>([]);
@@ -190,14 +185,16 @@ export function BrowseUsedCarsSection() {
     setPage(0);
   }, [tab]);
 
+  const categorySlides = useMemo(() => buildCategorySlides(t), [t]);
+
   const cityPages = useMemo(() => {
     const cards: CardDef[] = BD_CITIES.map((city) => ({
-      label: city,
+      label: t(CITY_LABEL_KEYS[city]),
       to: listingsQs({ city }),
       Icon: Building2,
     }));
     return chunk(cards, PER_VIEW);
-  }, []);
+  }, [t]);
 
   const makePages = useMemo(() => {
     const cards: CardDef[] = brands.map((b) => ({
@@ -205,8 +202,9 @@ export function BrowseUsedCarsSection() {
       to: listingsQs({ brand_id: String(b.id) }),
       Icon: Car,
     }));
-    return chunk(cards.length ? cards : [{ label: 'All brands', to: listingsQs({}), Icon: Car }], PER_VIEW);
-  }, [brands]);
+    const rows = cards.length ? cards : [{ label: t('browseUsed.allBrands'), to: listingsQs({}), Icon: Car }];
+    return chunk(rows, PER_VIEW);
+  }, [brands, t]);
 
   const modelPages = useMemo(() => {
     const cards: CardDef[] = POPULAR_MODELS.map(({ label, q }) => ({
@@ -217,13 +215,16 @@ export function BrowseUsedCarsSection() {
     return chunk(cards, PER_VIEW);
   }, []);
 
-  const budgetPages = useMemo(() => chunk(BUDGET_BANDS, PER_VIEW), []);
-  const bodyPages = useMemo(() => chunk(BODY_TYPES, PER_VIEW), []);
+  const budgetBands = useMemo(() => buildBudgetBands(t), [t]);
+  const bodyTypes = useMemo(() => buildBodyTypes(t), [t]);
+
+  const budgetPages = useMemo(() => chunk(budgetBands, PER_VIEW), [budgetBands]);
+  const bodyPages = useMemo(() => chunk(bodyTypes, PER_VIEW), [bodyTypes]);
 
   const pages: CardDef[][] = useMemo(() => {
     switch (tab) {
       case 'category':
-        return CATEGORY_PAGES;
+        return categorySlides;
       case 'city':
         return cityPages;
       case 'make':
@@ -235,9 +236,9 @@ export function BrowseUsedCarsSection() {
       case 'body':
         return bodyPages;
       default:
-        return CATEGORY_PAGES;
+        return categorySlides;
     }
-  }, [tab, cityPages, makePages, modelPages, budgetPages, bodyPages]);
+  }, [tab, categorySlides, cityPages, makePages, modelPages, budgetPages, bodyPages]);
 
   useEffect(() => {
     const maxIdx = Math.max(0, pages.length - 1);
@@ -264,7 +265,7 @@ export function BrowseUsedCarsSection() {
                 tab === key ? 'text-[#233D7B]' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              {label}
+              {t(labelKey)}
               {tab === key ? (
                 <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#233D7B] rounded-full" aria-hidden />
               ) : null}
@@ -275,7 +276,7 @@ export function BrowseUsedCarsSection() {
         <div className="relative">
           <button
             type="button"
-            aria-label="Previous"
+            aria-label={t('browseUsed.ariaPrev')}
             disabled={!canPrev}
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             className={`hidden md:flex absolute left-0 top-1/2 z-10 -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition hover:bg-gray-50 ${
@@ -286,7 +287,7 @@ export function BrowseUsedCarsSection() {
           </button>
           <button
             type="button"
-            aria-label="Next"
+            aria-label={t('browseUsed.ariaNext')}
             disabled={!canNext}
             onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
             className={`hidden md:flex absolute right-0 top-1/2 z-10 -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition hover:bg-gray-50 ${
@@ -305,7 +306,7 @@ export function BrowseUsedCarsSection() {
                 <div key={`${tab}-${si}`} className="min-w-full shrink-0">
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
                     {slide.map((c) => (
-                      <BrowseTile key={`${c.label}-${si}`} {...c} />
+                      <BrowseTile key={c.to} {...c} />
                     ))}
                   </div>
                 </div>
@@ -346,7 +347,7 @@ export function BrowseUsedCarsSection() {
             <button
               key={i}
               type="button"
-              aria-label={`Page ${i + 1}`}
+              aria-label={t('browseUsed.ariaPage', { page: i + 1 })}
               aria-current={i === safePage ? 'true' : undefined}
               onClick={() => setPage(i)}
               className={`h-2 rounded-full transition-all ${

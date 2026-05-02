@@ -1,6 +1,8 @@
 import { Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
+import { BD_CITIES, CITY_LABEL_KEYS } from '@/i18n/bdCities';
 import { fetchBrands, type BrandDto } from '@/lib/marketplace';
 
 type ListingType = 'used_car' | 'new_car' | 'used_bike' | 'auto_part';
@@ -25,21 +27,6 @@ type SearchPatch = Partial<{
   verifiedDealerOnly: boolean;
   dealerOnly: boolean;
 }>;
-
-const BD_CITIES = [
-  'Dhaka',
-  'Chattogram',
-  'Sylhet',
-  'Rajshahi',
-  'Khulna',
-  'Barishal',
-  'Rangpur',
-  'Gazipur',
-  'Cumilla',
-  'Mymensingh',
-  'Jessore',
-  'Narayanganj',
-];
 
 function buildListingParams(s: {
   listingType: ListingType;
@@ -74,6 +61,7 @@ function buildListingParams(s: {
 }
 
 export function Hero() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [brands, setBrands] = useState<BrandDto[]>([]);
   const [type, setType] = useState<ListingType>('used_car');
@@ -149,7 +137,21 @@ export function Hero() {
     const params = buildListingParams(snapshot()).toString();
     if (!params.includes('type=')) return;
     const s = snapshot();
-    const label = `${s.listingType.replace(/_/g, ' ')}${s.city ? ` · ${s.city}` : ''}${s.keyword ? ` · ${s.keyword}` : ''}`;
+    const typeLabel =
+      s.listingType === 'used_car'
+        ? t('hero.savedSearchUsedCars')
+        : s.listingType === 'new_car'
+          ? t('hero.savedSearchNewCars')
+          : s.listingType === 'used_bike'
+            ? t('hero.savedSearchBikes')
+            : t('hero.savedSearchParts');
+    const cityLabel =
+      s.city && s.city in CITY_LABEL_KEYS
+        ? ` · ${t(CITY_LABEL_KEYS[s.city as keyof typeof CITY_LABEL_KEYS])}`
+        : s.city
+          ? ` · ${s.city}`
+          : '';
+    const label = `${typeLabel}${cityLabel}${s.keyword ? ` · ${s.keyword}` : ''}`;
     const next = [{ label, query: params }, ...savedSearches.filter((x) => x.query !== params)].slice(0, 5);
     setSavedSearches(next);
     localStorage.setItem('hero_saved_searches', JSON.stringify(next));
@@ -171,15 +173,15 @@ export function Hero() {
     navigate(`/listings?type=${type}`);
   };
 
-  const quickChips: Array<{ label: string; patch: SearchPatch }> = [
-    { label: 'Used Cars', patch: { listingType: 'used_car' } },
-    { label: 'New Cars', patch: { listingType: 'new_car' } },
-    { label: 'Bikes', patch: { listingType: 'used_bike' } },
-    { label: 'Auto Parts', patch: { listingType: 'auto_part' } },
-    { label: 'Hybrid', patch: { fuelType: 'hybrid' } },
-    { label: 'Automatic', patch: { transmission: 'automatic' } },
-    { label: 'Manual', patch: { transmission: 'manual' } },
-    { label: 'Used', patch: { condition: 'used' } },
+  const quickChips: Array<{ chipKey: string; label: string; patch: SearchPatch }> = [
+    { chipKey: 'used_car', label: t('footer.usedCars'), patch: { listingType: 'used_car' } },
+    { chipKey: 'new_car', label: t('footer.newCars'), patch: { listingType: 'new_car' } },
+    { chipKey: 'used_bike', label: t('hero.tabBikes'), patch: { listingType: 'used_bike' } },
+    { chipKey: 'auto_part', label: t('hero.autoParts'), patch: { listingType: 'auto_part' } },
+    { chipKey: 'hybrid', label: t('hero.hybrid'), patch: { fuelType: 'hybrid' } },
+    { chipKey: 'auto', label: t('hero.automatic'), patch: { transmission: 'automatic' } },
+    { chipKey: 'manual', label: t('hero.manual'), patch: { transmission: 'manual' } },
+    { chipKey: 'used', label: t('hero.used'), patch: { condition: 'used' } },
   ];
 
   return (
@@ -187,9 +189,9 @@ export function Hero() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-6">
           <h2 className="text-3xl font-bold mb-2" style={{ letterSpacing: '-0.5px' }}>
-            Find Used Cars in Bangladesh
+            {t('hero.headline')}
           </h2>
-          <p className="text-base text-blue-100">With thousands of cars, we have just the right one for you</p>
+          <p className="text-base text-blue-100">{t('hero.subhead')}</p>
         </div>
 
         <div className="max-w-5xl mx-auto">
@@ -197,12 +199,12 @@ export function Hero() {
             <div className="flex gap-2 mb-5 border-b border-gray-200 overflow-x-auto">
               {(
                 [
-                  ['Used Cars', 'used_car'],
-                  ['New Cars', 'new_car'],
-                  ['Bikes', 'used_bike'],
-                  ['Auto Parts', 'auto_part'],
+                  [() => t('footer.usedCars'), 'used_car'],
+                  [() => t('footer.newCars'), 'new_car'],
+                  [() => t('hero.tabBikes'), 'used_bike'],
+                  [() => t('hero.autoParts'), 'auto_part'],
                 ] as const
-              ).map(([label, value]) => (
+              ).map(([labelFn, value]) => (
                 <button
                   key={value}
                   type="button"
@@ -212,7 +214,7 @@ export function Hero() {
                   }`}
                   style={{ fontSize: '13px' }}
                 >
-                  {label}
+                  {labelFn()}
                 </button>
               ))}
             </div>
@@ -229,9 +231,9 @@ export function Hero() {
                 onChange={(e) => setBrandId(e.target.value)}
                 className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white"
                 style={{ fontSize: '13px' }}
-                aria-label="Make"
+                aria-label={t('hero.brandLabel')}
               >
-                <option value="">Any Make</option>
+                <option value="">{t('hero.anyMake')}</option>
                 {brands.map((b) => (
                   <option value={String(b.id)} key={b.id}>
                     {b.name}
@@ -241,22 +243,22 @@ export function Hero() {
               <input
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                placeholder="Model or keyword"
+                placeholder={t('hero.modelKeywordPlaceholder')}
                 className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white"
                 style={{ fontSize: '13px' }}
-                aria-label="Model or keyword"
+                aria-label={t('hero.modelKeywordPlaceholder')}
               />
               <select
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white"
                 style={{ fontSize: '13px' }}
-                aria-label="City"
+                aria-label={t('hero.cityLabel')}
               >
-                <option value="">Any City</option>
+                <option value="">{t('hero.anyCity')}</option>
                 {BD_CITIES.map((c) => (
                   <option key={c} value={c}>
-                    {c}
+                    {t(CITY_LABEL_KEYS[c])}
                   </option>
                 ))}
               </select>
@@ -266,14 +268,14 @@ export function Hero() {
                 style={{ fontSize: '14px' }}
               >
                 <Search className="w-4 h-4" aria-hidden />
-                Search
+                {t('hero.searchShort')}
               </button>
             </form>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
               {quickChips.map((chip) => (
                 <button
-                  key={chip.label}
+                  key={chip.chipKey}
                   type="button"
                   onClick={() => submitSearch(chip.patch)}
                   className="px-3 py-1.5 rounded-full border border-gray-300 text-xs text-gray-700 hover:border-[#233D7B] hover:text-[#233D7B] hover:bg-blue-50/50 transition"
@@ -290,14 +292,14 @@ export function Hero() {
                 className="text-[#233D7B] hover:underline font-medium"
                 style={{ fontSize: '13px' }}
               >
-                {showAdvanced ? 'Hide Advanced Filters «' : 'Advanced Filters »'}
+                {showAdvanced ? t('hero.advancedFiltersHide') : t('hero.advancedFiltersShow')}
               </button>
               <div className="flex items-center gap-3">
                 <button type="button" onClick={clearFilters} className="text-[13px] text-[#233D7B] font-semibold hover:underline">
-                  Clear
+                  {t('hero.clearShort')}
                 </button>
                 <button type="button" onClick={saveCurrentSearch} className="text-[13px] text-[#233D7B] font-semibold hover:underline">
-                  Save Search
+                  {t('hero.saveSearch')}
                 </button>
               </div>
             </div>
@@ -307,13 +309,13 @@ export function Hero() {
                 <input
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
-                  placeholder="Min Price (BDT)"
+                  placeholder={t('hero.placeholderMinPrice')}
                   className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
                 />
                 <input
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
-                  placeholder="Max Price (BDT)"
+                  placeholder={t('hero.placeholderMaxPrice')}
                   className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
                 />
                 <select
@@ -321,22 +323,22 @@ export function Hero() {
                   onChange={(e) => setFuelType(e.target.value)}
                   className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
                 >
-                  <option value="">Any Fuel Type</option>
-                  <option value="petrol">Petrol</option>
-                  <option value="diesel">Diesel</option>
-                  <option value="hybrid">Hybrid</option>
-                  <option value="electric">Electric</option>
+                  <option value="">{t('hero.anyFuelType')}</option>
+                  <option value="petrol">{t('hero.petrol')}</option>
+                  <option value="diesel">{t('hero.diesel')}</option>
+                  <option value="hybrid">{t('hero.hybrid')}</option>
+                  <option value="electric">{t('hero.electric')}</option>
                 </select>
                 <input
                   value={minYear}
                   onChange={(e) => setMinYear(e.target.value)}
-                  placeholder="Min Year"
+                  placeholder={t('hero.placeholderMinYear')}
                   className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
                 />
                 <input
                   value={maxYear}
                   onChange={(e) => setMaxYear(e.target.value)}
-                  placeholder="Max Year"
+                  placeholder={t('hero.placeholderMaxYear')}
                   className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
                 />
                 <select
@@ -344,34 +346,34 @@ export function Hero() {
                   onChange={(e) => setTransmission(e.target.value)}
                   className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
                 >
-                  <option value="">Any Transmission</option>
-                  <option value="manual">Manual</option>
-                  <option value="automatic">Automatic</option>
+                  <option value="">{t('hero.anyTransmissionShort')}</option>
+                  <option value="manual">{t('hero.manual')}</option>
+                  <option value="automatic">{t('hero.automatic')}</option>
                 </select>
                 <select
                   value={condition}
                   onChange={(e) => setCondition(e.target.value)}
                   className="px-3 py-2.5 border border-gray-300 rounded text-gray-700 bg-white text-sm"
                 >
-                  <option value="">Any Condition</option>
-                  <option value="used">Used</option>
-                  <option value="new">New</option>
-                  <option value="reconditioned">Reconditioned</option>
+                  <option value="">{t('hero.anyConditionShort')}</option>
+                  <option value="used">{t('hero.used')}</option>
+                  <option value="new">{t('hero.new')}</option>
+                  <option value="reconditioned">{t('hero.reconditioned')}</option>
                 </select>
                 <label className="flex items-center gap-2 text-sm text-gray-700">
                   <input type="checkbox" checked={verifiedDealerOnly} onChange={(e) => setVerifiedDealerOnly(e.target.checked)} />
-                  Verified dealers only
+                  {t('hero.verifiedDealersOnly')}
                 </label>
                 <label className="flex items-center gap-2 text-sm text-gray-700">
                   <input type="checkbox" checked={dealerOnly} onChange={(e) => setDealerOnly(e.target.checked)} />
-                  Dealer listings only
+                  {t('hero.dealerListingsOnly')}
                 </label>
                 <button
                   type="button"
                   onClick={() => submitSearch()}
                   className="md:col-span-3 rounded-lg bg-[#233D7B] text-white text-sm font-bold py-2.5 hover:bg-[#1a2d5a] transition"
                 >
-                  Apply advanced filters
+                  {t('hero.applyAdvancedFilters')}
                 </button>
               </div>
             )}
@@ -380,7 +382,7 @@ export function Hero() {
 
         {savedSearches.length > 0 && (
           <div className="max-w-5xl mx-auto mt-5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 px-4 py-3">
-            <div className="text-xs font-semibold text-blue-100 mb-2">Saved searches</div>
+            <div className="text-xs font-semibold text-blue-100 mb-2">{t('hero.savedSearches')}</div>
             <div className="flex flex-wrap gap-2">
               {savedSearches.map((s) => (
                 <button
@@ -403,7 +405,7 @@ export function Hero() {
             className="bg-white/10 backdrop-blur-sm rounded-md p-3 text-center hover:bg-white/20 transition cursor-pointer border border-transparent hover:border-white/20"
           >
             <div className="text-xl font-bold">200K+</div>
-            <div className="text-xs text-blue-100">Cars for Sale</div>
+            <div className="text-xs text-blue-100">{t('hero.statCarsForSale')}</div>
           </button>
           <button
             type="button"
@@ -411,7 +413,7 @@ export function Hero() {
             className="bg-white/10 backdrop-blur-sm rounded-md p-3 text-center hover:bg-white/20 transition cursor-pointer border border-transparent hover:border-white/20"
           >
             <div className="text-xl font-bold">50K+</div>
-            <div className="text-xs text-blue-100">Bikes for Sale</div>
+            <div className="text-xs text-blue-100">{t('hero.statBikesForSale')}</div>
           </button>
           <button
             type="button"
@@ -419,7 +421,7 @@ export function Hero() {
             className="bg-white/10 backdrop-blur-sm rounded-md p-3 text-center hover:bg-white/20 transition cursor-pointer border border-transparent hover:border-white/20"
           >
             <div className="text-xl font-bold">5K+</div>
-            <div className="text-xs text-blue-100">Dealers</div>
+            <div className="text-xs text-blue-100">{t('hero.statDealers')}</div>
           </button>
           <button
             type="button"
@@ -427,7 +429,7 @@ export function Hero() {
             className="bg-white/10 backdrop-blur-sm rounded-md p-3 text-center hover:bg-white/20 transition cursor-pointer border border-transparent hover:border-white/20"
           >
             <div className="text-xl font-bold">100K+</div>
-            <div className="text-xs text-blue-100">Auto Parts</div>
+            <div className="text-xs text-blue-100">{t('hero.statAutoPartsShort')}</div>
           </button>
         </div>
       </div>

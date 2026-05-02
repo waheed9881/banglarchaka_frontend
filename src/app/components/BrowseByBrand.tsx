@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { fetchBrands, type BrandDto } from '@/lib/marketplace';
 
 export function BrowseByBrand() {
+  const { t } = useTranslation();
   const [brands, setBrands] = useState<BrandDto[]>([]);
 
   useEffect(() => {
@@ -14,7 +16,7 @@ export function BrowseByBrand() {
   return (
     <section className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">Browse Used Cars by Make</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-8">{t('homeSections.browseByMakeTitle')}</h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
           {brands.map((brand) => (
@@ -37,7 +39,7 @@ export function BrowseByBrand() {
             to="/listings?type=used_car"
             className="inline-flex border-2 border-[#233D7B] text-[#233D7B] px-8 py-3 rounded-lg hover:bg-[#233D7B] hover:text-white transition font-semibold"
           >
-            View all brands
+            {t('homeSections.viewAllBrands')}
           </Link>
         </div>
       </div>

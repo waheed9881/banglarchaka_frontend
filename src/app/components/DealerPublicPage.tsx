@@ -1,5 +1,6 @@
 import { ArrowLeft, CheckCircle, MapPin, MessageCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 import {
   fetchDealerProfile,
@@ -14,6 +15,7 @@ const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1542282088-fe8426682b8f?auto=format&fit=crop&w=1280&q=80';
 
 export function DealerPublicPage() {
+  const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [dealer, setDealer] = useState<DealerProfileDto | null | undefined>(undefined);
@@ -32,31 +34,31 @@ export function DealerPublicPage() {
   useEffect(() => {
     if (dealer === undefined) return;
     if (!dealer) {
-      setPageSeo('Dealer not found · BanglarChaka');
+      setPageSeo(t('dealerPublic.seoNotFound'));
       return;
     }
     const desc = (
-      dealer.about?.trim() || `${dealer.business_name} — listings and contact on BanglarChaka.`
+      dealer.about?.trim() || t('dealerPublic.seoDealerDescFallback', { name: dealer.business_name })
     ).slice(0, 160);
-    setPageSeo(`${dealer.business_name} · Dealers · BanglarChaka`, desc);
-  }, [dealer]);
+    setPageSeo(t('dealerPublic.seoDealerTitle', { name: dealer.business_name }), desc);
+  }, [dealer, t]);
 
   if (dealer === undefined) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-16 text-center text-gray-600">Loading dealer…</div>
+      <div className="max-w-5xl mx-auto px-4 py-16 text-center text-gray-600">{t('dealerPublic.loading')}</div>
     );
   }
 
   if (!dealer) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-16 text-center">
-        <p className="text-gray-700 mb-4">Dealer not found.</p>
+        <p className="text-gray-700 mb-4">{t('dealerPublic.notFound')}</p>
         <button
           type="button"
           onClick={() => navigate('/')}
           className="text-[#233D7B] font-semibold hover:underline"
         >
-          Back to home
+          {t('dealerPublic.backHome')}
         </button>
       </div>
     );
@@ -84,7 +86,7 @@ export function DealerPublicPage() {
           className="mb-4 inline-flex items-center gap-2 text-white drop-shadow-md hover:underline text-sm font-medium"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back
+          {t('common.back')}
         </button>
 
         <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 md:p-8">
@@ -109,7 +111,7 @@ export function DealerPublicPage() {
                 {dealer.verified_at ? (
                   <span className="inline-flex items-center gap-1 text-sm text-green-600 font-medium">
                     <CheckCircle className="w-4 h-4" />
-                    Verified
+                    {t('dealerPublic.verified')}
                   </span>
                 ) : null}
               </div>
@@ -129,7 +131,7 @@ export function DealerPublicPage() {
                   onClick={() => {
                     if (!slug) return;
                     if (!getAuthToken()) {
-                      window.alert('Sign in to message this showroom on BanglarChaka.');
+                      window.alert(t('dealerPublic.signInToMessage'));
                       navigate('/login');
                       return;
                     }
@@ -138,7 +140,7 @@ export function DealerPublicPage() {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#233D7B] text-white font-medium hover:bg-[#1a2d5a]"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  Message showroom
+                  {t('dealerPublic.messageShowroom')}
                 </button>
                 {dealer.whatsapp ? (
                   <a
@@ -147,7 +149,7 @@ export function DealerPublicPage() {
                     rel="noreferrer"
                     className="px-4 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700"
                   >
-                    WhatsApp
+                    {t('dealerPublic.whatsapp')}
                   </a>
                 ) : null}
                 {dealer.website ? (
@@ -157,17 +159,19 @@ export function DealerPublicPage() {
                     rel="noreferrer"
                     className="px-4 py-2 rounded-lg border border-gray-300 text-gray-800 hover:border-[#233D7B]"
                   >
-                    Website
+                    {t('dealerPublic.website')}
                   </a>
                 ) : null}
               </div>
 
               {dealer.response_rate_percent != null ? (
                 <p className="mt-4 text-sm text-gray-500">
-                  Response rate ~{dealer.response_rate_percent}% · avg reply{' '}
                   {dealer.avg_response_time_seconds != null
-                    ? `${Math.round(dealer.avg_response_time_seconds / 60)} min`
-                    : '—'}
+                    ? t('dealerPublic.responseLine', {
+                        rate: dealer.response_rate_percent,
+                        mins: Math.round(dealer.avg_response_time_seconds / 60),
+                      })
+                    : t('dealerPublic.responseLineNoAvg', { rate: dealer.response_rate_percent })}
                 </p>
               ) : null}
             </div>
@@ -176,14 +180,14 @@ export function DealerPublicPage() {
 
         {dealer.branches && dealer.branches.length > 0 ? (
           <div className="mt-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Locations</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">{t('dealerPublic.locations')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {dealer.branches.map((b) => (
                 <div
                   key={b.id ?? `${b.name ?? 'branch'}-${b.city ?? ''}`}
                   className="bg-white rounded-lg border border-gray-100 shadow-sm p-4"
                 >
-                  <div className="font-semibold text-gray-900">{b.name || 'Branch'}</div>
+                  <div className="font-semibold text-gray-900">{b.name || t('dealerPublic.branchFallback')}</div>
                   {b.city ? (
                     <p className="flex items-center gap-2 text-sm text-gray-600 mt-2">
                       <MapPin className="w-4 h-4 shrink-0" />
@@ -199,9 +203,9 @@ export function DealerPublicPage() {
           </div>
         ) : null}
 
-        <h2 className="text-xl font-bold text-gray-900 mt-10 mb-4">Cars & listings</h2>
+        <h2 className="text-xl font-bold text-gray-900 mt-10 mb-4">{t('dealerPublic.listingsHeading')}</h2>
         {listings.length === 0 ? (
-          <p className="text-gray-600">No published listings on this showroom yet.</p>
+          <p className="text-gray-600">{t('dealerPublic.noListings')}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {listings.map((car) => (

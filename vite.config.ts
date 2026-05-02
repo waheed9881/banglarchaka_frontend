@@ -39,8 +39,11 @@ export default defineConfig(({ mode }) => {
     port: serverPort,
     /** If 5275 is taken, Vite picks the next free port instead of failing to start. */
     strictPort: false,
+    /** Listen on LAN + localhost (avoid “site can’t be reached” when only 0.0.0.0 matters). */
+    host: true,
     proxy: devProxy,
-    open: '/listings?type=used_car',
+    /** Home loads without API; listings needs Laravel — don’t auto-open a route that looks “broken”. */
+    open: '/',
   },
   preview: {
     strictPort: false,

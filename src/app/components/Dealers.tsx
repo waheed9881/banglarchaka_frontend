@@ -9,6 +9,7 @@ import {
   Store,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { fetchDealers, resolveMediaUrl, type DealerDto } from '@/lib/marketplace';
 import { ImageWithFallback } from './figma/ImageWithFallback';
@@ -35,6 +36,7 @@ function DealerLogo({
 }
 
 export function Dealers() {
+  const { t } = useTranslation();
   const [dealers, setDealers] = useState<DealerDto[]>([]);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
@@ -82,54 +84,57 @@ export function Dealers() {
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-[#233D7B]/[0.08] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#233D7B] mb-3">
               <Store className="w-3.5 h-3.5" aria-hidden />
-              Dealer directory
+              {t('dealers.dealerDirectoryBadge')}
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#233D7B] tracking-tight">Featured Dealers</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#233D7B] tracking-tight">{t('dealers.featuredHeading')}</h2>
             <p className="text-gray-600 mt-2 text-base leading-relaxed">
-              Connect with verified showrooms across Bangladesh — live{' '}
-              <span className="font-semibold text-gray-800">inventory counts</span> from the BanglarChaka API.
+              {t('dealers.introLead')}
+              <span className="font-semibold text-gray-800">{t('dealers.introBold')}</span>
+              {t('dealers.introTrail')}
             </p>
           </div>
           <Link
             to="/used-car-dealers"
             className="inline-flex items-center justify-center self-start lg:self-end rounded-xl border-2 border-[#233D7B] bg-white px-7 py-3 text-sm font-bold text-[#233D7B] shadow-sm transition hover:bg-[#233D7B] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#233D7B] focus-visible:ring-offset-2"
           >
-            View all dealers
+            {t('dealers.viewAllDealers')}
           </Link>
         </div>
 
         {/* Trust strip — compact, mirrors PakWheels benefit row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10">
-          {[
-            {
-              Icon: ShieldCheck,
-              title: 'Verified dealers',
-              body: 'Badges reflect showroom profiles moderated on-platform.',
-              wrap: 'bg-blue-50 text-[#233D7B]',
-            },
-            {
-              Icon: BadgeCheck,
-              title: 'Transparent pricing',
-              body: 'Browse listings first, then message dealers with context.',
-              wrap: 'bg-emerald-50 text-emerald-700',
-            },
-            {
-              Icon: Phone,
-              title: 'Easy contact',
-              body: 'WhatsApp and showroom links route straight from each profile.',
-              wrap: 'bg-orange-50 text-orange-700',
-            },
-          ].map(({ Icon, title, body, wrap }) => (
+          {(
+            [
+              {
+                Icon: ShieldCheck,
+                titleKey: 'dealers.trustVerifiedTitle',
+                bodyKey: 'dealers.trustVerifiedBody',
+                wrap: 'bg-blue-50 text-[#233D7B]',
+              },
+              {
+                Icon: BadgeCheck,
+                titleKey: 'dealers.trustPricingTitle',
+                bodyKey: 'dealers.trustPricingBody',
+                wrap: 'bg-emerald-50 text-emerald-700',
+              },
+              {
+                Icon: Phone,
+                titleKey: 'dealers.trustContactTitle',
+                bodyKey: 'dealers.trustContactBody',
+                wrap: 'bg-orange-50 text-orange-700',
+              },
+            ] as const
+          ).map(({ Icon, titleKey, bodyKey, wrap }) => (
             <div
-              key={title}
+              key={titleKey}
               className="flex items-start gap-3 rounded-2xl border border-gray-100 bg-gray-50/80 px-4 py-4"
             >
               <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${wrap}`}>
                 <Icon className="w-5 h-5" strokeWidth={2} aria-hidden />
               </div>
               <div>
-                <h3 className="font-bold text-gray-900 text-sm">{title}</h3>
-                <p className="text-xs text-gray-600 mt-1 leading-relaxed">{body}</p>
+                <h3 className="font-bold text-gray-900 text-sm">{t(titleKey)}</h3>
+                <p className="text-xs text-gray-600 mt-1 leading-relaxed">{t(bodyKey)}</p>
               </div>
             </div>
           ))}
@@ -137,9 +142,9 @@ export function Dealers() {
 
         {dealers.length === 0 ? (
           <p className="text-center text-gray-500 py-10 text-sm">
-            No dealers in the directory yet.{' '}
+            {t('dealers.emptyDirectory')}{' '}
             <Link to="/dealer/portal" className="font-semibold text-[#233D7B] hover:underline">
-              Register your showroom
+              {t('dealers.registerShowroom')}
             </Link>
             .
           </p>
@@ -147,7 +152,7 @@ export function Dealers() {
           <div className="relative">
             <button
               type="button"
-              aria-label="Previous dealers"
+              aria-label={t('dealers.ariaPrevDealers')}
               onClick={() => scrollCarousel(-1)}
               className="absolute left-0 top-1/2 z-10 hidden md:flex -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition hover:bg-gray-50"
             >
@@ -155,7 +160,7 @@ export function Dealers() {
             </button>
             <button
               type="button"
-              aria-label="Next dealers"
+              aria-label={t('dealers.ariaNextDealers')}
               onClick={() => scrollCarousel(1)}
               className="absolute right-0 top-1/2 z-10 hidden md:flex -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition hover:bg-gray-50"
             >
@@ -186,7 +191,7 @@ export function Dealers() {
                           {dealer.verified_at ? (
                             <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700 ring-1 ring-emerald-100">
                               <BadgeCheck className="w-3 h-3" aria-hidden />
-                              Verified
+                              {t('dealerPublic.verified')}
                             </span>
                           ) : null}
                         </div>
@@ -200,10 +205,12 @@ export function Dealers() {
                     <div className="text-sm text-gray-700 mb-4 flex-1 space-y-1">
                       <p>
                         <span className="font-bold text-[#233D7B]">{listings}</span>{' '}
-                        <span className="text-gray-600">live listings</span>
+                        <span className="text-gray-600">{t('dealers.liveListings')}</span>
                       </p>
                       {dealer.response_rate_percent != null ? (
-                        <p className="text-xs text-gray-500">Response rate · ~{dealer.response_rate_percent}%</p>
+                        <p className="text-xs text-gray-500">
+                          {t('dealers.responseRate', { pct: dealer.response_rate_percent })}
+                        </p>
                       ) : null}
                     </div>
 
@@ -212,7 +219,7 @@ export function Dealers() {
                         to={`/dealers/${dealer.slug}`}
                         className="flex-1 text-center rounded-xl bg-[#233D7B] text-white text-sm font-bold py-2.5 hover:bg-[#1a2d5a] transition"
                       >
-                        View profile
+                        {t('dealers.viewProfile')}
                       </Link>
                       {whatsappUrl ? (
                         <a
@@ -225,7 +232,10 @@ export function Dealers() {
                           <MessageCircle className="w-5 h-5" />
                         </a>
                       ) : (
-                        <span className="inline-flex items-center justify-center rounded-xl border border-dashed border-gray-200 px-3 text-gray-300" title="No WhatsApp on file">
+                        <span
+                          className="inline-flex items-center justify-center rounded-xl border border-dashed border-gray-200 px-3 text-gray-300"
+                          title={t('dealers.noWhatsappTitle')}
+                        >
                           <MessageCircle className="w-5 h-5" />
                         </span>
                       )}
@@ -238,9 +248,9 @@ export function Dealers() {
         )}
 
         <p className="mt-8 text-center text-sm text-gray-500">
-          Prefer search filters?{' '}
+          {t('dealers.footerPreferSearch')}{' '}
           <Link to="/listings?type=used_car&dealer_only=1" className="font-semibold text-[#233D7B] hover:underline">
-            Dealer-only listings
+            {t('dealers.dealerOnlyListings')}
           </Link>
         </p>
       </div>

@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Twitter, Youtube, Linkedin } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 import logoUrl from '@/assets/logo_3.webp';
@@ -13,142 +14,147 @@ function carListings(extra: Record<string, string>) {
   return `/listings?${p.toString()}`;
 }
 
-type FootCol = { title: string; links: Array<{ label: string; to: string }> };
+type FootLink =
+  | { labelKey: string; to: string }
+  | { labelKey: string; kind: 'careers' };
+
+type FootCol = { titleKey: string; links: FootLink[] };
 
 const COLS_TOP: FootCol[] = [
   {
-    title: 'Cars by make',
+    titleKey: 'footer.carsByMake',
     links: [
-      { label: 'Toyota', to: carListings({ q: 'Toyota' }) },
-      { label: 'Suzuki', to: carListings({ q: 'Suzuki' }) },
-      { label: 'Honda', to: carListings({ q: 'Honda' }) },
-      { label: 'Nissan', to: carListings({ q: 'Nissan' }) },
-      { label: 'Mitsubishi', to: carListings({ q: 'Mitsubishi' }) },
-      { label: 'Hyundai', to: carListings({ q: 'Hyundai' }) },
-      { label: 'Mercedes-Benz', to: carListings({ q: 'Mercedes' }) },
-      { label: 'BMW', to: carListings({ q: 'BMW' }) },
-      { label: 'Kia', to: carListings({ q: 'Kia' }) },
+      { labelKey: 'footer.brandToyota', to: carListings({ q: 'Toyota' }) },
+      { labelKey: 'footer.brandSuzuki', to: carListings({ q: 'Suzuki' }) },
+      { labelKey: 'footer.brandHonda', to: carListings({ q: 'Honda' }) },
+      { labelKey: 'footer.brandNissan', to: carListings({ q: 'Nissan' }) },
+      { labelKey: 'footer.brandMitsubishi', to: carListings({ q: 'Mitsubishi' }) },
+      { labelKey: 'footer.brandHyundai', to: carListings({ q: 'Hyundai' }) },
+      { labelKey: 'footer.brandMercedes', to: carListings({ q: 'Mercedes' }) },
+      { labelKey: 'footer.brandBmw', to: carListings({ q: 'BMW' }) },
+      { labelKey: 'footer.brandKia', to: carListings({ q: 'Kia' }) },
     ],
   },
   {
-    title: 'Cars by city',
+    titleKey: 'footer.carsByCity',
     links: [
-      { label: 'Dhaka', to: carListings({ city: 'Dhaka' }) },
-      { label: 'Chattogram', to: carListings({ city: 'Chattogram' }) },
-      { label: 'Sylhet', to: carListings({ city: 'Sylhet' }) },
-      { label: 'Rajshahi', to: carListings({ city: 'Rajshahi' }) },
-      { label: 'Khulna', to: carListings({ city: 'Khulna' }) },
-      { label: 'Gazipur', to: carListings({ city: 'Gazipur' }) },
-      { label: 'Cumilla', to: carListings({ city: 'Cumilla' }) },
-      { label: 'Narayanganj', to: carListings({ city: 'Narayanganj' }) },
-      { label: 'Jessore', to: carListings({ city: 'Jessore' }) },
+      { labelKey: 'footer.cityDhaka', to: carListings({ city: 'Dhaka' }) },
+      { labelKey: 'footer.cityChattogram', to: carListings({ city: 'Chattogram' }) },
+      { labelKey: 'footer.citySylhet', to: carListings({ city: 'Sylhet' }) },
+      { labelKey: 'footer.cityRajshahi', to: carListings({ city: 'Rajshahi' }) },
+      { labelKey: 'footer.cityKhulna', to: carListings({ city: 'Khulna' }) },
+      { labelKey: 'footer.cityGazipur', to: carListings({ city: 'Gazipur' }) },
+      { labelKey: 'footer.cityCumilla', to: carListings({ city: 'Cumilla' }) },
+      { labelKey: 'footer.cityNarayanganj', to: carListings({ city: 'Narayanganj' }) },
+      { labelKey: 'footer.cityJessore', to: carListings({ city: 'Jessore' }) },
     ],
   },
   {
-    title: 'Explore BanglarChaka',
+    titleKey: 'footer.explore',
     links: [
-      { label: 'Used Cars', to: '/listings?type=used_car' },
-      { label: 'Used Bikes', to: '/listings?type=used_bike' },
-      { label: 'New Cars', to: '/listings?type=new_car' },
-      { label: 'Auto Parts & Accessories', to: '/listings?type=auto_part' },
-      { label: 'Cool rides', to: '/listings?type=used_car&sort=views' },
-      { label: 'Forums', to: '/forums' },
-      { label: 'Videos', to: '/videos' },
-      { label: 'Blog', to: '/blog' },
-      { label: 'Sitemap', to: '/sitemap' },
+      { labelKey: 'footer.usedCars', to: '/listings?type=used_car' },
+      { labelKey: 'footer.usedBikes', to: '/listings?type=used_bike' },
+      { labelKey: 'footer.newCars', to: '/listings?type=new_car' },
+      { labelKey: 'footer.partsAccessories', to: '/listings?type=auto_part' },
+      { labelKey: 'footer.coolRides', to: '/listings?type=used_car&sort=views' },
+      { labelKey: 'footer.forums', to: '/forums' },
+      { labelKey: 'footer.videos', to: '/videos' },
+      { labelKey: 'footer.blog', to: '/blog' },
+      { labelKey: 'moreNav.sitemap', to: '/sitemap' },
     ],
   },
   {
-    title: 'BanglarChaka.com',
+    titleKey: 'footer.company',
     links: [
-      { label: 'About BanglarChaka', to: '/terms' },
-      { label: 'Our products', to: '/sitemap' },
-      { label: 'Advertise with us', to: '/post-ad' },
-      { label: 'How to pay', to: '/terms' },
-      { label: 'FAQs', to: '/privacy' },
-      { label: 'Careers', to: '#' },
-      { label: 'Contact us', to: 'mailto:hello@banglarchaka.com' },
+      { labelKey: 'footer.about', to: '/terms' },
+      { labelKey: 'footer.products', to: '/sitemap' },
+      { labelKey: 'footer.advertise', to: '/post-ad' },
+      { labelKey: 'footer.howToPay', to: '/terms' },
+      { labelKey: 'footer.faqs', to: '/privacy' },
+      { labelKey: 'footer.careers', kind: 'careers' },
+      { labelKey: 'footer.contactUs', to: 'mailto:hello@banglarchaka.com' },
     ],
   },
 ];
 
 const COLS_BOTTOM: FootCol[] = [
   {
-    title: 'Cars by category',
+    titleKey: 'footer.carsByCategory',
     links: [
-      { label: 'SUV & 4×4', to: carListings({ q: 'SUV 4x4' }) },
-      { label: 'Japanese cars', to: carListings({ q: 'Japanese Toyota Honda' }) },
-      { label: 'Imported cars', to: '/listings?type=used_car&condition=reconditioned' },
-      { label: 'Automatic cars', to: carListings({ transmission: 'automatic' }) },
-      { label: 'Budget picks', to: '/listings?type=used_car&sort=price_asc' },
-      { label: 'Hybrid cars', to: carListings({ fuel_type: 'hybrid' }) },
-      { label: '660cc cars', to: carListings({ q: '660cc' }) },
-      { label: '1300cc cars', to: carListings({ q: '1300cc' }) },
+      { labelKey: 'footer.suv4x4', to: carListings({ q: 'SUV 4x4' }) },
+      { labelKey: 'footer.japaneseCars', to: carListings({ q: 'Japanese Toyota Honda' }) },
+      { labelKey: 'footer.importedCars', to: '/listings?type=used_car&condition=reconditioned' },
+      { labelKey: 'footer.automaticCars', to: carListings({ transmission: 'automatic' }) },
+      { labelKey: 'footer.budgetPicks', to: '/listings?type=used_car&sort=price_asc' },
+      { labelKey: 'footer.hybridCars', to: carListings({ fuel_type: 'hybrid' }) },
+      { labelKey: 'footer.cc660', to: carListings({ q: '660cc' }) },
+      { labelKey: 'footer.cc1300', to: carListings({ q: '1300cc' }) },
     ],
   },
   {
-    title: 'Cars by body type',
+    titleKey: 'footer.carsByBody',
     links: [
-      { label: 'Sedan', to: carListings({ q: 'sedan' }) },
-      { label: 'Hatchback', to: carListings({ q: 'hatchback' }) },
-      { label: 'SUV', to: carListings({ q: 'SUV' }) },
-      { label: 'Crossover', to: carListings({ q: 'crossover' }) },
-      { label: 'MPV', to: carListings({ q: 'MPV Noah van' }) },
-      { label: 'Pickup', to: carListings({ q: 'pickup' }) },
-      { label: 'Coupe', to: carListings({ q: 'coupe' }) },
-      { label: 'Wagon', to: carListings({ q: 'wagon' }) },
+      { labelKey: 'footer.sedan', to: carListings({ q: 'sedan' }) },
+      { labelKey: 'footer.hatchback', to: carListings({ q: 'hatchback' }) },
+      { labelKey: 'footer.suv', to: carListings({ q: 'SUV' }) },
+      { labelKey: 'footer.crossover', to: carListings({ q: 'crossover' }) },
+      { labelKey: 'footer.mpv', to: carListings({ q: 'MPV Noah van' }) },
+      { labelKey: 'footer.pickup', to: carListings({ q: 'pickup' }) },
+      { labelKey: 'footer.coupe', to: carListings({ q: 'coupe' }) },
+      { labelKey: 'footer.wagon', to: carListings({ q: 'wagon' }) },
     ],
   },
   {
-    title: 'Cars by colour',
+    titleKey: 'footer.carsByColour',
     links: [
-      { label: 'White cars', to: carListings({ q: 'white' }) },
-      { label: 'Black cars', to: carListings({ q: 'black' }) },
-      { label: 'Silver cars', to: carListings({ q: 'silver' }) },
-      { label: 'Grey cars', to: carListings({ q: 'grey gray' }) },
-      { label: 'Blue cars', to: carListings({ q: 'blue' }) },
-      { label: 'Red cars', to: carListings({ q: 'red' }) },
-      { label: 'Green cars', to: carListings({ q: 'green' }) },
-      { label: 'Gold cars', to: carListings({ q: 'gold' }) },
+      { labelKey: 'footer.whiteCars', to: carListings({ q: 'white' }) },
+      { labelKey: 'footer.blackCars', to: carListings({ q: 'black' }) },
+      { labelKey: 'footer.silverCars', to: carListings({ q: 'silver' }) },
+      { labelKey: 'footer.greyCars', to: carListings({ q: 'grey gray' }) },
+      { labelKey: 'footer.blueCars', to: carListings({ q: 'blue' }) },
+      { labelKey: 'footer.redCars', to: carListings({ q: 'red' }) },
+      { labelKey: 'footer.greenCars', to: carListings({ q: 'green' }) },
+      { labelKey: 'footer.goldCars', to: carListings({ q: 'gold' }) },
     ],
   },
   {
-    title: 'Cars by division',
+    titleKey: 'footer.carsByDivision',
     links: [
-      { label: 'Dhaka Division', to: carListings({ city: 'Dhaka' }) },
-      { label: 'Chattogram Division', to: carListings({ city: 'Chattogram' }) },
-      { label: 'Sylhet Division', to: carListings({ city: 'Sylhet' }) },
-      { label: 'Rajshahi Division', to: carListings({ city: 'Rajshahi' }) },
-      { label: 'Khulna Division', to: carListings({ city: 'Khulna' }) },
-      { label: 'Barishal Division', to: carListings({ city: 'Barishal' }) },
-      { label: 'Rangpur Division', to: carListings({ city: 'Rangpur' }) },
-      { label: 'Mymensingh Division', to: carListings({ city: 'Mymensingh' }) },
+      { labelKey: 'footer.divisionDhaka', to: carListings({ city: 'Dhaka' }) },
+      { labelKey: 'footer.divisionChattogram', to: carListings({ city: 'Chattogram' }) },
+      { labelKey: 'footer.divisionSylhet', to: carListings({ city: 'Sylhet' }) },
+      { labelKey: 'footer.divisionRajshahi', to: carListings({ city: 'Rajshahi' }) },
+      { labelKey: 'footer.divisionKhulna', to: carListings({ city: 'Khulna' }) },
+      { labelKey: 'footer.divisionBarishal', to: carListings({ city: 'Barishal' }) },
+      { labelKey: 'footer.divisionRangpur', to: carListings({ city: 'Rangpur' }) },
+      { labelKey: 'footer.divisionMymensingh', to: carListings({ city: 'Mymensingh' }) },
     ],
   },
 ];
 
 function LinkColumn({ col }: { col: FootCol }) {
+  const { t } = useTranslation();
   return (
     <div>
-      <h3 className={HEADING}>{col.title}</h3>
+      <h3 className={HEADING}>{t(col.titleKey)}</h3>
       <ul className="space-y-2.5">
         {col.links.map((item) => (
-          <li key={item.label}>
-            {item.to.startsWith('http') || item.to.startsWith('mailto:') ? (
-              <a href={item.to} className={`text-[13px] ${LINK}`}>
-                {item.label}
-              </a>
-            ) : item.to === '#' ? (
+          <li key={item.labelKey}>
+            {'kind' in item && item.kind === 'careers' ? (
               <button
                 type="button"
                 className={`text-[13px] ${LINK} text-left`}
-                onClick={() => toast.message('Careers — openings will be posted here soon.')}
+                onClick={() => toast.message(t('footer.careersToast'))}
               >
-                {item.label}
+                {t(item.labelKey)}
               </button>
+            ) : item.to.startsWith('http') || item.to.startsWith('mailto:') ? (
+              <a href={item.to} className={`text-[13px] ${LINK}`}>
+                {t(item.labelKey)}
+              </a>
             ) : (
               <Link to={item.to} className={`text-[13px] ${LINK}`}>
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             )}
           </li>
@@ -159,25 +165,26 @@ function LinkColumn({ col }: { col: FootCol }) {
 }
 
 export function Footer() {
+  const { t } = useTranslation();
   const [newsletter, setNewsletter] = useState('');
 
   const onNewsletter = (e: FormEvent) => {
     e.preventDefault();
     const v = newsletter.trim();
     if (!v || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
-      toast.error('Please enter a valid email.');
+      toast.error(t('footer.invalidEmail'));
       return;
     }
-    toast.success("Thanks — you're subscribed.");
+    toast.success(t('footer.subscribeToast'));
     setNewsletter('');
   };
 
   const social = [
-    { Icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
-    { Icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
-    { Icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
-    { Icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
-    { Icon: Youtube, href: 'https://youtube.com', label: 'YouTube' },
+    { Icon: Twitter, href: 'https://twitter.com', labelKey: 'footer.socialTwitter' as const },
+    { Icon: Facebook, href: 'https://facebook.com', labelKey: 'footer.socialFacebook' as const },
+    { Icon: Linkedin, href: 'https://linkedin.com', labelKey: 'footer.socialLinkedIn' as const },
+    { Icon: Instagram, href: 'https://instagram.com', labelKey: 'footer.socialInstagram' as const },
+    { Icon: Youtube, href: 'https://youtube.com', labelKey: 'footer.socialYouTube' as const },
   ];
 
   return (
@@ -199,68 +206,68 @@ export function Footer() {
           <div className="flex-1 min-w-0 space-y-12">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10">
               {COLS_TOP.map((col) => (
-                <LinkColumn key={col.title} col={col} />
+                <LinkColumn key={col.titleKey} col={col} />
               ))}
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10 pt-2 border-t border-gray-700/80">
               {COLS_BOTTOM.map((col) => (
-                <LinkColumn key={col.title} col={col} />
+                <LinkColumn key={col.titleKey} col={col} />
               ))}
             </div>
           </div>
 
           <aside className="w-full xl:w-[280px] shrink-0 space-y-8 xl:border-l xl:border-gray-700/80 xl:pl-10">
             <div>
-              <h3 className={HEADING}>Sell on BanglarChaka</h3>
+              <h3 className={HEADING}>{t('footer.sellOnTitle')}</h3>
               <ul className="space-y-2.5">
                 <li>
                   <Link to="/used-cars/sell" className={`text-[13px] ${LINK}`}>
-                    Sell your car
+                    {t('postAd.sellYourCar')}
                   </Link>
                 </li>
                 <li>
                   <Link to="/used-bikes/sell" className={`text-[13px] ${LINK}`}>
-                    Sell your bike
+                    {t('postAd.sellYourBike')}
                   </Link>
                 </li>
                 <li>
                   <Link to="/post-ad?type=accessory" className={`text-[13px] ${LINK}`}>
-                    Sell accessory
+                    {t('postAd.sellAccessory')}
                   </Link>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h3 className={HEADING}>Subscribe to our newsletter</h3>
+              <h3 className={HEADING}>{t('footer.newsletterHeading')}</h3>
               <form onSubmit={onNewsletter} className="flex gap-2">
                 <input
                   type="email"
                   value={newsletter}
                   onChange={(e) => setNewsletter(e.target.value)}
-                  placeholder="name@email.com"
+                  placeholder={t('footer.subscribePlaceholder')}
                   className="flex-1 min-w-0 rounded-md border border-gray-600 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3EB549]/60"
-                  aria-label="Email for newsletter"
+                  aria-label={t('footer.subscribePlaceholder')}
                 />
                 <button
                   type="submit"
                   className="shrink-0 rounded-md bg-[#3EB549] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#36a340] transition"
                 >
-                  Subscribe
+                  {t('footer.subscribeButton')}
                 </button>
               </form>
             </div>
 
             <div>
-              <h3 className={HEADING}>Follow us</h3>
+              <h3 className={HEADING}>{t('footer.followUs')}</h3>
               <div className="flex flex-wrap gap-2">
-                {social.map(({ Icon, href, label }) => (
+                {social.map(({ Icon, href, labelKey }) => (
                   <a
-                    key={label}
+                    key={labelKey}
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={label}
+                    aria-label={t(labelKey)}
                     className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-700/90 text-gray-200 hover:bg-gray-600 hover:text-white transition"
                   >
                     <Icon className="w-[18px] h-[18px]" strokeWidth={2} />
@@ -270,27 +277,27 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className={HEADING}>Download mobile apps</h3>
+              <h3 className={HEADING}>{t('footer.downloadApps')}</h3>
               <div className="flex flex-col gap-2">
                 <a
                   href="#"
                   className="flex items-center justify-center rounded-md bg-black px-4 py-2.5 text-left text-xs font-semibold text-white ring-1 ring-gray-700 hover:ring-gray-500 transition"
                   onClick={(e) => {
                     e.preventDefault();
-                    toast.message('BanglarChaka app — coming soon.');
+                    toast.message(t('footer.appComingSoon'));
                   }}
                 >
-                  Google Play
+                  {t('footer.googlePlay')}
                 </a>
                 <a
                   href="#"
                   className="flex items-center justify-center rounded-md bg-black px-4 py-2.5 text-xs font-semibold text-white ring-1 ring-gray-700 hover:ring-gray-500 transition"
                   onClick={(e) => {
                     e.preventDefault();
-                    toast.message('BanglarChaka app — coming soon.');
+                    toast.message(t('footer.appComingSoon'));
                   }}
                 >
-                  App Store
+                  {t('footer.appStore')}
                 </a>
               </div>
             </div>
@@ -298,21 +305,17 @@ export function Footer() {
         </div>
 
         <div className="mt-14 pt-8 border-t border-gray-700 text-center space-y-3">
-          <p className="text-xs text-gray-500">
-            Copyright © {new Date().getFullYear()} BanglarChaka — All rights reserved.
-          </p>
+          <p className="text-xs text-gray-500">{t('footer.copyrightLine', { year: new Date().getFullYear() })}</p>
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs">
             <Link to="/terms" className={`${LINK} text-gray-400`}>
-              Terms of Service
+              {t('footer.termsOfService')}
             </Link>
             <span className="text-gray-600">|</span>
             <Link to="/privacy" className={`${LINK} text-gray-400`}>
-              Privacy Policy
+              {t('footer.privacyPolicyLink')}
             </Link>
           </div>
-          <p className="text-[11px] text-gray-600 max-w-3xl mx-auto leading-relaxed px-2">
-            Reproduction of material from any BanglarChaka pages without permission is strictly prohibited.
-          </p>
+          <p className="text-[11px] text-gray-600 max-w-3xl mx-auto leading-relaxed px-2">{t('footer.reproductionNote')}</p>
         </div>
       </div>
     </footer>
