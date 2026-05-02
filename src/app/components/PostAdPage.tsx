@@ -1,6 +1,6 @@
 import { ArrowLeft, Bike, Camera, Car, CheckCircle2, Lightbulb, Smartphone, Tag, X } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { apiFetch, getAuthToken } from '@/lib/api';
 import {
@@ -205,6 +205,14 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
       previews.forEach((url) => URL.revokeObjectURL(url));
     };
   }, [previews]);
+
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.location.hash !== '#post-ad-form') return;
+    requestAnimationFrame(() => {
+      document.getElementById('post-ad-form')?.scrollIntoView({ block: 'start', behavior: 'auto' });
+    });
+  }, [listingType, searchParams]);
 
   const conditionDefault = useMemo(() => {
     return listingType === 'new_car' || listingType === 'new_bike' ? 'new' : 'used';
@@ -443,33 +451,43 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f6f8]">
+    <div className="min-h-screen bg-gradient-to-b from-[#eef1f6] via-[#f4f6f8] to-[#f4f6f8]">
       {useSellWizard ? (
-        <div className="bg-white border-b border-gray-200 shadow-sm">
-          <div className="max-w-4xl mx-auto px-4 pt-10 pb-8 text-center">
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#233D7B] tracking-tight">
-              Sell your {vehicleWord} With 3 Easy &amp; Simple Steps!
-            </h1>
-            <p className="mt-2 text-gray-600 text-sm sm:text-base">It&apos;s free and takes less than a minute</p>
+        <div className="relative overflow-hidden border-b border-white/10 bg-gradient-to-br from-[#233D7B] via-[#1c3070] to-[#152a52] text-white shadow-md">
+          <div
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_-30%,rgba(255,255,255,0.14),transparent)]"
+            aria-hidden
+          />
+          <div className="relative mx-auto max-w-4xl px-4 py-8 text-center sm:py-10">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/95 backdrop-blur-sm sm:text-[11px]">
+              <Tag className="h-3.5 w-3.5 opacity-95" aria-hidden />
+              Free listing
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-[32px]">Sell your {vehicleWord}</h1>
+            <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-white/88 sm:text-base">
+              Three steps — details, photos, contact. Most listings go live in a few minutes.
+            </p>
 
-            <div className="flex items-center justify-center gap-2 sm:gap-6 mt-10 max-w-xl mx-auto">
+            <div className="mx-auto mt-8 flex max-w-xl items-center justify-center gap-2 sm:gap-6">
               {wizardSteps.map(({ n, label, Icon }, i) => (
-                <div key={n} className="flex items-center gap-2 sm:gap-6 flex-1 min-w-0">
-                  <div className="flex flex-col items-center flex-1 min-w-0">
+                <div key={n} className="flex min-w-0 flex-1 items-center gap-2 sm:gap-6">
+                  <div className="flex min-w-0 flex-1 flex-col items-center">
                     <div
-                      className={`w-11 h-11 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-colors ${
-                        bikePakStyle || carPakStyle || step >= n ? 'bg-sky-100 text-[#233D7B]' : 'bg-gray-100 text-gray-400'
-                      } ${!bikePakStyle && !carPakStyle && step === n ? 'ring-2 ring-[#233D7B] ring-offset-2' : ''}`}
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-all sm:h-14 sm:w-14 ${
+                        bikePakStyle || carPakStyle || step >= n
+                          ? 'bg-[#3EB549] text-white shadow-lg shadow-black/25'
+                          : 'bg-white/15 text-white/75'
+                      } ${!bikePakStyle && !carPakStyle && step === n ? 'ring-2 ring-white ring-offset-2 ring-offset-[#233D7B]' : ''}`}
                     >
-                      <Icon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden />
+                      <Icon className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden />
                     </div>
-                    <span className="text-[10px] sm:text-xs font-medium text-gray-600 mt-2 text-center leading-tight px-0.5">
+                    <span className="mt-2 max-w-[5.5rem] px-0.5 text-center text-[10px] font-medium leading-tight text-white/90 sm:max-w-none sm:text-xs">
                       {label}
                     </span>
                   </div>
                   {i < wizardSteps.length - 1 ? (
                     <div
-                      className={`h-px flex-1 min-w-[12px] mb-6 ${bikePakStyle || carPakStyle || step > n ? 'bg-[#233D7B]/40' : 'bg-gray-200'}`}
+                      className={`mb-6 h-px min-w-[12px] flex-1 ${bikePakStyle || carPakStyle || step > n ? 'bg-[#3EB549]/90' : 'bg-white/25'}`}
                       aria-hidden
                     />
                   ) : null}
@@ -479,24 +497,27 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
           </div>
         </div>
       ) : (
-        <div className="bg-gradient-to-br from-[#233D7B] via-[#1a3266] to-[#152a52] text-white py-12">
-          <div className="max-w-4xl mx-auto px-4 text-center">
-            <h1 className="text-3xl sm:text-4xl font-bold mb-3">Post Your Ad</h1>
-            <p className="text-lg text-white/85">Signed-in users create real listings and can attach photos.</p>
+        <div className="border-b border-white/10 bg-gradient-to-br from-[#233D7B] via-[#1a3266] to-[#152a52] py-10 text-white shadow-md">
+          <div className="mx-auto max-w-4xl px-4 text-center">
+            <h1 className="mb-2 text-3xl font-bold sm:text-4xl">Post your ad</h1>
+            <p className="mx-auto max-w-lg text-base text-white/85">Choose a category and fill in the details below.</p>
           </div>
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <SubscriptionPlansStrip />
-
-        <form onSubmit={submit} className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-          <div className="border-b border-gray-100 bg-gray-50/80 px-4 sm:px-6 py-3 flex flex-wrap items-center gap-3">
-            <span className={`${labelClass} text-xs uppercase tracking-wide text-gray-500`}>Listing type</span>
+      <div className="mx-auto max-w-4xl px-4 py-5 sm:py-8">
+        <form
+          id="post-ad-form"
+          onSubmit={submit}
+          className="scroll-mt-4 overflow-hidden rounded-2xl border border-gray-200/90 bg-white shadow-xl ring-1 ring-black/[0.04]"
+        >
+          <div className="flex flex-wrap items-center gap-3 border-b border-emerald-500/15 bg-gradient-to-r from-emerald-50/95 via-white to-sky-50/40 px-4 py-4 sm:gap-4 sm:px-6">
+            <Car className="hidden h-6 w-6 shrink-0 text-[#233D7B] opacity-90 sm:block" aria-hidden />
+            <span className={`${labelClass} text-xs font-bold uppercase tracking-wide text-[#233D7B]`}>Listing type</span>
             <select
               value={listingType}
               onChange={(e) => setListingType(e.target.value)}
-              className={`${inputClass} max-w-[220px] py-2 text-sm`}
+              className={`${inputClass} max-w-[min(100%,240px)] rounded-lg border-gray-200 bg-white py-2.5 text-sm font-medium shadow-sm`}
             >
               {LISTING_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -1633,6 +1654,10 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
             {status}
           </div>
         ) : null}
+
+        <div className="mt-8">
+          <SubscriptionPlansStrip />
+        </div>
       </div>
     </div>
   );

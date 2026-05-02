@@ -1,7 +1,7 @@
 import { GoogleLogin } from '@react-oauth/google';
 import { Car, Check, ChevronDown, Loader2, Smartphone, ShieldCheck } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { fetchMe, loginWithEmailPassword, loginWithGoogleIdToken, registerBuyer, logoutLocal } from '@/lib/auth';
 import { loginWithPhoneOtp, sendLoginOtp } from '@/lib/engagement';
 import { setPageSeo } from '@/lib/seo';
@@ -10,10 +10,20 @@ import { toast } from 'sonner';
 const googleClientId =
   typeof import.meta.env.VITE_GOOGLE_CLIENT_ID === 'string' ? import.meta.env.VITE_GOOGLE_CLIENT_ID.trim() : '';
 
+/** Restrict `?next=` to same-origin relative paths (avoid open redirects). */
+function safeReturnPath(raw: string | null): string | null {
+  if (raw === null || raw === '') return null;
+  const t = raw.trim();
+  if (!t.startsWith('/') || t.startsWith('//') || t.includes('://') || t.includes('\\')) return null;
+  return t;
+}
+
 type Tab = 'login' | 'register';
 
 export function LoginPage({ variant }: { variant: Tab }) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = safeReturnPath(searchParams.get('next'));
   const [me, setMe] = useState<{ id: number; name: string; email: string } | null>(null);
   const [tab, setTab] = useState<Tab>(variant);
   const [email, setEmail] = useState('');
@@ -48,9 +58,9 @@ export function LoginPage({ variant }: { variant: Tab }) {
   useEffect(() => {
     fetchMe().then((u) => {
       setMe(u);
-      if (u) navigate('/', { replace: true });
+      if (u) navigate(returnTo || '/', { replace: true });
     });
-  }, [navigate]);
+  }, [navigate, returnTo]);
 
   const doLogin = async () => {
     setSubmittingLogin(true);
@@ -59,7 +69,7 @@ export function LoginPage({ variant }: { variant: Tab }) {
       const meFresh = await fetchMe();
       setMe(meFresh || data.user);
       toast.success('Welcome back!');
-      navigate('/');
+      navigate(returnTo || '/');
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Login failed');
     } finally {
@@ -84,7 +94,7 @@ export function LoginPage({ variant }: { variant: Tab }) {
       const meFresh = await fetchMe();
       setMe(meFresh || data.user);
       toast.success('Account created!');
-      navigate('/');
+      navigate(returnTo || '/');
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Registration failed');
     } finally {
@@ -134,7 +144,7 @@ export function LoginPage({ variant }: { variant: Tab }) {
       setOtpDelivered(false);
       setOtpResendSec(0);
       toast.success('Signed in');
-      navigate('/');
+      navigate(returnTo || '/');
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'OTP login failed');
     } finally {
@@ -210,7 +220,7 @@ export function LoginPage({ variant }: { variant: Tab }) {
                             await loginWithGoogleIdToken(cred.credential);
                             await fetchMe();
                             toast.success('Signed in with Google');
-                            navigate('/');
+                            navigate(returnTo || '/');
                           } catch (e) {
                             toast.error(e instanceof Error ? e.message : 'Google sign-in failed');
                           } finally {

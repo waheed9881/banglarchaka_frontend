@@ -2,7 +2,6 @@ import { Calculator, FileText, CheckCircle, Heart, MessageCircle } from 'lucide-
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { getAuthToken } from '@/lib/api';
-import { fetchMe, type MeResponse } from '@/lib/auth';
 import { addToWishlist, fetchWishlistListings, removeFromWishlist } from '@/lib/engagement';
 import { fetchListingById, formatMoney, type ListingDto } from '@/lib/marketplace';
 import { setPageSeo } from '@/lib/seo';
@@ -15,7 +14,6 @@ export function NewCarDetailPage({ listingId, onBack }: { listingId?: string; on
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [car, setCar] = useState<ListingDto | null>(null);
   const [loading, setLoading] = useState(true);
-  const [me, setMe] = useState<MeResponse | null>(null);
   const [wishlisted, setWishlisted] = useState(false);
   const fallback =
     'https://images.unsplash.com/photo-1705747401901-28363172fe7e?auto=format&fit=crop&w=1080&q=80';
@@ -53,10 +51,6 @@ export function NewCarDetailPage({ listingId, onBack }: { listingId?: string; on
   }, [car]);
 
   useEffect(() => {
-    fetchMe().then(setMe);
-  }, []);
-
-  useEffect(() => {
     if (!car || !getAuthToken()) {
       setWishlisted(false);
       return;
@@ -66,8 +60,6 @@ export function NewCarDetailPage({ listingId, onBack }: { listingId?: string; on
       .catch(() => setWishlisted(false));
   }, [car]);
 
-  const meId = me?.id ?? null;
-  const canMessageSeller = !!(car && meId !== null && car.seller?.id !== undefined && car.seller.id !== meId);
   const canBoostListing = !!(car && (car.can_manage ?? false));
 
   return (
@@ -284,14 +276,14 @@ export function NewCarDetailPage({ listingId, onBack }: { listingId?: string; on
                 </button>
                 <button
                   type="button"
-                  disabled={!canMessageSeller}
-                  className="w-full bg-[#233D7B] text-white py-3 rounded-lg font-bold hover:bg-[#1a2d5a] transition disabled:opacity-40 flex items-center justify-center gap-2"
+                  className="w-full bg-[#233D7B] text-white py-3 rounded-lg font-bold hover:bg-[#1a2d5a] transition flex items-center justify-center gap-2"
                   onClick={() => {
-                    if (!car || !getAuthToken()) {
-                      window.alert('Sign in to message the seller.');
+                    if (!car) return;
+                    if (!getAuthToken()) {
+                      const next = `${window.location.pathname}${window.location.search}`;
+                      navigate(`/login?next=${encodeURIComponent(next)}`);
                       return;
                     }
-                    if (!canMessageSeller) return;
                     navigate(`/messages?listing=${encodeURIComponent(car.id)}`);
                   }}
                 >

@@ -19,7 +19,6 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { getAuthToken } from '@/lib/api';
-import { fetchMe, type MeResponse } from '@/lib/auth';
 import { addToWishlist, fetchWishlistListings, removeFromWishlist } from '@/lib/engagement';
 import {
   fetchListingById,
@@ -135,7 +134,6 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
   const [car, setCar] = useState<ListingDto | null>(null);
   const [similar, setSimilar] = useState<ListingDto[]>([]);
   const [loading, setLoading] = useState(true);
-  const [me, setMe] = useState<MeResponse | null>(null);
   const [wishlisted, setWishlisted] = useState(false);
   const [phoneReveal, setPhoneReveal] = useState(false);
   const fallback =
@@ -178,10 +176,6 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
   }, [car]);
 
   useEffect(() => {
-    fetchMe().then(setMe);
-  }, []);
-
-  useEffect(() => {
     if (!car || !getAuthToken()) {
       setWishlisted(false);
       return;
@@ -191,8 +185,6 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
       .catch(() => setWishlisted(false));
   }, [car]);
 
-  const meId = me?.id ?? null;
-  const canMessageSeller = !!(car && meId !== null && car.seller?.id !== undefined && car.seller.id !== meId);
   const canBoostListing = !!(car && (car.can_manage ?? false));
 
   const dyn = car?.dynamic_attributes as Record<string, unknown> | undefined;
@@ -375,7 +367,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
             return (
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-[148px_minmax(0,1fr)_min(340px,100%)] lg:items-start lg:gap-8">
                 <nav
-                  className="scrollbar-thin hidden lg:block lg:sticky lg:top-28 lg:self-start"
+                  className="scrollbar-thin hidden max-h-[calc(100dvh-1.5rem)] overflow-y-auto overscroll-contain lg:block lg:sticky lg:top-6 lg:self-start"
                   aria-label="On this page"
                 >
                   <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">On this page</p>
@@ -403,7 +395,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                     ))}
                   </div>
 
-                  <section id="detail-car-info" className="scroll-mt-28 space-y-6">
+                  <section id="detail-car-info" className="scroll-mt-6 space-y-6">
                     <header className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm md:p-6">
                       <h1 className="text-2xl font-bold leading-tight text-[#233D7B] md:text-[28px]">{car.title}</h1>
                       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600">
@@ -475,7 +467,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                     </section>
                   </section>
 
-                  <section id="detail-car-details" className="scroll-mt-28 space-y-6">
+                  <section id="detail-car-details" className="scroll-mt-6 space-y-6">
                     <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm md:p-6">
                       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-gray-900">
                         <Car className="h-5 w-5 text-[#233D7B]" aria-hidden />
@@ -533,7 +525,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                     ) : null}
                   </section>
 
-                  <section id="detail-seller-comments" className="scroll-mt-28 space-y-6">
+                  <section id="detail-seller-comments" className="scroll-mt-6 space-y-6">
                     <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm md:p-6">
                       <h2 className="mb-3 text-lg font-bold text-gray-900">Seller&apos;s comments</h2>
                       <div className="prose prose-sm max-w-none whitespace-pre-wrap leading-relaxed text-gray-700">
@@ -546,7 +538,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                     <ListingReviewsSection listingPublicId={car.id} />
                   </section>
 
-                  <section id="detail-similar-ads" className="scroll-mt-28 space-y-6">
+                  <section id="detail-similar-ads" className="scroll-mt-6 space-y-6">
                     {similar.length > 0 ? (
                       <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm md:p-6">
                         <div className="mb-4 flex items-center justify-between gap-2">
@@ -596,7 +588,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                         </div>
                       </div>
                       <Link
-                        to="/post-ad"
+                        to="/post-ad?type=used_car#post-ad-form"
                         className="inline-flex w-full items-center justify-center rounded-lg px-8 py-3 text-sm font-bold text-white shadow-md transition hover:opacity-95 sm:w-auto"
                         style={{ backgroundColor: GREEN }}
                       >
@@ -606,9 +598,9 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                   </section>
                 </div>
 
-                <aside className="lg:sticky lg:top-24">
+                <aside className="lg:sticky lg:top-6 lg:self-start">
                   <div className="space-y-4">
-                    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-md">
+                    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-md sm:p-5">
                       <p className="text-center text-xs font-semibold uppercase tracking-wide text-gray-500">Price</p>
                       <p className="mt-1 text-center text-3xl font-bold tabular-nums md:text-[34px]" style={{ color: GREEN }}>
                         {formatMoney(car.price, car.currency)}
@@ -651,16 +643,16 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
 
                       <button
                         type="button"
-                        disabled={!canMessageSeller}
                         onClick={() => {
+                          if (!car) return;
                           if (!getAuthToken()) {
-                            window.alert('Sign in to message the seller.');
+                            const next = `${window.location.pathname}${window.location.search}`;
+                            navigate(`/login?next=${encodeURIComponent(next)}`);
                             return;
                           }
-                          if (!canMessageSeller) return;
                           navigate(`/messages?listing=${encodeURIComponent(car.id)}`);
                         }}
-                        className="flex w-full items-center justify-center gap-2 rounded-lg border-2 bg-white py-3 text-base font-bold shadow-sm transition hover:bg-blue-50/80 disabled:cursor-not-allowed disabled:opacity-40"
+                        className="flex w-full items-center justify-center gap-2 rounded-lg border-2 bg-white py-3 text-base font-bold shadow-sm transition hover:bg-blue-50/80"
                         style={{ borderColor: BLUE, color: BLUE }}
                       >
                         <MessageCircle className="h-5 w-5 shrink-0" aria-hidden />
@@ -668,7 +660,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                       </button>
 
                       {!getAuthToken() ? (
-                        <p className="text-center text-xs text-gray-500">Sign in from the header to contact sellers.</p>
+                        <p className="text-center text-xs text-gray-500">Sign in to message — we&apos;ll take you to login, then you can open Messages.</p>
                       ) : null}
                     </div>
 

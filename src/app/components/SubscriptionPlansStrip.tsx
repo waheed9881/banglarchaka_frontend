@@ -13,7 +13,7 @@ export function SubscriptionPlansStrip() {
   }
 
   return (
-    <section className="mb-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
       <h2 className="text-lg font-bold text-gray-900">Subscription tiers (read-only)</h2>
       <p className="mt-1 text-sm text-gray-600">
         Pulled from <code className="rounded bg-gray-100 px-1 text-xs">GET /subscription-plans</code>. Full subscribe &
