@@ -60,7 +60,7 @@ export function FeaturedCars() {
           {cars.map((car) => (
             <Link
               key={car.id}
-              to={listingPublicHref(car)}
+              to={`${listingPublicHref(car)}${car.has_live_auction ? '#detail-auction' : ''}`}
               className="bg-white rounded-lg shadow hover:shadow-xl transition overflow-hidden block ring-1 ring-transparent hover:ring-[#233D7B]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#233D7B]"
             >
               <div className="relative">
@@ -72,6 +72,11 @@ export function FeaturedCars() {
                 {car.featured ? (
                   <div className="absolute top-3 left-3 bg-[#C4161C] text-white px-3 py-1 rounded text-xs font-semibold">
                     {t('homeFeatured.badge')}
+                  </div>
+                ) : null}
+                {car.has_live_auction ? (
+                  <div className="absolute bottom-3 left-3 bg-[#233D7B] text-white px-2.5 py-1 rounded text-[11px] font-bold shadow">
+                    {t('listingBrowse.auctionBadge')}
                   </div>
                 ) : null}
               </div>

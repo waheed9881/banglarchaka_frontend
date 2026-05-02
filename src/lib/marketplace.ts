@@ -20,6 +20,7 @@ export type ListingDto = {
   transmission?: string | null;
   dynamic_attributes?: Record<string, unknown>;
   featured?: boolean;
+  featured_until?: string | null;
   view_count?: number;
   wishlist_count?: number;
   media?: Array<{ path: string; type: string }>;
@@ -37,6 +38,19 @@ export type ListingDto = {
   created_at?: string | null;
   updated_at?: string | null;
   urgent?: boolean;
+  /** Present when this listing has a scheduled or active timed auction (see GET listing show). */
+  /** True when catalog row has a scheduled/active auction (GET /listings index). */
+  has_live_auction?: boolean;
+  open_auction?: {
+    id: string;
+    display_status: string;
+    accepting_bids: boolean;
+    ends_at: string;
+    starts_at?: string | null;
+    current_high_amount?: string | number | null;
+    minimum_next_bid: string | number;
+    bid_count: number;
+  } | null;
 };
 
 export function listingPublicHref(listing: Pick<ListingDto, 'id' | 'listing_type'>): string {
@@ -244,6 +258,50 @@ export async function fetchListingById(id: string): Promise<ListingDto | null> {
   } catch {
     return null;
   }
+}
+
+export type FeaturedBoostPackageDto = {
+  slug: string;
+  name: string;
+  duration_days: number;
+  price: string | number;
+  currency: string;
+};
+
+export type FeaturedListingOptionsDto = {
+  packages: FeaturedBoostPackageDto[];
+  dealer_subscription: {
+    plan_name: string | null;
+    featured_slots: number | null;
+    featured_slots_used: number;
+    can_enable_via_plan: boolean;
+    featured_until_plan: string | null;
+  } | null;
+  listing: { featured: boolean; featured_until: string | null };
+};
+
+export async function fetchFeaturedListingOptions(listingPublicId: string): Promise<FeaturedListingOptionsDto> {
+  return apiFetch<FeaturedListingOptionsDto>(`/listings/${encodeURIComponent(listingPublicId)}/featured-options`);
+}
+
+/** Public catalog (no auth) — same rows as edit-page packages. */
+export async function fetchPublicFeaturedBoostPackages(): Promise<FeaturedBoostPackageDto[]> {
+  const json = await apiFetch<{ data?: FeaturedBoostPackageDto[] }>('/featured-boost-packages');
+  return Array.isArray(json.data) ? json.data : [];
+}
+
+export async function setListingFeaturedFromPlan(
+  listingPublicId: string,
+  featured: boolean,
+): Promise<ListingDto | null> {
+  const json = await apiFetch<{ data?: ListingDto }>(
+    `/listings/${encodeURIComponent(listingPublicId)}/featured-from-plan`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ featured }),
+    },
+  );
+  return json.data ?? null;
 }
 
 export async function fetchBrands(): Promise<BrandDto[]> {

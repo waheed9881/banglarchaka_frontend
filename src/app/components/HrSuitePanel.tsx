@@ -16,7 +16,35 @@ import {
   fetchHrLeaves,
   fetchHrPayrollRuns,
   fetchHrPayslips,
+  fetchHrDesignations,
+  fetchHrSalaryAdvances,
+  fetchHrAnnouncements,
+  fetchHrRecruitmentOpenings,
+  fetchHrInterviewSchedules,
+  fetchHrLifecycleEvents,
+  fetchHrPerformanceReviews,
+  fetchHrTrainingRecords,
+  fetchHrBenefits,
   generateHrPayslips,
+  downloadHrPayslipPdf,
+  createHrDesignation,
+  deleteHrDesignation,
+  createHrSalaryAdvance,
+  updateHrSalaryAdvance,
+  createHrAnnouncement,
+  deleteHrAnnouncement,
+  createHrRecruitmentOpening,
+  deleteHrRecruitmentOpening,
+  createHrInterviewSchedule,
+  deleteHrInterviewSchedule,
+  createHrLifecycleEvent,
+  deleteHrLifecycleEvent,
+  createHrPerformanceReview,
+  deleteHrPerformanceReview,
+  createHrTrainingRecord,
+  deleteHrTrainingRecord,
+  createHrBenefit,
+  deleteHrBenefit,
   updateHrEmployee,
   updateHrLeaveStatus,
   updateHrPayrollRun,
@@ -26,14 +54,36 @@ import {
   type HrLeaveDto,
   type HrPayrollRunDto,
   type HrPayslipDto,
+  type HrDesignationDto,
+  type HrSalaryAdvanceDto,
+  type HrAnnouncementDto,
+  type HrRecruitmentOpeningDto,
+  type HrInterviewScheduleDto,
+  type HrLifecycleEventDto,
+  type HrPerformanceReviewDto,
+  type HrTrainingRecordDto,
+  type HrBenefitDto,
 } from '@/lib/hr';
 
 export type HrSuiteVariant = 'admin' | 'dealer';
 
-type Tab = 'departments' | 'employees' | 'attendance' | 'leave' | 'payroll';
+type Tab = 'departments' | 'employees' | 'attendance' | 'leave' | 'payroll' | 'operations';
+type OpSubTab = 'designations' | 'advances' | 'announcements' | 'recruitment' | 'lifecycle' | 'performance' | 'training' | 'benefits';
 
 function skLine(w: string, h = 'h-3.5') {
   return `animate-pulse rounded-md bg-slate-200/85 ${h} ${w}`;
+}
+
+function parsePositiveNumber(value: string): number | null {
+  const n = Number(value.trim());
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return n;
+}
+
+function parseId(value: string): number | null {
+  const n = Number(value.trim());
+  if (!Number.isInteger(n) || n <= 0) return null;
+  return n;
 }
 
 function HrSuiteLoadingSkeleton({ tab }: { tab: Tab }) {
@@ -105,6 +155,7 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
   const portalLabel = variant === 'dealer' ? 'Dealer dashboard' : 'Admin portal';
 
   const [tab, setTab] = useState<Tab>('departments');
+  const [opSubTab, setOpSubTab] = useState<OpSubTab>('designations');
   const [canHr, setCanHr] = useState<boolean | null>(null);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -132,6 +183,33 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
   const [runPayDate, setRunPayDate] = useState('');
   const [selectedRunId, setSelectedRunId] = useState<number | null>(null);
   const [payslips, setPayslips] = useState<HrPayslipDto[]>([]);
+  const [designations, setDesignations] = useState<HrDesignationDto[]>([]);
+  const [salaryAdvances, setSalaryAdvances] = useState<HrSalaryAdvanceDto[]>([]);
+  const [announcements, setAnnouncements] = useState<HrAnnouncementDto[]>([]);
+  const [designationName, setDesignationName] = useState('');
+  const [advanceEmployeeId, setAdvanceEmployeeId] = useState('');
+  const [advanceAmount, setAdvanceAmount] = useState('');
+  const [advanceNotes, setAdvanceNotes] = useState('');
+  const [announcementTitle, setAnnouncementTitle] = useState('');
+  const [announcementBody, setAnnouncementBody] = useState('');
+  const [openings, setOpenings] = useState<HrRecruitmentOpeningDto[]>([]);
+  const [interviews, setInterviews] = useState<HrInterviewScheduleDto[]>([]);
+  const [lifecycleEvents, setLifecycleEvents] = useState<HrLifecycleEventDto[]>([]);
+  const [reviews, setReviews] = useState<HrPerformanceReviewDto[]>([]);
+  const [trainingRecords, setTrainingRecords] = useState<HrTrainingRecordDto[]>([]);
+  const [benefits, setBenefits] = useState<HrBenefitDto[]>([]);
+  const [openingTitle, setOpeningTitle] = useState('');
+  const [candidateName, setCandidateName] = useState('');
+  const [candidateAt, setCandidateAt] = useState('');
+  const [lifecycleEmpId, setLifecycleEmpId] = useState('');
+  const [lifecycleType, setLifecycleType] = useState<'onboarding' | 'offboarding'>('onboarding');
+  const [reviewEmpId, setReviewEmpId] = useState('');
+  const [reviewRating, setReviewRating] = useState('');
+  const [trainingEmpId, setTrainingEmpId] = useState('');
+  const [trainingTitle, setTrainingTitle] = useState('');
+  const [benefitEmpId, setBenefitEmpId] = useState('');
+  const [benefitType, setBenefitType] = useState('');
+  const [benefitAmount, setBenefitAmount] = useState('');
 
   const load = async () => {
     setLoading(true);
@@ -168,7 +246,7 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
         setLeaveRows(data.rows);
         setLastPage(data.lastPage);
         setTotal(data.total);
-      } else {
+      } else if (tab === 'payroll') {
         const data = await fetchHrPayrollRuns({ page, per_page: 20 });
         setRuns(data.rows);
         setLastPage(data.lastPage);
@@ -179,6 +257,29 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
         } else {
           setPayslips([]);
         }
+      } else {
+        const [d, s, a, o, i, l, r, t, b] = await Promise.all([
+          fetchHrDesignations({ page, per_page: 30 }),
+          fetchHrSalaryAdvances({ page, per_page: 25 }),
+          fetchHrAnnouncements({ page, per_page: 20 }),
+          fetchHrRecruitmentOpenings({ page, per_page: 20 }),
+          fetchHrInterviewSchedules({ page, per_page: 20 }),
+          fetchHrLifecycleEvents({ page, per_page: 20 }),
+          fetchHrPerformanceReviews({ page, per_page: 20 }),
+          fetchHrTrainingRecords({ page, per_page: 20 }),
+          fetchHrBenefits({ page, per_page: 20 }),
+        ]);
+        setDesignations(d.rows);
+        setSalaryAdvances(s.rows);
+        setAnnouncements(a.rows);
+        setOpenings(o.rows);
+        setInterviews(i.rows);
+        setLifecycleEvents(l.rows);
+        setReviews(r.rows);
+        setTrainingRecords(t.rows);
+        setBenefits(b.rows);
+        setLastPage(Math.max(d.lastPage, s.lastPage, a.lastPage, o.lastPage, i.lastPage, l.lastPage, r.lastPage, t.lastPage, b.lastPage));
+        setTotal(d.total + s.total + a.total + o.total + i.total + l.total + r.total + t.total + b.total);
       }
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Failed to load HR data');
@@ -225,9 +326,14 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
   };
 
   const onAddEmployee = async () => {
-    const uid = Number(empUserId.trim());
-    if (!uid || Number.isNaN(uid)) {
+    const uid = parseId(empUserId);
+    if (!uid) {
       setMessage('Enter valid user id');
+      return;
+    }
+    const salary = empSalary.trim() ? parsePositiveNumber(empSalary) : null;
+    if (empSalary.trim() && !salary) {
+      setMessage('Base salary must be a positive number');
       return;
     }
     try {
@@ -235,7 +341,7 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
         user_id: uid,
         department_id: empDeptId ? Number(empDeptId) : undefined,
         designation: empDesignation.trim() || undefined,
-        base_salary: empSalary.trim() ? Number(empSalary) : undefined,
+        base_salary: salary ?? undefined,
       });
       setEmpUserId('');
       setEmpDesignation('');
@@ -264,8 +370,8 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
   };
 
   const onClockIn = async () => {
-    const eid = Number(attEmpId.trim());
-    if (!eid || Number.isNaN(eid)) {
+    const eid = parseId(attEmpId);
+    if (!eid) {
       setMessage('Enter employee id for clock-in');
       return;
     }
@@ -303,6 +409,10 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
       setMessage('Period and pay date required');
       return;
     }
+    if (!/^\d{4}-\d{2}$/.test(runPeriod.trim())) {
+      setMessage('Period must be in YYYY-MM format');
+      return;
+    }
     try {
       await createHrPayrollRun({ period: runPeriod.trim(), pay_date: runPayDate.trim() });
       setRunPeriod('');
@@ -334,6 +444,266 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
     try {
       await updateHrPayrollRun(row.id, { status: 'finalized' });
       setMessage('Payroll run finalized');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onAddDesignation = async () => {
+    if (!designationName.trim()) return;
+    try {
+      await createHrDesignation(designationName.trim());
+      setDesignationName('');
+      setMessage('Designation added');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onAddSalaryAdvance = async () => {
+    const employeeId = parseId(advanceEmployeeId);
+    const amount = parsePositiveNumber(advanceAmount);
+    if (!employeeId || !amount) {
+      setMessage('Enter valid employee and amount');
+      return;
+    }
+    try {
+      await createHrSalaryAdvance({ employee_id: employeeId, amount, notes: advanceNotes.trim() || undefined });
+      setAdvanceEmployeeId('');
+      setAdvanceAmount('');
+      setAdvanceNotes('');
+      setMessage('Salary advance requested');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onAdvanceStatus = async (id: number, status: 'approved' | 'rejected') => {
+    try {
+      await updateHrSalaryAdvance(id, status);
+      setMessage(`Advance ${status}`);
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onAddAnnouncement = async () => {
+    if (!announcementTitle.trim() || !announcementBody.trim()) {
+      setMessage('Announcement title and body required');
+      return;
+    }
+    try {
+      await createHrAnnouncement({ title: announcementTitle.trim(), body: announcementBody.trim() });
+      setAnnouncementTitle('');
+      setAnnouncementBody('');
+      setMessage('Announcement posted');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onDeleteDesignation = async (id: number) => {
+    try {
+      await deleteHrDesignation(id);
+      setMessage('Designation deleted');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onDeleteAnnouncement = async (id: number) => {
+    try {
+      await deleteHrAnnouncement(id);
+      setMessage('Announcement deleted');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onAddOpening = async () => {
+    if (!openingTitle.trim()) return;
+    try {
+      await createHrRecruitmentOpening({ title: openingTitle.trim() });
+      setOpeningTitle('');
+      setMessage('Recruitment opening created');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onAddInterview = async () => {
+    if (!candidateName.trim() || !candidateAt.trim()) {
+      setMessage('Candidate and schedule required');
+      return;
+    }
+    if (Number.isNaN(Date.parse(candidateAt))) {
+      setMessage('Enter valid interview date/time');
+      return;
+    }
+    try {
+      await createHrInterviewSchedule({ candidate_name: candidateName.trim(), scheduled_at: candidateAt });
+      setCandidateName('');
+      setCandidateAt('');
+      setMessage('Interview scheduled');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onAddLifecycle = async () => {
+    const employeeId = parseId(lifecycleEmpId);
+    if (!employeeId) {
+      setMessage('Employee ID required');
+      return;
+    }
+    try {
+      await createHrLifecycleEvent({ employee_id: employeeId, event_type: lifecycleType, event_date: new Date().toISOString().slice(0, 10) });
+      setLifecycleEmpId('');
+      setMessage('Lifecycle event added');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onAddReview = async () => {
+    const employeeId = parseId(reviewEmpId);
+    if (!employeeId) {
+      setMessage('Employee ID required');
+      return;
+    }
+    const rating = reviewRating.trim() ? Number(reviewRating.trim()) : null;
+    if (rating !== null && (!Number.isFinite(rating) || rating < 0 || rating > 5)) {
+      setMessage('Rating must be between 0 and 5');
+      return;
+    }
+    try {
+      await createHrPerformanceReview({
+        employee_id: employeeId,
+        review_date: new Date().toISOString().slice(0, 10),
+        rating: rating ?? undefined,
+      });
+      setReviewEmpId('');
+      setReviewRating('');
+      setMessage('Performance review added');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onAddTraining = async () => {
+    const employeeId = parseId(trainingEmpId);
+    if (!employeeId || !trainingTitle.trim()) {
+      setMessage('Employee and training title required');
+      return;
+    }
+    try {
+      await createHrTrainingRecord({
+        employee_id: employeeId,
+        title: trainingTitle.trim(),
+        completed_on: new Date().toISOString().slice(0, 10),
+      });
+      setTrainingEmpId('');
+      setTrainingTitle('');
+      setMessage('Training record added');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onAddBenefit = async () => {
+    const employeeId = parseId(benefitEmpId);
+    if (!employeeId || !benefitType.trim()) {
+      setMessage('Employee and benefit type required');
+      return;
+    }
+    const amount = benefitAmount.trim() ? parsePositiveNumber(benefitAmount) : null;
+    if (benefitAmount.trim() && !amount) {
+      setMessage('Benefit amount must be a positive number');
+      return;
+    }
+    try {
+      await createHrBenefit({
+        employee_id: employeeId,
+        benefit_type: benefitType.trim(),
+        amount: amount ?? undefined,
+        effective_from: new Date().toISOString().slice(0, 10),
+      });
+      setBenefitEmpId('');
+      setBenefitType('');
+      setBenefitAmount('');
+      setMessage('Benefit assigned');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onDeleteRecruitmentOpening = async (id: number) => {
+    try {
+      await deleteHrRecruitmentOpening(id);
+      setMessage('Opening deleted');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onDeleteInterview = async (id: number) => {
+    try {
+      await deleteHrInterviewSchedule(id);
+      setMessage('Interview deleted');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onDeleteLifecycle = async (id: number) => {
+    try {
+      await deleteHrLifecycleEvent(id);
+      setMessage('Lifecycle event deleted');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onDeleteReview = async (id: number) => {
+    try {
+      await deleteHrPerformanceReview(id);
+      setMessage('Review deleted');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onDeleteTraining = async (id: number) => {
+    try {
+      await deleteHrTrainingRecord(id);
+      setMessage('Training record deleted');
+      await load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed');
+    }
+  };
+
+  const onDeleteBenefit = async (id: number) => {
+    try {
+      await deleteHrBenefit(id);
+      setMessage('Benefit deleted');
       await load();
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Failed');
@@ -392,6 +762,7 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
               ['attendance', 'Attendance'],
               ['leave', 'Leave'],
               ['payroll', 'Payroll'],
+              ['operations', 'Operations'],
             ] as const
           ).map(([key, label]) => (
             <button key={key} type="button" onClick={() => setTab(key)} className={dp.tab(tab === key)}>
@@ -436,7 +807,7 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
                 <div className={`${dp.card} ${dp.cardPad} grid md:grid-cols-5 gap-3 items-end`}>
                   <div className="flex flex-col gap-1">
                     <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">User ID</label>
-                    <input value={empUserId} onChange={(e) => setEmpUserId(e.target.value)} className={dp.input} />
+                    <input type="number" min={1} value={empUserId} onChange={(e) => setEmpUserId(e.target.value)} className={dp.input} required />
                   </div>
                   <div className="flex flex-col gap-1">
                     <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Department</label>
@@ -455,7 +826,7 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
                   </div>
                   <div className="flex flex-col gap-1">
                     <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Base salary</label>
-                    <input value={empSalary} onChange={(e) => setEmpSalary(e.target.value)} className={dp.input} />
+                    <input type="number" min={1} step="0.01" value={empSalary} onChange={(e) => setEmpSalary(e.target.value)} className={dp.input} />
                   </div>
                   <button type="button" onClick={() => onAddEmployee()} className={dp.btnPrimary}>
                     Create employee
@@ -485,7 +856,7 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
                 <div className={`${dp.card} ${dp.cardPad} flex flex-wrap gap-3 items-end`}>
                   <div className="flex flex-col gap-1">
                     <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Filter / clock-in employee ID</label>
-                    <input value={attEmpId} onChange={(e) => setAttEmpId(e.target.value)} className={`${dp.input} max-w-[12rem]`} />
+                    <input type="number" min={1} value={attEmpId} onChange={(e) => setAttEmpId(e.target.value)} className={`${dp.input} max-w-[12rem]`} />
                   </div>
                   <button type="button" onClick={() => load().catch(() => undefined)} className={dp.btnSecondary}>
                     Apply filter
@@ -558,7 +929,7 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
                 <div className={`${dp.card} ${dp.cardPad} grid md:grid-cols-4 gap-3 items-end`}>
                   <div className="flex flex-col gap-1">
                     <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Period (e.g. 2026-05)</label>
-                    <input value={runPeriod} onChange={(e) => setRunPeriod(e.target.value)} className={dp.input} />
+                    <input pattern="\d{4}-\d{2}" placeholder="YYYY-MM" value={runPeriod} onChange={(e) => setRunPeriod(e.target.value)} className={dp.input} />
                   </div>
                   <div className="flex flex-col gap-1">
                     <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Pay date</label>
@@ -615,6 +986,7 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
                             <th className={`${dp.tableCellDenseMono} text-right`}>Gross</th>
                             <th className={`${dp.tableCellDenseMono} text-right`}>Deductions</th>
                             <th className={`${dp.tableCellDenseMono} text-right`}>Net</th>
+                            <th className={`${dp.tableCellDense} text-right`}>Payslip</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -626,6 +998,21 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
                               <td className={`${dp.tableCellDenseMono} text-right`}>{p.gross}</td>
                               <td className={`${dp.tableCellDenseMono} text-right`}>{p.deductions}</td>
                               <td className={`${dp.tableCellDenseMono} text-right font-medium text-slate-900`}>{p.net}</td>
+                              <td className={`${dp.tableCellDense} text-right`}>
+                                <button
+                                  type="button"
+                                  className={dp.btnSecondary}
+                                  onClick={() =>
+                                    selectedRunId
+                                      ? downloadHrPayslipPdf(selectedRunId, p.id, p.employee_id).catch((err) =>
+                                          setMessage(err instanceof Error ? err.message : 'Download failed'),
+                                        )
+                                      : undefined
+                                  }
+                                >
+                                  PDF
+                                </button>
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -634,6 +1021,271 @@ export function HrSuitePanel({ variant }: { variant: HrSuiteVariant }) {
                       <div className="p-6 text-center text-xs text-slate-500">No payslips for this run yet — use Generate payslips on a draft run.</div>
                     )}
                   </div>
+                )}
+              </div>
+            )}
+
+            {tab === 'operations' && (
+              <div className="space-y-6">
+                <div className={`${dp.cardMuted} p-1.5 flex flex-wrap gap-1`}>
+                  {(
+                    [
+                      ['designations', 'Designations'],
+                      ['advances', 'Advances'],
+                      ['announcements', 'Announcements'],
+                      ['recruitment', 'Recruitment'],
+                      ['lifecycle', 'Lifecycle'],
+                      ['performance', 'Performance'],
+                      ['training', 'Training'],
+                      ['benefits', 'Benefits'],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <button key={key} type="button" onClick={() => setOpSubTab(key)} className={dp.tab(opSubTab === key)}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                {opSubTab === 'designations' && (
+                <div className={`${dp.card} ${dp.cardPad}`}>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-3">Designation management</h3>
+                  <div className="flex flex-wrap gap-2 items-end mb-3">
+                    <input
+                      placeholder="Designation name"
+                      value={designationName}
+                      onChange={(e) => setDesignationName(e.target.value)}
+                      className={`${dp.input} max-w-xs`}
+                    />
+                    <button type="button" onClick={() => onAddDesignation()} className={dp.btnPrimary}>
+                      Add
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {designations.map((d) => (
+                      <span key={d.id} className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs">
+                        {d.name}
+                        <button type="button" className="text-red-600" onClick={() => onDeleteDesignation(d.id)}>
+                          x
+                        </button>
+                      </span>
+                    ))}
+                    {!designations.length && <span className="text-xs text-slate-500">No designations yet.</span>}
+                  </div>
+                </div>
+                )}
+
+                {opSubTab === 'advances' && (
+                <div className={`${dp.card} ${dp.cardPad}`}>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-3">Salary advance</h3>
+                  <div className="grid md:grid-cols-4 gap-2 items-end">
+                      <input
+                        type="number"
+                        min={1}
+                      placeholder="Employee ID"
+                      value={advanceEmployeeId}
+                      onChange={(e) => setAdvanceEmployeeId(e.target.value)}
+                      className={dp.input}
+                    />
+                      <input
+                        type="number"
+                        min={1}
+                        step="0.01"
+                      placeholder="Amount"
+                      value={advanceAmount}
+                      onChange={(e) => setAdvanceAmount(e.target.value)}
+                      className={dp.input}
+                    />
+                    <input
+                      placeholder="Notes (optional)"
+                      value={advanceNotes}
+                      onChange={(e) => setAdvanceNotes(e.target.value)}
+                      className={dp.input}
+                    />
+                    <button type="button" onClick={() => onAddSalaryAdvance()} className={dp.btnAccent}>
+                      Request
+                    </button>
+                  </div>
+                  <div className="mt-4 divide-y divide-slate-100 rounded-xl border border-slate-100">
+                    {salaryAdvances.map((s) => (
+                      <div key={s.id} className="flex flex-col gap-2 p-3 md:flex-row md:items-center md:justify-between">
+                        <div className="text-xs text-slate-700">
+                          {s.employee_name || `Emp ${s.employee_id}`} - {s.amount} - <strong>{s.status}</strong>
+                        </div>
+                        {s.status === 'pending' ? (
+                          <div className="flex gap-2">
+                            <button type="button" className={dp.btnPrimary} onClick={() => onAdvanceStatus(s.id, 'approved')}>
+                              Approve
+                            </button>
+                            <button type="button" className={dp.btnDanger} onClick={() => onAdvanceStatus(s.id, 'rejected')}>
+                              Reject
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
+                    ))}
+                    {!salaryAdvances.length && <div className="p-4 text-xs text-slate-500">No salary advances yet.</div>}
+                  </div>
+                </div>
+                )}
+
+                {opSubTab === 'announcements' && (
+                <div className={`${dp.card} ${dp.cardPad}`}>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-3">HR announcements</h3>
+                  <div className="grid gap-2 mb-3">
+                    <input
+                      placeholder="Title"
+                      value={announcementTitle}
+                      onChange={(e) => setAnnouncementTitle(e.target.value)}
+                      className={dp.input}
+                    />
+                    <textarea
+                      placeholder="Announcement body"
+                      value={announcementBody}
+                      onChange={(e) => setAnnouncementBody(e.target.value)}
+                      className={`${dp.input} min-h-24`}
+                    />
+                    <button type="button" onClick={() => onAddAnnouncement()} className={dp.btnPrimary}>
+                      Publish announcement
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {announcements.map((a) => (
+                      <div key={a.id} className="rounded-xl border border-slate-100 p-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="font-semibold text-sm text-slate-900">{a.title}</div>
+                          <button type="button" className="text-xs text-red-600" onClick={() => onDeleteAnnouncement(a.id)}>
+                            Delete
+                          </button>
+                        </div>
+                        <p className="text-xs text-slate-600 mt-1 whitespace-pre-wrap">{a.body}</p>
+                      </div>
+                    ))}
+                    {!announcements.length && <div className="text-xs text-slate-500">No announcements yet.</div>}
+                  </div>
+                </div>
+                )}
+
+                {opSubTab === 'recruitment' && (
+                <div className={`${dp.card} ${dp.cardPad}`}>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-3">Recruitment + interviews</h3>
+                  <div className="grid md:grid-cols-2 gap-2 mb-3">
+                    <div className="flex gap-2">
+                      <input placeholder="Opening title" value={openingTitle} onChange={(e) => setOpeningTitle(e.target.value)} className={dp.input} required />
+                      <button type="button" onClick={() => onAddOpening()} className={dp.btnPrimary}>
+                        Add opening
+                      </button>
+                    </div>
+                    <div className="flex gap-2">
+                      <input placeholder="Candidate name" value={candidateName} onChange={(e) => setCandidateName(e.target.value)} className={dp.input} required />
+                      <input type="datetime-local" value={candidateAt} onChange={(e) => setCandidateAt(e.target.value)} className={dp.input} />
+                      <button type="button" onClick={() => onAddInterview()} className={dp.btnAccent}>
+                        Schedule
+                      </button>
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div className="rounded-xl border border-slate-100 p-3">
+                      <div className="text-xs font-semibold mb-2 text-slate-700">Openings</div>
+                      <div className="space-y-1">
+                        {openings.map((o) => (
+                          <div key={o.id} className="text-xs text-slate-700 flex items-center justify-between gap-2">
+                            <span>{o.title} - {o.status}</span>
+                            <button type="button" className="text-red-600" onClick={() => onDeleteRecruitmentOpening(o.id)}>Delete</button>
+                          </div>
+                        ))}
+                        {!openings.length && <div className="text-xs text-slate-500">No openings yet.</div>}
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-slate-100 p-3">
+                      <div className="text-xs font-semibold mb-2 text-slate-700">Interviews</div>
+                      <div className="space-y-1">
+                        {interviews.map((i) => (
+                          <div key={i.id} className="text-xs text-slate-700 flex items-center justify-between gap-2">
+                            <span>{i.candidate_name} - {i.status}</span>
+                            <button type="button" className="text-red-600" onClick={() => onDeleteInterview(i.id)}>Delete</button>
+                          </div>
+                        ))}
+                        {!interviews.length && <div className="text-xs text-slate-500">No interviews yet.</div>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                )}
+
+                {opSubTab === 'lifecycle' && (
+                <div className={`${dp.card} ${dp.cardPad}`}>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-3">Onboarding / offboarding</h3>
+                  <div className="flex flex-wrap gap-2 items-end mb-3">
+                    <input type="number" min={1} placeholder="Employee ID" value={lifecycleEmpId} onChange={(e) => setLifecycleEmpId(e.target.value)} className={`${dp.input} max-w-[10rem]`} required />
+                    <select value={lifecycleType} onChange={(e) => setLifecycleType(e.target.value as 'onboarding' | 'offboarding')} className={dp.select}>
+                      <option value="onboarding">Onboarding</option>
+                      <option value="offboarding">Offboarding</option>
+                    </select>
+                    <button type="button" onClick={() => onAddLifecycle()} className={dp.btnPrimary}>
+                      Add event
+                    </button>
+                  </div>
+                  <div className="space-y-1">
+                    {lifecycleEvents.map((e) => (
+                      <div key={e.id} className="text-xs text-slate-700 flex items-center justify-between gap-2">
+                        <span>{e.employee_name || `Emp ${e.employee_id}`} - {e.event_type} - {e.event_date}</span>
+                        <button type="button" className="text-red-600" onClick={() => onDeleteLifecycle(e.id)}>Delete</button>
+                      </div>
+                    ))}
+                    {!lifecycleEvents.length && <div className="text-xs text-slate-500">No lifecycle events yet.</div>}
+                  </div>
+                </div>
+                )}
+
+                {(opSubTab === 'performance' || opSubTab === 'training' || opSubTab === 'benefits') && (
+                <div className={`${dp.card} ${dp.cardPad}`}>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-3">Performance + training + benefits</h3>
+                  <div className="grid md:grid-cols-3 gap-3">
+                    {opSubTab === 'performance' && <div className="rounded-xl border border-slate-100 p-3 space-y-2">
+                      <div className="text-xs font-semibold text-slate-700">Performance review</div>
+                      <input type="number" min={1} placeholder="Employee ID" value={reviewEmpId} onChange={(e) => setReviewEmpId(e.target.value)} className={dp.input} required />
+                      <input type="number" min={0} max={5} step="0.1" placeholder="Rating (0-5)" value={reviewRating} onChange={(e) => setReviewRating(e.target.value)} className={dp.input} />
+                      <button type="button" onClick={() => onAddReview()} className={dp.btnPrimary}>
+                        Add review
+                      </button>
+                      {reviews.slice(0, 4).map((r) => (
+                        <div key={r.id} className="text-xs text-slate-600 flex items-center justify-between gap-2">
+                          <span>{r.employee_name || `Emp ${r.employee_id}`} - {r.rating || 'n/a'}</span>
+                          <button type="button" className="text-red-600" onClick={() => onDeleteReview(r.id)}>Delete</button>
+                        </div>
+                      ))}
+                    </div>}
+                    {opSubTab === 'training' && <div className="rounded-xl border border-slate-100 p-3 space-y-2">
+                      <div className="text-xs font-semibold text-slate-700">Training records</div>
+                      <input type="number" min={1} placeholder="Employee ID" value={trainingEmpId} onChange={(e) => setTrainingEmpId(e.target.value)} className={dp.input} required />
+                      <input placeholder="Training title" value={trainingTitle} onChange={(e) => setTrainingTitle(e.target.value)} className={dp.input} required />
+                      <button type="button" onClick={() => onAddTraining()} className={dp.btnAccent}>
+                        Add training
+                      </button>
+                      {trainingRecords.slice(0, 4).map((r) => (
+                        <div key={r.id} className="text-xs text-slate-600 flex items-center justify-between gap-2">
+                          <span>{r.employee_name || `Emp ${r.employee_id}`} - {r.title}</span>
+                          <button type="button" className="text-red-600" onClick={() => onDeleteTraining(r.id)}>Delete</button>
+                        </div>
+                      ))}
+                    </div>}
+                    {opSubTab === 'benefits' && <div className="rounded-xl border border-slate-100 p-3 space-y-2">
+                      <div className="text-xs font-semibold text-slate-700">Benefits</div>
+                      <input type="number" min={1} placeholder="Employee ID" value={benefitEmpId} onChange={(e) => setBenefitEmpId(e.target.value)} className={dp.input} required />
+                      <input placeholder="Benefit type" value={benefitType} onChange={(e) => setBenefitType(e.target.value)} className={dp.input} required />
+                      <input type="number" min={1} step="0.01" placeholder="Amount" value={benefitAmount} onChange={(e) => setBenefitAmount(e.target.value)} className={dp.input} />
+                      <button type="button" onClick={() => onAddBenefit()} className={dp.btnPrimary}>
+                        Assign benefit
+                      </button>
+                      {benefits.slice(0, 4).map((b) => (
+                        <div key={b.id} className="text-xs text-slate-600 flex items-center justify-between gap-2">
+                          <span>{b.employee_name || `Emp ${b.employee_id}`} - {b.benefit_type}</span>
+                          <button type="button" className="text-red-600" onClick={() => onDeleteBenefit(b.id)}>Delete</button>
+                        </div>
+                      ))}
+                    </div>}
+                  </div>
+                </div>
                 )}
               </div>
             )}

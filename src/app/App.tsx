@@ -25,6 +25,9 @@ import { AdminHrPage } from './components/AdminHrPage';
 import { AdminLayout, AdminPanelIndexRedirect } from './components/AdminLayout';
 import { AdminModerationPage } from './components/AdminModerationPage';
 import { DealerPortalLayout } from './components/DealerPortalLayout';
+import { AuctionDetailPage } from './components/AuctionDetailPage';
+import { AuctionsPage } from './components/AuctionsPage';
+import { DealerAuctionsPage } from './components/DealerAuctionsPage';
 import { DealerPortalDashboard } from './components/DealerPortalDashboard';
 import { DealerPortalHrPage } from './components/DealerPortalHrPage';
 import { DealerPortalFinancePage } from './components/DealerPortalFinancePage';
@@ -41,6 +44,7 @@ import { ForgotPasswordPage } from './components/ForgotPasswordPage';
 import { ResetPasswordPage } from './components/ResetPasswordPage';
 import { ComparePage } from './components/ComparePage';
 import { SellCarLandingPage } from './components/SellCarLandingPage';
+import { SellItForMeProtocol } from './components/SellItForMeProtocol';
 import { SellBikeLandingPage } from './components/SellBikeLandingPage';
 import { UsedBikesLandingPage } from './components/UsedBikesLandingPage';
 import { InnerContentPage } from './components/InnerContentPage';
@@ -173,6 +177,12 @@ function CarDetailRoute() {
   const navigate = useNavigate();
   const location = useLocation();
   return <CarDetailPage listingId={id} onBack={() => navigate(`/listings${location.search}`)} />;
+}
+
+function AuctionDetailRoute() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  return <AuctionDetailPage auctionId={id} onBack={() => navigate('/auctions')} />;
 }
 
 function NewCarRoute() {
@@ -446,6 +456,7 @@ function SellItForMeServicePage() {
       listingsSections={innerFeedsSellItForMe(t)}
       dealersPreview={featuredDealersStrip(t)}
       quickLinks={page.quickLinks}
+      beforeHighlights={<SellItForMeProtocol />}
     />
   );
 }
@@ -497,6 +508,11 @@ function AppShell() {
         <Route path="/" element={<HomePage />} />
         <Route path="/listings" element={<ListingRoute />} />
         <Route path="/listings/:id" element={<CarDetailRoute />} />
+        <Route path="/auctions" element={<AuctionsPage />} />
+        <Route
+          path="/auctions/:id"
+          element={<AuctionDetailRoute />}
+        />
         <Route path="/new-cars" element={<NewCarsLandingPage />} />
         <Route path="/new-cars/:id" element={<NewCarRoute />} />
         <Route path="/post-ad" element={<PostAdRoute />} />
@@ -512,6 +528,7 @@ function AppShell() {
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/dealer/portal" element={<DealerPortalLayout />}>
           <Route index element={<DealerPortalDashboard />} />
+          <Route path="auctions" element={<DealerAuctionsPage />} />
           <Route path="hr" element={<DealerPortalHrPage />} />
           <Route path="finance" element={<DealerPortalFinancePage />} />
         </Route>

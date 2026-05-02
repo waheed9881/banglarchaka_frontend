@@ -470,7 +470,7 @@ export function PakListingRow({
   setPhoneRevealId,
 }: RowPakProps) {
   const { t } = useTranslation();
-  const href = listingPublicHref(car);
+  const href = car.has_live_auction ? `${listingPublicHref(car)}#detail-auction` : listingPublicHref(car);
   const phone = car.seller?.phone?.trim();
   const showPhone = phoneRevealId === car.id;
 
@@ -489,6 +489,11 @@ export function PakListingRow({
         {car.featured ? (
           <span className="absolute top-2 left-2 bg-[#C4161C] text-white text-[10px] font-extrabold uppercase px-2 py-0.5 rounded shadow">
             {t('listingBrowse.featured')}
+          </span>
+        ) : null}
+        {car.has_live_auction ? (
+          <span className="absolute bottom-2 left-2 bg-[#233D7B] text-white text-[10px] font-extrabold uppercase px-2 py-0.5 rounded shadow">
+            {t('listingBrowse.auctionBadge')}
           </span>
         ) : null}
       </Link>

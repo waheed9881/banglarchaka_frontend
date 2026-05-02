@@ -10,6 +10,7 @@ import {
   Crown,
   DoorOpen,
   Fuel,
+  Gavel,
   Gauge,
   Globe,
   History,
@@ -60,6 +61,7 @@ function BrowseTile({ label, to, Icon }: CardDef) {
 function buildCategorySlides(t: TFunction): CardDef[][] {
   return [
     [
+      { label: t('browseUsed.tileLiveAuctions'), to: '/auctions', Icon: Gavel },
       { label: t('browseUsed.tileSeater5'), to: listingsQs({ q: '5 seater' }), Icon: Users },
       { label: t('browseUsed.tileAutomaticCars'), to: listingsQs({ transmission: 'automatic' }), Icon: Settings2 },
       { label: t('browseUsed.tileFamilyCars'), to: listingsQs({ q: 'family' }), Icon: Car },

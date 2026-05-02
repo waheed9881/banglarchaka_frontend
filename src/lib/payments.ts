@@ -17,6 +17,8 @@ export async function createPaymentIntent(input: {
   payable_type?: string;
   /** Numeric id for most types; for `listing` use numeric id or `public_id` UUID string. */
   payable_id?: string | number;
+  /** Required with payable listing — catalog slug from GET featured-options. */
+  listing_boost_package_slug?: string;
 }): Promise<PaymentIntentResponse> {
   const body: Record<string, unknown> = {
     amount: input.amount,
@@ -27,6 +29,9 @@ export async function createPaymentIntent(input: {
   if (input.payable_type != null && input.payable_type !== '' && input.payable_id != null && input.payable_id !== '') {
     body.payable_type = input.payable_type;
     body.payable_id = input.payable_id;
+  }
+  if (input.listing_boost_package_slug) {
+    body.listing_boost_package_slug = input.listing_boost_package_slug;
   }
 
   return apiFetch<PaymentIntentResponse>('/payments/intents', {
@@ -39,6 +44,8 @@ export type PaymentCompleteStubResponse = {
   message: string;
   payment_public_id: string;
   listing_boosted: boolean;
+  featured_boost_days?: number;
+  featured_until?: string;
 };
 
 export async function completeStubPayment(paymentPublicId: string): Promise<PaymentCompleteStubResponse> {

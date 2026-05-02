@@ -986,6 +986,11 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                           {t('listingBrowse.featured')}
                         </div>
                       )}
+                      {car.has_live_auction ? (
+                        <div className="absolute bottom-3 left-3 bg-[#233D7B] text-white px-2.5 py-1 rounded text-[11px] font-bold shadow">
+                          {t('listingBrowse.auctionBadge')}
+                        </div>
+                      ) : null}
                     </div>
 
                     <div className="p-4">

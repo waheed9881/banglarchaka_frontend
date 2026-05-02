@@ -6,25 +6,57 @@ import { dp } from '@/app/components/dealerPortalTheme';
 import {
   createChartAccount,
   createExpense,
+  createFinanceRecord,
   createJournalEntry,
+  applyReconciliationMatch,
+  undoReconciliationMatch,
+  downloadFinanceReportsCsv,
+  downloadGeneralLedgerCsv,
   deleteChartAccount,
   deleteExpense,
+  deleteFinanceRecord,
   deleteJournalEntry,
   fetchChartAccounts,
+  fetchFinanceDashboard,
+  fetchFinanceReports,
+  fetchFinanceRecords,
   fetchExpenses,
+  fetchInvoicePreviewHtml,
+  fetchReconciliationHistory,
+  fetchReconciliationAutoMatch,
+  fetchGeneralLedger,
   fetchJournalEntries,
   fetchJournalEntry,
   type ChartAccountDto,
   type ExpenseDto,
+  type FinanceDashboardDto,
+  type FinanceReportDto,
+  type FinanceRecordDto,
+  type FinanceRecordType,
   type JournalEntryDto,
   type JournalLineDto,
+  type LedgerRowDto,
+  type ReconciliationMatchDto,
+  type ReconciliationHistoryDto,
 } from '@/lib/finance';
 
 export type FinanceSuiteVariant = 'admin' | 'dealer';
 
-type Tab = 'chart' | 'journal' | 'expenses';
+type Tab = 'dashboard' | 'chart' | 'journal' | 'expenses' | 'records' | 'reports';
 
 const ACCOUNT_TYPES = ['asset', 'liability', 'equity', 'revenue', 'expense'] as const;
+const RECORD_TYPES: FinanceRecordType[] = [
+  'subscription_billing',
+  'invoice',
+  'commission',
+  'ad_revenue',
+  'refund',
+  'bank_reconciliation',
+  'tax',
+  'budget',
+  'accounts_payable',
+  'accounts_receivable',
+];
 
 export function FinanceSuitePanel({ variant }: { variant: FinanceSuiteVariant }) {
   const allowedRoleSet = useMemo(
@@ -39,7 +71,7 @@ export function FinanceSuitePanel({ variant }: { variant: FinanceSuiteVariant })
   const portalHref = variant === 'dealer' ? '/dealer/portal' : '/admin';
   const portalLabel = variant === 'dealer' ? 'Dealer dashboard' : 'Admin portal';
 
-  const [tab, setTab] = useState<Tab>('chart');
+  const [tab, setTab] = useState<Tab>('dashboard');
   const [canAccess, setCanAccess] = useState<boolean | null>(null);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -68,11 +100,97 @@ export function FinanceSuitePanel({ variant }: { variant: FinanceSuiteVariant })
   const [exCat, setExCat] = useState('');
   const [exDate, setExDate] = useState('');
   const [exNotes, setExNotes] = useState('');
+  const [dashboard, setDashboard] = useState<FinanceDashboardDto | null>(null);
+  const [records, setRecords] = useState<FinanceRecordDto[]>([]);
+  const [frType, setFrType] = useState<FinanceRecordType>('invoice');
+  const [frTitle, setFrTitle] = useState('');
+  const [frAmount, setFrAmount] = useState('');
+  const [frDate, setFrDate] = useState('');
+  const [frDueDate, setFrDueDate] = useState('');
+  const [frStatus, setFrStatus] = useState('draft');
+  const [frReference, setFrReference] = useState('');
+  const [frCounterparty, setFrCounterparty] = useState('');
+  const [frTaxAmount, setFrTaxAmount] = useState('');
+  const [frNotes, setFrNotes] = useState('');
+  const [recordsFilterType, setRecordsFilterType] = useState<FinanceRecordType | ''>('');
+  const [reportFrom, setReportFrom] = useState('');
+  const [reportTo, setReportTo] = useState('');
+  const [reports, setReports] = useState<FinanceReportDto | null>(null);
+  const [ledgerRows, setLedgerRows] = useState<LedgerRowDto[]>([]);
+  const [recoMatches, setRecoMatches] = useState<ReconciliationMatchDto[]>([]);
+  const [recoHistory, setRecoHistory] = useState<ReconciliationHistoryDto[]>([]);
+
+  const chartFormErrors = {
+    code: !coCode.trim() ? 'Account code is required.' : '',
+    name: !coName.trim() ? 'Account name is required.' : '',
+  };
+  const chartFormInvalid = !!(chartFormErrors.code || chartFormErrors.name);
+
+  const expenseAmountNum = Number(exAmount);
+  const expenseFormErrors = {
+    amount: !Number.isFinite(expenseAmountNum) || expenseAmountNum <= 0 ? 'Amount must be greater than zero.' : '',
+    date: !exDate.trim() ? 'Expense date is required.' : '',
+  };
+  const expenseFormInvalid = !!(expenseFormErrors.amount || expenseFormErrors.date);
+
+  const financeAmountNum = Number(frAmount);
+  const financeTaxNum = Number(frTaxAmount || 0);
+  const financeRecordErrors = {
+    title: !frTitle.trim() ? 'Record title is required.' : '',
+    recorded_on: !frDate.trim() ? 'Recorded date is required.' : '',
+    amount: !Number.isFinite(financeAmountNum) || financeAmountNum < 0 ? 'Amount must be zero or positive.' : '',
+    tax: frTaxAmount.trim() && (!Number.isFinite(financeTaxNum) || financeTaxNum < 0) ? 'Tax must be zero or positive.' : '',
+    due_on: frDueDate && frDate && frDueDate < frDate ? 'Due date cannot be before recorded date.' : '',
+  };
+  const financeRecordInvalid = !!(
+    financeRecordErrors.title ||
+    financeRecordErrors.recorded_on ||
+    financeRecordErrors.amount ||
+    financeRecordErrors.tax ||
+    financeRecordErrors.due_on
+  );
+
+  const validateChartAccountForm = (): boolean => {
+    const firstError = chartFormErrors.code || chartFormErrors.name;
+    if (firstError) {
+      setMessage(firstError);
+      return false;
+    }
+    return true;
+  };
+
+  const validateExpenseForm = (): boolean => {
+    const firstError = expenseFormErrors.amount || expenseFormErrors.date;
+    if (firstError) {
+      setMessage(firstError);
+      return false;
+    }
+    return true;
+  };
+
+  const validateFinanceRecordForm = (): boolean => {
+    const firstError =
+      financeRecordErrors.title ||
+      financeRecordErrors.recorded_on ||
+      financeRecordErrors.amount ||
+      financeRecordErrors.tax ||
+      financeRecordErrors.due_on;
+    if (firstError) {
+      setMessage(firstError);
+      return false;
+    }
+    return true;
+  };
 
   const load = async () => {
     setLoading(true);
     try {
-      if (tab === 'chart') {
+      if (tab === 'dashboard') {
+        const data = await fetchFinanceDashboard();
+        setDashboard(data);
+        setTotal(data?.feature_coverage?.length || 0);
+        setLastPage(1);
+      } else if (tab === 'chart') {
         const data = await fetchChartAccounts({ page, per_page: 50 });
         setAccounts(data.rows);
         setLastPage(data.lastPage);
@@ -86,11 +204,42 @@ export function FinanceSuitePanel({ variant }: { variant: FinanceSuiteVariant })
         setJournals(jData.rows);
         setLastPage(jData.lastPage);
         setTotal(jData.total);
-      } else {
+      } else if (tab === 'expenses') {
         const data = await fetchExpenses({ page, per_page: 25 });
         setExpenses(data.rows);
         setLastPage(data.lastPage);
         setTotal(data.total);
+      } else if (tab === 'records') {
+        const data = await fetchFinanceRecords({
+          page,
+          per_page: 20,
+          record_type: recordsFilterType || undefined,
+        });
+        setRecords(data.rows);
+        setLastPage(data.lastPage);
+        setTotal(data.total);
+      } else {
+        const [reportData, ledgerData, autoMatch, historyData] = await Promise.all([
+          fetchFinanceReports({
+            from_date: reportFrom || undefined,
+            to_date: reportTo || undefined,
+          }),
+          fetchGeneralLedger({
+            from_date: reportFrom || undefined,
+            to_date: reportTo || undefined,
+          }),
+          fetchReconciliationAutoMatch({
+            from_date: reportFrom || undefined,
+            to_date: reportTo || undefined,
+          }),
+          fetchReconciliationHistory({ page: 1, per_page: 20 }),
+        ]);
+        setReports(reportData);
+        setLedgerRows(ledgerData);
+        setRecoMatches(autoMatch);
+        setRecoHistory(historyData.rows);
+        setLastPage(1);
+        setTotal((reportData?.by_type.length || 0) + ledgerData.length + autoMatch.length + historyData.rows.length);
       }
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Failed to load finance data');
@@ -107,7 +256,7 @@ export function FinanceSuitePanel({ variant }: { variant: FinanceSuiteVariant })
 
   useEffect(() => {
     load().catch(() => undefined);
-  }, [tab, page]);
+  }, [tab, page, recordsFilterType, reportFrom, reportTo]);
 
   useEffect(() => {
     setPage(1);
@@ -219,9 +368,12 @@ export function FinanceSuitePanel({ variant }: { variant: FinanceSuiteVariant })
         <div className={`${dp.cardMuted} mb-6 flex flex-wrap gap-1 p-1.5`}>
           {(
             [
+              ['dashboard', 'Revenue Dashboard'],
               ['chart', 'Chart of accounts'],
               ['journal', 'Journal'],
               ['expenses', 'Expenses'],
+              ['records', 'Billing / AP-AR'],
+              ['reports', 'Financial Reports'],
             ] as const
           ).map(([key, label]) => (
             <button key={key} type="button" onClick={() => setTab(key)} className={dp.tab(tab === key)}>
@@ -239,11 +391,54 @@ export function FinanceSuitePanel({ variant }: { variant: FinanceSuiteVariant })
           </div>
         ) : (
           <>
+            {tab === 'dashboard' && (
+              <div className="grid gap-5 md:grid-cols-2">
+                <div className={`${dp.card} ${dp.cardPad}`}>
+                  <h3 className={dp.sectionTitle}>Revenue Dashboard</h3>
+                  <div className="mt-3 space-y-1 text-sm text-slate-700">
+                    <div>Total revenue: <strong className="tabular-nums">৳ {dashboard?.revenue_dashboard.total_revenue ?? 0}</strong></div>
+                    <div>Ad revenue: <strong className="tabular-nums">৳ {dashboard?.revenue_dashboard.ad_revenue ?? 0}</strong></div>
+                    <div>Commission: <strong className="tabular-nums">৳ {dashboard?.revenue_dashboard.commission ?? 0}</strong></div>
+                    <div>Refunds: <strong className="tabular-nums">৳ {dashboard?.revenue_dashboard.refunds ?? 0}</strong></div>
+                  </div>
+                </div>
+                <div className={`${dp.card} ${dp.cardPad}`}>
+                  <h3 className={dp.sectionTitle}>MRR / ARR Tracking</h3>
+                  <div className="mt-3 space-y-1 text-sm text-slate-700">
+                    <div>MRR: <strong className="tabular-nums">৳ {dashboard?.subscription_metrics.mrr ?? 0}</strong></div>
+                    <div>ARR: <strong className="tabular-nums">৳ {dashboard?.subscription_metrics.arr ?? 0}</strong></div>
+                  </div>
+                </div>
+                <div className={`${dp.card} ${dp.cardPad}`}>
+                  <h3 className={dp.sectionTitle}>Financial Reports</h3>
+                  <div className="mt-3 space-y-1 text-sm text-slate-700">
+                    <div>P&L Revenue: <strong className="tabular-nums">৳ {dashboard?.reports.pnl.revenue ?? 0}</strong></div>
+                    <div>P&L Expenses: <strong className="tabular-nums">৳ {dashboard?.reports.pnl.expenses ?? 0}</strong></div>
+                    <div>Net Profit: <strong className="tabular-nums">৳ {dashboard?.reports.pnl.net_profit ?? 0}</strong></div>
+                  </div>
+                </div>
+                <div className={`${dp.card} ${dp.cardPad}`}>
+                  <h3 className={dp.sectionTitle}>Cash Flow Reports</h3>
+                  <div className="mt-3 space-y-1 text-sm text-slate-700">
+                    <div>Cash In: <strong className="tabular-nums">৳ {dashboard?.reports.cash_flow.cash_in ?? 0}</strong></div>
+                    <div>Cash Out: <strong className="tabular-nums">৳ {dashboard?.reports.cash_flow.cash_out ?? 0}</strong></div>
+                    <div>Net Cash Flow: <strong className="tabular-nums">৳ {dashboard?.reports.cash_flow.net_cash_flow ?? 0}</strong></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {tab === 'chart' && (
               <div className="space-y-6">
                 <div className={`${dp.card} ${dp.cardPad} grid md:grid-cols-4 gap-4 items-end`}>
-                  <input value={coCode} onChange={(e) => setCoCode(e.target.value)} placeholder="Account code" className={dp.input} />
-                  <input value={coName} onChange={(e) => setCoName(e.target.value)} placeholder="Account name" className={`${dp.input} md:col-span-2`} />
+                  <div>
+                    <input value={coCode} onChange={(e) => setCoCode(e.target.value)} placeholder="Account code" className={dp.input} />
+                    {chartFormErrors.code ? <p className="mt-1 text-xs text-rose-600">{chartFormErrors.code}</p> : null}
+                  </div>
+                  <div className="md:col-span-2">
+                    <input value={coName} onChange={(e) => setCoName(e.target.value)} placeholder="Account name" className={dp.input} />
+                    {chartFormErrors.name ? <p className="mt-1 text-xs text-rose-600">{chartFormErrors.name}</p> : null}
+                  </div>
                   <select value={coType} onChange={(e) => setCoType(e.target.value)} className={dp.select}>
                     {ACCOUNT_TYPES.map((t) => (
                       <option key={t} value={t}>
@@ -254,6 +449,9 @@ export function FinanceSuitePanel({ variant }: { variant: FinanceSuiteVariant })
                   <button
                     type="button"
                     onClick={async () => {
+                      if (!validateChartAccountForm()) {
+                        return;
+                      }
                       try {
                         await createChartAccount({ code: coCode.trim(), name: coName.trim(), type: coType });
                         setCoCode('');
@@ -264,7 +462,8 @@ export function FinanceSuitePanel({ variant }: { variant: FinanceSuiteVariant })
                         setMessage(err instanceof Error ? err.message : 'Failed');
                       }
                     }}
-                    className={`${dp.btnAccent} md:col-span-4 justify-self-start`}
+                    disabled={chartFormInvalid}
+                    className={`${dp.btnAccent} md:col-span-4 justify-self-start disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     Add account
                   </button>
@@ -448,17 +647,22 @@ export function FinanceSuitePanel({ variant }: { variant: FinanceSuiteVariant })
               <div className="space-y-6">
                 <div className={`${dp.card} ${dp.cardPad} grid md:grid-cols-6 gap-4 items-end`}>
                   <input value={exVendor} onChange={(e) => setExVendor(e.target.value)} placeholder="Vendor" className={`${dp.input} md:col-span-2`} />
-                  <input value={exAmount} onChange={(e) => setExAmount(e.target.value)} placeholder="Amount" className={`${dp.input} tabular-nums`} />
+                  <div>
+                    <input value={exAmount} onChange={(e) => setExAmount(e.target.value)} placeholder="Amount" className={`${dp.input} tabular-nums`} />
+                    {expenseFormErrors.amount ? <p className="mt-1 text-xs text-rose-600">{expenseFormErrors.amount}</p> : null}
+                  </div>
                   <input value={exCat} onChange={(e) => setExCat(e.target.value)} placeholder="Category" className={dp.input} />
-                  <input type="date" value={exDate} onChange={(e) => setExDate(e.target.value)} className={dp.input} />
+                  <div>
+                    <input type="date" value={exDate} onChange={(e) => setExDate(e.target.value)} className={dp.input} />
+                    {expenseFormErrors.date ? <p className="mt-1 text-xs text-rose-600">{expenseFormErrors.date}</p> : null}
+                  </div>
                   <button
                     type="button"
                     onClick={async () => {
-                      const amt = Number(exAmount);
-                      if (!exDate.trim() || !amt || amt <= 0) {
-                        setMessage('Date and valid amount required');
+                      if (!validateExpenseForm()) {
                         return;
                       }
+                      const amt = Number(exAmount);
                       try {
                         await createExpense({
                           vendor: exVendor.trim() || undefined,
@@ -477,7 +681,8 @@ export function FinanceSuitePanel({ variant }: { variant: FinanceSuiteVariant })
                         setMessage(err instanceof Error ? err.message : 'Failed');
                       }
                     }}
-                    className={`${dp.btnPrimary} md:col-span-6 justify-self-start`}
+                    disabled={expenseFormInvalid}
+                    className={`${dp.btnPrimary} md:col-span-6 justify-self-start disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     Record expense
                   </button>
@@ -513,6 +718,334 @@ export function FinanceSuitePanel({ variant }: { variant: FinanceSuiteVariant })
                     </div>
                   ))}
                   {!expenses.length && <div className="p-8 text-center text-sm text-slate-500">No expenses recorded.</div>}
+                </div>
+              </div>
+            )}
+
+            {tab === 'records' && (
+              <div className="space-y-6">
+                <div className={`${dp.card} ${dp.cardPad} grid md:grid-cols-8 gap-3 items-end`}>
+                  <select value={frType} onChange={(e) => setFrType(e.target.value as FinanceRecordType)} className={dp.select}>
+                    {RECORD_TYPES.map((t) => (
+                      <option key={t} value={t}>{t.replaceAll('_', ' ')}</option>
+                    ))}
+                  </select>
+                  <input value={frTitle} onChange={(e) => setFrTitle(e.target.value)} placeholder="Title" className={`${dp.input} md:col-span-2`} />
+                  {financeRecordErrors.title ? <p className="md:col-span-2 mt-1 text-xs text-rose-600">{financeRecordErrors.title}</p> : <div className="md:col-span-2" />}
+                  <input value={frReference} onChange={(e) => setFrReference(e.target.value)} placeholder="Reference" className={dp.input} />
+                  <input value={frAmount} onChange={(e) => setFrAmount(e.target.value)} placeholder="Amount" className={dp.input} />
+                  {financeRecordErrors.amount ? <p className="mt-1 text-xs text-rose-600">{financeRecordErrors.amount}</p> : null}
+                  <input value={frTaxAmount} onChange={(e) => setFrTaxAmount(e.target.value)} placeholder="Tax amount" className={dp.input} />
+                  {financeRecordErrors.tax ? <p className="mt-1 text-xs text-rose-600">{financeRecordErrors.tax}</p> : null}
+                  <input type="date" value={frDate} onChange={(e) => setFrDate(e.target.value)} className={dp.input} />
+                  {financeRecordErrors.recorded_on ? <p className="mt-1 text-xs text-rose-600">{financeRecordErrors.recorded_on}</p> : null}
+                  <input type="date" value={frDueDate} onChange={(e) => setFrDueDate(e.target.value)} className={dp.input} />
+                  {financeRecordErrors.due_on ? <p className="mt-1 text-xs text-rose-600">{financeRecordErrors.due_on}</p> : null}
+                  <input value={frCounterparty} onChange={(e) => setFrCounterparty(e.target.value)} placeholder="Counterparty" className={`${dp.input} md:col-span-2`} />
+                  <input value={frStatus} onChange={(e) => setFrStatus(e.target.value)} placeholder="Status" className={dp.input} />
+                  <textarea value={frNotes} onChange={(e) => setFrNotes(e.target.value)} placeholder="Notes" className={`md:col-span-8 ${dp.textarea} min-h-[72px]`} />
+                  <button
+                    type="button"
+                    disabled={financeRecordInvalid}
+                    className={`${dp.btnPrimary} md:col-span-8 justify-self-start disabled:opacity-50 disabled:cursor-not-allowed`}
+                    onClick={async () => {
+                      if (!validateFinanceRecordForm()) {
+                        return;
+                      }
+                      const amt = Number(frAmount);
+                      try {
+                        await createFinanceRecord({
+                          record_type: frType,
+                          title: frTitle.trim(),
+                          amount: amt,
+                          recorded_on: frDate,
+                          due_on: frDueDate || undefined,
+                          reference: frReference.trim() || undefined,
+                          counterparty: frCounterparty.trim() || undefined,
+                          status: frStatus.trim() || 'draft',
+                          tax_amount: Number(frTaxAmount) || undefined,
+                          notes: frNotes.trim() || undefined,
+                        });
+                        setFrTitle('');
+                        setFrAmount('');
+                        setFrReference('');
+                        setFrCounterparty('');
+                        setFrDueDate('');
+                        setFrTaxAmount('');
+                        setFrNotes('');
+                        setMessage('Finance record created');
+                        await load();
+                      } catch (err) {
+                        setMessage(err instanceof Error ? err.message : 'Failed');
+                      }
+                    }}
+                  >
+                    Save record
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <select value={recordsFilterType} onChange={(e) => setRecordsFilterType((e.target.value || '') as FinanceRecordType | '')} className={dp.select}>
+                    <option value="">All modules</option>
+                    {RECORD_TYPES.map((t) => (
+                      <option key={t} value={t}>{t.replaceAll('_', ' ')}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={`${dp.card} divide-y divide-slate-100 overflow-hidden`}>
+                  {records.map((r) => (
+                    <div key={r.id} className="flex flex-col gap-3 px-5 py-4 text-sm md:flex-row md:justify-between md:items-start hover:bg-slate-50/80">
+                      <div>
+                        <div className="font-semibold text-slate-900">{r.title}</div>
+                        <div className="text-slate-600">
+                          {r.record_type.replaceAll('_', ' ')} • {r.recorded_on} •{' '}
+                          <span className="font-semibold tabular-nums text-slate-800">৳ {r.amount}</span> • {r.status || 'draft'}
+                        </div>
+                        <div className="text-slate-500">
+                          {r.reference ? `Ref: ${r.reference} • ` : ''}{r.counterparty || 'No counterparty'}{r.due_on ? ` • Due: ${r.due_on}` : ''}
+                          {(Number(r.tax_amount || 0) > 0) ? ` • Tax: ৳ ${r.tax_amount}` : ''}
+                        </div>
+                        {r.notes ? <div className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-slate-700">{r.notes}</div> : null}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!window.confirm('Delete finance record?')) return;
+                          try {
+                            await deleteFinanceRecord(r.id);
+                            setMessage('Record deleted');
+                            await load();
+                          } catch (err) {
+                            setMessage(err instanceof Error ? err.message : 'Failed');
+                          }
+                        }}
+                        className={`${dp.btnDanger} self-start`}
+                      >
+                        Delete
+                      </button>
+                      {r.record_type === 'invoice' ? (
+                        <button
+                          type="button"
+                          className={`${dp.btnSecondary} self-start`}
+                          onClick={async () => {
+                            try {
+                              const html = await fetchInvoicePreviewHtml(r.id);
+                              const w = window.open('', '_blank');
+                              if (!w) {
+                                setMessage('Popup blocked by browser.');
+                                return;
+                              }
+                              w.document.write(html);
+                              w.document.close();
+                            } catch (err) {
+                              setMessage(err instanceof Error ? err.message : 'Invoice preview failed');
+                            }
+                          }}
+                        >
+                          Invoice Preview
+                        </button>
+                      ) : null}
+                    </div>
+                  ))}
+                  {!records.length && <div className="p-8 text-center text-sm text-slate-500">No finance records yet.</div>}
+                </div>
+              </div>
+            )}
+
+            {tab === 'reports' && (
+              <div className="space-y-6">
+                <div className={`${dp.card} ${dp.cardPad} grid md:grid-cols-6 gap-3 items-end`}>
+                  <input type="date" value={reportFrom} onChange={(e) => setReportFrom(e.target.value)} className={dp.input} />
+                  <input type="date" value={reportTo} onChange={(e) => setReportTo(e.target.value)} className={dp.input} />
+                  <div className="md:col-span-4 text-sm text-slate-600">
+                    Financial Reports, P&L, Cash Flow, and General Ledger with date filters.
+                  </div>
+                  <button
+                    type="button"
+                    className={dp.btnSecondary}
+                    onClick={() =>
+                      downloadFinanceReportsCsv({ from_date: reportFrom || undefined, to_date: reportTo || undefined }).catch(() =>
+                        setMessage('CSV export failed'),
+                      )
+                    }
+                  >
+                    Export Reports CSV
+                  </button>
+                  <button
+                    type="button"
+                    className={dp.btnSecondary}
+                    onClick={() =>
+                      downloadGeneralLedgerCsv({ from_date: reportFrom || undefined, to_date: reportTo || undefined }).catch(() =>
+                        setMessage('Ledger CSV export failed'),
+                      )
+                    }
+                  >
+                    Export Ledger CSV
+                  </button>
+                </div>
+
+                <div className="grid gap-5 md:grid-cols-2">
+                  <div className={`${dp.card} ${dp.cardPad}`}>
+                    <h3 className={dp.sectionTitle}>P&L Report</h3>
+                    <div className="mt-3 space-y-1 text-sm text-slate-700">
+                      <div>Revenue: <strong className="tabular-nums">৳ {dashboard?.reports.pnl.revenue ?? 0}</strong></div>
+                      <div>Expenses: <strong className="tabular-nums">৳ {dashboard?.reports.pnl.expenses ?? 0}</strong></div>
+                      <div>Net Profit: <strong className="tabular-nums">৳ {dashboard?.reports.pnl.net_profit ?? 0}</strong></div>
+                    </div>
+                  </div>
+                  <div className={`${dp.card} ${dp.cardPad}`}>
+                    <h3 className={dp.sectionTitle}>Cash Flow Report</h3>
+                    <div className="mt-3 space-y-1 text-sm text-slate-700">
+                      <div>Cash In: <strong className="tabular-nums">৳ {dashboard?.reports.cash_flow.cash_in ?? 0}</strong></div>
+                      <div>Cash Out: <strong className="tabular-nums">৳ {dashboard?.reports.cash_flow.cash_out ?? 0}</strong></div>
+                      <div>Net Cash Flow: <strong className="tabular-nums">৳ {dashboard?.reports.cash_flow.net_cash_flow ?? 0}</strong></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`${dp.card} ${dp.cardPad}`}>
+                  <h3 className={dp.sectionTitle}>Financial Report Breakdown</h3>
+                  <div className={dp.tableWrap}>
+                    <table className="min-w-full text-sm">
+                      <thead>
+                        <tr className={dp.tableHead}>
+                          <th className="px-4 py-3">Module</th>
+                          <th className="px-4 py-3">Rows</th>
+                          <th className="px-4 py-3">Total amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(reports?.by_type || []).map((row) => (
+                          <tr key={row.record_type} className="border-b border-slate-100">
+                            <td className="px-4 py-3 capitalize">{row.record_type.replaceAll('_', ' ')}</td>
+                            <td className="px-4 py-3 tabular-nums">{row.rows}</td>
+                            <td className="px-4 py-3 tabular-nums">৳ {row.total_amount}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className={`${dp.card} ${dp.cardPad}`}>
+                  <h3 className={dp.sectionTitle}>General Ledger</h3>
+                  <div className={dp.tableWrap}>
+                    <table className="min-w-full text-sm">
+                      <thead>
+                        <tr className={dp.tableHead}>
+                          <th className="px-4 py-3">Code</th>
+                          <th className="px-4 py-3">Account</th>
+                          <th className="px-4 py-3">Type</th>
+                          <th className="px-4 py-3">Debit</th>
+                          <th className="px-4 py-3">Credit</th>
+                          <th className="px-4 py-3">Balance</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {ledgerRows.map((row) => (
+                          <tr key={row.chart_of_account_id} className="border-b border-slate-100">
+                            <td className="px-4 py-3 font-mono">{row.code}</td>
+                            <td className="px-4 py-3">{row.name}</td>
+                            <td className="px-4 py-3 capitalize">{row.type}</td>
+                            <td className="px-4 py-3 tabular-nums">{row.total_debit}</td>
+                            <td className="px-4 py-3 tabular-nums">{row.total_credit}</td>
+                            <td className="px-4 py-3 tabular-nums">{row.balance}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className={`${dp.card} ${dp.cardPad}`}>
+                  <h3 className={dp.sectionTitle}>Bank Reconciliation Auto-Match</h3>
+                  <p className={dp.sectionHint}>Matching suggestions between bank reconciliation and AP/AR entries.</p>
+                  <div className={`${dp.cardMuted} mt-4 divide-y divide-slate-200`}>
+                    {recoMatches.map((m) => (
+                      <div key={m.bank_record.id} className="px-4 py-3 text-sm">
+                        <div className="font-semibold text-slate-900">
+                          Bank #{m.bank_record.id} — {m.bank_record.title} — ৳ {m.bank_record.amount}
+                        </div>
+                        <div className="text-slate-600">Date: {m.bank_record.recorded_on}</div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {m.candidates.map((c) => (
+                            <button
+                              key={c.id}
+                              type="button"
+                              className={`${dp.btnSecondary} text-xs`}
+                              onClick={async () => {
+                                try {
+                                  await applyReconciliationMatch(m.bank_record.id, c.id);
+                                  setMessage(`Matched bank #${m.bank_record.id} with #${c.id}`);
+                                  await load();
+                                } catch (err) {
+                                  setMessage(err instanceof Error ? err.message : 'Apply match failed');
+                                }
+                              }}
+                            >
+                              Match #{c.id} ({c.record_type}, ৳ {c.amount})
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                    {!recoMatches.length && <div className="px-4 py-3 text-sm text-slate-500">No auto-match suggestions found.</div>}
+                  </div>
+                </div>
+
+                <div className={`${dp.card} ${dp.cardPad}`}>
+                  <h3 className={dp.sectionTitle}>Reconciliation Audit Log</h3>
+                  <div className={dp.tableWrap}>
+                    <table className="min-w-full text-sm">
+                      <thead>
+                        <tr className={dp.tableHead}>
+                          <th className="px-4 py-3">When</th>
+                          <th className="px-4 py-3">By</th>
+                          <th className="px-4 py-3">Bank Record</th>
+                          <th className="px-4 py-3">Matched Item</th>
+                          <th className="px-4 py-3">Status</th>
+                          <th className="px-4 py-3">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recoHistory.map((row) => (
+                          <tr key={row.id} className="border-b border-slate-100">
+                            <td className="px-4 py-3">{row.applied_at}</td>
+                            <td className="px-4 py-3">{row.applied_by_name || 'System'}</td>
+                            <td className="px-4 py-3">#{row.bank_record_id} {row.bank_record_title || ''} (৳ {row.bank_record_amount || 0})</td>
+                            <td className="px-4 py-3">
+                              #{row.matched_record_id} {row.matched_record_title || ''} ({row.matched_record_type || 'n/a'}) (৳ {row.matched_record_amount || 0})
+                            </td>
+                            <td className="px-4 py-3 capitalize">{row.status}</td>
+                            <td className="px-4 py-3">
+                              {row.status === 'reconciled' ? (
+                                <button
+                                  type="button"
+                                  className={`${dp.btnSecondary} text-xs`}
+                                  onClick={async () => {
+                                    if (!window.confirm('Undo this reconciliation match?')) return;
+                                    try {
+                                      await undoReconciliationMatch(row.id);
+                                      setMessage(`Reconciliation #${row.id} undone.`);
+                                      await load();
+                                    } catch (err) {
+                                      setMessage(err instanceof Error ? err.message : 'Undo failed');
+                                    }
+                                  }}
+                                >
+                                  Undo
+                                </button>
+                              ) : (
+                                <span className="text-xs text-slate-500">-</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {!recoHistory.length ? <div className="p-4 text-sm text-slate-500">No reconciliation history yet.</div> : null}
+                  </div>
                 </div>
               </div>
             )}

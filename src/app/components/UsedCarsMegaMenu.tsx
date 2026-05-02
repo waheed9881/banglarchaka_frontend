@@ -2,6 +2,7 @@ import {
   BookOpen,
   Car,
   FileCheck,
+  Gavel,
   MapPin,
   Search,
   ShieldCheck,
@@ -104,6 +105,12 @@ export function UsedCarsMegaMenuPanel({ className = '' }: { className?: string }
         </div>
 
         <div className="p-5 space-y-1">
+          <MegaLink
+            title={t('mega.usedCars.liveAuctionsTitle')}
+            desc={t('mega.usedCars.liveAuctionsDesc')}
+            to="/auctions"
+            icon={<Gavel className="w-5 h-5" />}
+          />
           <MegaLink
             title={t('mega.usedCars.certifiedTitle')}
             desc={t('mega.usedCars.certifiedDesc')}

@@ -13,6 +13,7 @@ import {
   type VehicleModelDto,
 } from '@/lib/marketplace';
 import { setPageSeo } from '@/lib/seo';
+import { PostAdFeaturedPackagesStrip } from './PostAdFeaturedPackagesStrip';
 import { SubscriptionPlansStrip } from './SubscriptionPlansStrip';
 import { useMarketPrefs } from '@/app/context/MarketPrefsContext';
 
@@ -127,6 +128,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
   const { preset } = useMarketPrefs();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const sellItForMeIntent = searchParams.get('intent') === 'sell_it_for_me';
   const [categories, setCategories] = useState<CategoryDto[]>([]);
   const [brands, setBrands] = useState<BrandDto[]>([]);
   const [models, setModels] = useState<VehicleModelDto[]>([]);
@@ -186,6 +188,12 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
       setListingType(t);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    if (sellItForMeIntent && !isKnownListingType(searchParams.get('type'))) {
+      setListingType('used_car');
+    }
+  }, [sellItForMeIntent, searchParams]);
 
   useEffect(() => {
     setStep(1);
@@ -430,7 +438,14 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
       }
 
       previews.forEach((u) => URL.revokeObjectURL(u));
-      navigate(`/my-listings/${listingId}/edit`, { replace: true });
+      if (sellItForMeIntent) {
+        putInfo('Sell It For Me request submitted. Our team will contact you within 24 hours to confirm city coverage and next steps.');
+        window.setTimeout(() => {
+          navigate({ pathname: `/my-listings/${listingId}/edit`, hash: '#featured-ad-panel' }, { replace: true });
+        }, 1400);
+        return;
+      }
+      navigate({ pathname: `/my-listings/${listingId}/edit`, hash: '#featured-ad-panel' }, { replace: true });
     } catch (err) {
       putError(err instanceof Error ? err.message : t('postAdForm.submitFailed'));
     }
@@ -520,6 +535,17 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
       )}
 
       <div className="mx-auto max-w-4xl px-4 py-5 sm:py-8">
+        {sellItForMeIntent ? (
+          <div className="mb-4 rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 sm:px-5">
+            <p className="text-sm font-semibold text-violet-900">
+              Sell It For Me request: submit this form with your car details and contact number.
+            </p>
+            <p className="mt-1 text-xs text-violet-800/90">
+              After submission, our team reviews your city and vehicle info, then contacts you to confirm pilot availability and
+              next steps.
+            </p>
+          </div>
+        ) : null}
         <form
           id="post-ad-form"
           onSubmit={submit}
@@ -1656,7 +1682,8 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
           </div>
         ) : null}
 
-        <div className="mt-8">
+        <div className="mt-8 space-y-6">
+          <PostAdFeaturedPackagesStrip />
           <SubscriptionPlansStrip />
         </div>
       </div>

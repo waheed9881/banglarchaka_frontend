@@ -5,6 +5,7 @@ import {
   Car,
   ChevronRight,
   Fuel,
+  Gavel,
   Gauge,
   Heart,
   MapPin,
@@ -635,6 +636,43 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                         </p>
                       ) : null}
                     </div>
+
+                    {car.open_auction ? (
+                      <div
+                        id="detail-auction"
+                        className="rounded-xl border border-[#233D7B]/25 bg-gradient-to-br from-[#233D7B]/[0.07] to-white p-4 shadow-md scroll-mt-24"
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#233D7B] text-white">
+                            <Gavel className="h-5 w-5" aria-hidden />
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-bold text-[#233D7B]">
+                              {car.open_auction.accepting_bids
+                                ? t('listingDetail.auctionLiveTitle')
+                                : t('listingDetail.auctionScheduledTitle')}
+                            </p>
+                            <p className="mt-1 text-xs text-gray-600 leading-snug">
+                              {car.open_auction.accepting_bids
+                                ? t('listingDetail.auctionSubtitleOpen', {
+                                    bids: car.open_auction.bid_count,
+                                    minNext: formatMoney(car.open_auction.minimum_next_bid, car.currency),
+                                    ends: fmtDate(car.open_auction.ends_at),
+                                  })
+                                : t('listingDetail.auctionSubtitleScheduled', {
+                                    ends: fmtDate(car.open_auction.ends_at),
+                                  })}
+                            </p>
+                            <Link
+                              to={`/auctions/${car.open_auction.id}`}
+                              className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-[#C4161C] py-2.5 text-sm font-bold text-white shadow-sm hover:opacity-95"
+                            >
+                              {t('listingDetail.auctionViewBid')}
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
 
                     <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-5 shadow-md">
                       {car.seller?.phone ? (

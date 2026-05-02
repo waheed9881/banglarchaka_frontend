@@ -36,6 +36,8 @@
     "logout": "Logout",
     "loggedOut": "Logged out",
     "usedCars": "Used Cars",
+    "auctions": "Auctions",
+    "tooltipAuctions": "Dealer-run vehicle auctions & bidding",
     "newCars": "New Cars",
     "bikes": "Bikes",
     "autoStore": "Auto Store",
@@ -97,6 +99,8 @@
       "inspectionDesc": "Professional inspection reports (coming soon)",
       "sellForMeTitle": "Sell it for me",
       "sellForMeDesc": "Let us handle photos, chats, and handover",
+      "liveAuctionsTitle": "Live car auctions",
+      "liveAuctionsDesc": "Bid on dealer lots with sheets & timers",
       "auctionTitle": "Auction sheet verification",
       "auctionDesc": "Verify import paperwork when available",
       "popularCities": "Popular cities",
@@ -190,6 +194,16 @@
     "postYourAdHeading": "Post your ad",
     "postYourAdLead": "Choose a category and fill in the details below.",
     "listingTypeLabel": "Listing type",
+    "featuredUpsell": {
+      "title": "Featured & paid boost",
+      "lead": "Posting your ad is free. To appear under Featured Used Cars and higher in search, buy a Featured package or use dealer-plan slots once your ad is live.",
+      "packageLabel": "Featured packages (pay after publish)",
+      "days": "{{count}} days",
+      "afterPublishNote": "Submit your ad first — on the next screen you can pay (demo: cash / bank / Rocket) or use dealer-plan slots.",
+      "browseFeaturedLink": "Browse featured used cars",
+      "loading": "Loading packages…",
+      "emptyPackages": "Packages appear after the catalog is seeded on the server."
+    },
     "vehicleBike": "bike",
     "vehicleCar": "car",
     "vehicleBikeTitle": "Bike",
@@ -644,6 +658,39 @@
     "next": "Next",
     "pagesAria": "My listings pages"
   },
+  "listingFeatured": {
+    "title": "Featured ad (PakWheels-style)",
+    "lead": "Featured listings appear higher in search and on featured pages. Choose your dealer-plan slots or buy a boost package.",
+    "loading": "Loading featured options…",
+    "loadFailed": "Could not load featured options.",
+    "statusFeaturedUntil": "Featured until {{date}}",
+    "statusFeaturedIndefinite": "Featured — no automatic end date.",
+    "statusNotFeatured": "This ad is not featured.",
+    "mustBeLive": "Make the ad active and approved before buying a featured package or using plan slots.",
+    "dealerPlanHeading": "Dealer subscription",
+    "dealerNoSlots": "No featured slots on your current plan — upgrade or use a paid package below.",
+    "dealerSlots": "{{plan}}: {{used}} / {{total}} featured ads in use",
+    "dealerSlotsUnlimited": "{{plan}}: unlimited featured ads",
+    "usePlanSlot": "Feature with plan",
+    "removeFeatured": "Remove featured",
+    "planWorking": "Updating…",
+    "packagesHeading": "Featured packages",
+    "packageDays": "{{count}} days",
+    "payWith": "Pay with",
+    "buyPackage": "Buy",
+    "boostWorking": "Starting checkout…"
+  },
+  "subscriptionPlansStrip": {
+    "title": "Dealer subscription plans",
+    "subtitle": "Paid tiers include listing quotas and featured ad slots for showroom inventory.",
+    "listingsPerCycle": "{{count}} listings per billing cycle",
+    "listingsUnlimited": "Unlimited listings",
+    "trialDays": "{{count}}-day trial",
+    "featuredSlots": "{{count}} featured ad slots",
+    "featuredUnlimited": "Unlimited featured ads",
+    "featuredNone": "No plan featured slots — buy packages separately",
+    "freeLabel": "Free"
+  },
   "messages": {
     "seoTitle": "Messages · BanglarChaka",
     "seoDesc": "Chat with buyers and sellers.",
@@ -702,6 +749,7 @@
     "condition": "Condition",
     "verifiedDealersOnly": "Verified dealers only",
     "dealerListingsOnly": "Dealer listings only",
+    "auctionBadge": "Auction",
     "featuredAdsOnly": "Featured ads only",
     "applyFilters": "Apply filters",
     "clearAll": "Clear all",
@@ -894,6 +942,20 @@
     "postFreeSubtitle": "Reach buyers across the marketplace.",
     "sellYourCar": "Sell Your Car",
     "price": "Price",
+    "auctionLiveTitle": "Live auction on this vehicle",
+    "auctionScheduledTitle": "Auction scheduled",
+    "auctionSubtitleOpen": "{{bids}} bids · min. next {{minNext}} · ends {{ends}}",
+    "auctionSubtitleScheduled": "Bidding opens soon · ends {{ends}}",
+    "auctionViewBid": "View auction & bid",
+    "auctionQuickMin": "Min bid",
+    "auctionQuickPlus1": "+1 step",
+    "auctionQuickPlus3": "+3 steps",
+    "auctionOpen": "Open",
+    "auctionHammerDown": "Hammer down",
+    "auctionReserveMet": "Met",
+    "auctionReserveNotMet": "Not met",
+    "auctionSoldAt": "Sold to highest bidder at {{amount}}",
+    "auctionSoldInstantlyAt": "Sold instantly (reserve hit) at {{amount}}",
     "financingFrom": "Financing starts from {{currency}} {{amount}}/month",
     "showPhone": "Show Phone Number",
     "phoneNotListed": "Phone not listed",
@@ -1001,6 +1063,7 @@
     "tileCc1000": "1000cc cars",
     "tileCc1300Tile": "1300cc cars",
     "tileJapaneseCarsTile": "Japanese cars",
+    "tileLiveAuctions": "Live auctions",
     "tileHybridTile": "Hybrid",
     "tileElectricTile": "Electric",
     "tilePetrolTile": "Petrol",
@@ -1511,5 +1574,40 @@
         { "label": "Blog", "to": "/blog" }
       ]
     }
+  },
+  "sellItForMePage": {
+    "protocolHeading": "How Sell It For Me works",
+    "protocolLead": "Same idea as marketplace “we sell for you” programmes: you share accurate details, we coordinate inspection, the listing, and serious buyers — you stay in control of the final price.",
+    "stepLabel": "Step {{n}}",
+    "pilotNote": "Pilot availability — limited cities & slots. Our team confirms coverage after you submit your city and car details.",
+    "ctaPrimary": "Help me sell my car!",
+    "ctaSecondaryHint": "Prefer to list yourself?",
+    "ctaSecondary": "Sell it myself",
+    "steps": [
+      {
+        "title": "Car information",
+        "body": "Tell us make, model, year, variant, mileage, and overall condition — via the form or a quick callback from support."
+      },
+      {
+        "title": "Contact & city",
+        "body": "Share your phone number and location so we can confirm pilot slots and whether inspection can be scheduled in your area."
+      },
+      {
+        "title": "Service confirmation",
+        "body": "We explain the Sell It For Me package, timeline, and any service fee before you commit — nothing goes live without your OK."
+      },
+      {
+        "title": "Professional inspection",
+        "body": "We book a visit: photos, structured checklist, and a short condition summary so remote buyers can decide with confidence."
+      },
+      {
+        "title": "Premium listing",
+        "body": "We draft the ad, apply featured-style placement where the programme allows, and you approve the asking price before it is published."
+      },
+      {
+        "title": "Buyer handling & handover",
+        "body": "We filter enquiries, arrange serious viewings, and support negotiation through to payment and handover — with your approval at key steps."
+      }
+    ]
   }
 }

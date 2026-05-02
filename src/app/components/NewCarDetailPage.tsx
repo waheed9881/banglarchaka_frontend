@@ -1,5 +1,6 @@
-import { Calculator, FileText, CheckCircle, Heart, MessageCircle } from 'lucide-react';
+import { Calculator, FileText, CheckCircle, Gavel, Heart, MessageCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router';
 import { getAuthToken } from '@/lib/api';
 import { addToWishlist, fetchWishlistListings, removeFromWishlist } from '@/lib/engagement';
@@ -10,6 +11,7 @@ import { ListingReviewsSection } from './ListingReviewsSection';
 import { PromoteListingPanel } from './PromoteListingPanel';
 
 export function NewCarDetailPage({ listingId, onBack }: { listingId?: string; onBack?: () => void }) {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [car, setCar] = useState<ListingDto | null>(null);
@@ -61,6 +63,16 @@ export function NewCarDetailPage({ listingId, onBack }: { listingId?: string; on
   }, [car]);
 
   const canBoostListing = !!(car && (car.can_manage ?? false));
+
+  const fmtAuctionDate = (iso: string | null | undefined) => {
+    if (!iso) return '—';
+    try {
+      const loc = i18n.language?.startsWith('bn') ? 'bn-BD' : undefined;
+      return new Date(iso).toLocaleDateString(loc, { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch {
+      return '—';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -246,6 +258,43 @@ export function NewCarDetailPage({ listingId, onBack }: { listingId?: string; on
                 <div className="text-4xl font-bold text-[#3EB549] mb-1">{formatMoney(car?.price, car?.currency || 'BDT')}</div>
                 <div className="text-sm text-gray-600">Ex-Factory Price</div>
               </div>
+
+              {car.open_auction ? (
+                <div
+                  id="detail-auction"
+                  className="mb-6 rounded-xl border border-[#233D7B]/25 bg-gradient-to-br from-[#233D7B]/[0.07] to-white p-4 shadow-sm scroll-mt-24"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#233D7B] text-white">
+                      <Gavel className="h-5 w-5" aria-hidden />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-[#233D7B]">
+                        {car.open_auction.accepting_bids
+                          ? t('listingDetail.auctionLiveTitle')
+                          : t('listingDetail.auctionScheduledTitle')}
+                      </p>
+                      <p className="mt-1 text-xs text-gray-600 leading-snug">
+                        {car.open_auction.accepting_bids
+                          ? t('listingDetail.auctionSubtitleOpen', {
+                              bids: car.open_auction.bid_count,
+                              minNext: formatMoney(car.open_auction.minimum_next_bid, car.currency),
+                              ends: fmtAuctionDate(car.open_auction.ends_at),
+                            })
+                          : t('listingDetail.auctionSubtitleScheduled', {
+                              ends: fmtAuctionDate(car.open_auction.ends_at),
+                            })}
+                      </p>
+                      <Link
+                        to={`/auctions/${car.open_auction.id}`}
+                        className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-[#C4161C] py-2.5 text-sm font-bold text-white shadow-sm hover:opacity-95"
+                      >
+                        {t('listingDetail.auctionViewBid')}
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
 
               <div className="space-y-3 mb-6">
                 <button className="w-full bg-[#C4161C] text-white py-3 rounded-lg font-bold hover:bg-red-700 transition">

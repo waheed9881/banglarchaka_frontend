@@ -20,6 +20,14 @@ export type DealerProfileDto = {
     name: string;
     role_title?: string | null;
   }>;
+  featured_quota?: {
+    plan_name?: string | null;
+    slots?: number | null;
+    used?: number;
+    can_enable_more?: boolean;
+    period_end?: string | null;
+    warning_threshold_percent?: number;
+  };
 };
 
 export type DealerBranchDto = {

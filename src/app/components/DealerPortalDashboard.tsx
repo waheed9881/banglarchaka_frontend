@@ -129,6 +129,17 @@ export function DealerPortalDashboard() {
     }),
     [adsCount, branches.length, staff.length, warehouses.length, inventories.length],
   );
+  const featuredQuota = profile?.featured_quota;
+  const featuredUsed = featuredQuota?.used ?? 0;
+  const featuredSlots = featuredQuota?.slots;
+  const warningThreshold = Math.max(1, Math.min(100, featuredQuota?.warning_threshold_percent ?? 80));
+  const featuredLabel = featuredSlots == null ? `${featuredUsed} / Unlimited` : `${featuredUsed} / ${featuredSlots}`;
+  const featuredPercent =
+    featuredSlots && featuredSlots > 0
+      ? Math.max(0, Math.min(100, Math.round((featuredUsed / featuredSlots) * 100)))
+      : null;
+  const featuredFull = featuredSlots != null && featuredSlots > 0 && featuredUsed >= featuredSlots;
+  const featuredNearLimit = featuredPercent != null && featuredPercent >= warningThreshold;
 
   const saveProfile = async () => {
     try {
@@ -272,6 +283,53 @@ export function DealerPortalDashboard() {
               </div>
             ))}
           </div>
+          <section className={`${dp.card} border border-amber-200 bg-gradient-to-r from-amber-50/80 via-white to-orange-50/70`}>
+            <div className={dp.cardPad}>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-amber-900">Featured quota</h3>
+                  <p className="mt-1 text-sm text-slate-700">
+                    {featuredQuota?.plan_name
+                      ? `${featuredQuota.plan_name} plan: ${featuredLabel} featured cars this month`
+                      : 'No active dealer plan. Buy featured packages or activate a premium plan.'}
+                  </p>
+                  {featuredQuota?.period_end ? (
+                    <p className="mt-1 text-xs text-slate-500">
+                      Resets at: {new Date(featuredQuota.period_end).toLocaleString()}
+                    </p>
+                  ) : null}
+                  {featuredPercent != null ? (
+                    <div className="mt-3">
+                      <div className="mb-1 flex items-center justify-between text-xs">
+                        <span className="text-slate-600">Usage</span>
+                        <span className={`font-semibold ${featuredFull ? 'text-red-700' : featuredNearLimit ? 'text-amber-700' : 'text-emerald-700'}`}>
+                          {featuredPercent}%
+                        </span>
+                      </div>
+                      <div className="h-2.5 overflow-hidden rounded-full bg-slate-200">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            featuredFull ? 'bg-red-600' : featuredNearLimit ? 'bg-amber-500' : 'bg-emerald-500'
+                          }`}
+                          style={{ width: `${featuredPercent}%` }}
+                        />
+                      </div>
+                      <p className="mt-1 text-[11px] text-slate-500">Warning starts at {warningThreshold}%</p>
+                    </div>
+                  ) : null}
+                </div>
+                <div className={`rounded-2xl px-4 py-2 text-white shadow-sm ${featuredFull ? 'bg-red-700' : 'bg-[#C4161C]'}`}>
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-white/85">Featured used</div>
+                  <div className="text-2xl font-bold leading-tight">{featuredLabel}</div>
+                </div>
+              </div>
+              {featuredFull ? (
+                <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-800">
+                  Featured quota reached. Upgrade plan or use paid packages for more featured ads.
+                </div>
+              ) : null}
+            </div>
+          </section>
 
           <section className={`${dp.card}`}>
             <div className={`${dp.cardPad} border-b border-slate-100`}>

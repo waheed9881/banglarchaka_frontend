@@ -103,3 +103,37 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
 
   return data as T;
 }
+
+async function fetchWithAuth(path: string, init: RequestInit = {}): Promise<Response> {
+  const url = path.startsWith('http') ? path : `${API_V1}${path.startsWith('/') ? path : `/${path}`}`;
+  const headers = new Headers(init.headers);
+  const token = getAuthToken();
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+  return fetch(url, { ...init, headers });
+}
+
+export async function apiFetchText(path: string, init: RequestInit = {}): Promise<string> {
+  const res = await fetchWithAuth(path, init);
+  if (!res.ok) {
+    throw new Error(`Request failed: ${res.status}`);
+  }
+  return res.text();
+}
+
+export async function apiDownload(path: string, filename: string, init: RequestInit = {}): Promise<void> {
+  const res = await fetchWithAuth(path, init);
+  if (!res.ok) {
+    throw new Error(`Download failed: ${res.status}`);
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}

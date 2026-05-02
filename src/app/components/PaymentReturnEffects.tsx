@@ -50,14 +50,17 @@ export function PaymentReturnEffects() {
       }
 
       completingStub.add(pid);
-      completeStubPayment(pid)
-        .then((res) => {
-          toast.success(
-            res.listing_boosted
-              ? 'Payment recorded — listing featured for 7 days.'
-              : 'Payment recorded.',
-          );
-        })
+        completeStubPayment(pid)
+          .then((res) => {
+            const days = res.featured_boost_days;
+            toast.success(
+              res.listing_boosted && typeof days === 'number'
+                ? `Payment recorded — listing featured for ${days} days.`
+                : res.listing_boosted
+                  ? 'Payment recorded — listing featured.'
+                  : 'Payment recorded.',
+            );
+          })
         .catch((e) => toast.error(e instanceof Error ? e.message : 'Could not confirm payment'))
         .finally(() => {
           completingStub.delete(pid);

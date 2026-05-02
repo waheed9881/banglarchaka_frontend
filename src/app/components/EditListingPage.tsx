@@ -1,14 +1,20 @@
 import { Camera, X } from 'lucide-react';
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router';
 import { apiFetch, getAuthToken } from '@/lib/api';
+import { createPaymentIntent } from '@/lib/payments';
 import {
   fetchBrands,
+  fetchFeaturedListingOptions,
   fetchListingById,
   fetchVehicleModelsForBrand,
+  formatMoney,
   listingPublicHref,
+  setListingFeaturedFromPlan,
   updateListing,
   type BrandDto,
+  type FeaturedListingOptionsDto,
   type ListingDto,
   type VehicleModelDto,
 } from '@/lib/marketplace';
@@ -26,6 +32,7 @@ const LISTING_TYPES = [
 ] as const;
 
 export function EditListingPage({ listingPublicId }: { listingPublicId?: string }) {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [listing, setListing] = useState<ListingDto | null>(null);
   const [forbidden, setForbidden] = useState(false);
@@ -48,6 +55,12 @@ export function EditListingPage({ listingPublicId }: { listingPublicId?: string 
   const [condition, setCondition] = useState('used');
   const [listingStatus, setListingStatus] = useState('pending_review');
   const [saveFeedback, setSaveFeedback] = useState('');
+  const [featuredOpts, setFeaturedOpts] = useState<FeaturedListingOptionsDto | null>(null);
+  const [featuredLoading, setFeaturedLoading] = useState(false);
+  const [featuredErr, setFeaturedErr] = useState('');
+  const [boostMethod, setBoostMethod] = useState<'cash' | 'bank_transfer' | 'rocket'>('cash');
+  const [planBusy, setPlanBusy] = useState(false);
+  const [boostBusy, setBoostBusy] = useState(false);
 
   useEffect(() => {
     fetchBrands().then(setBrands).catch(() => setBrands([]));
@@ -111,6 +124,36 @@ export function EditListingPage({ listingPublicId }: { listingPublicId?: string 
     };
   }, [listingPublicId]);
 
+  useEffect(() => {
+    if (!listingPublicId || !listing || forbidden || listing.can_manage === false) return;
+    let cancelled = false;
+    setFeaturedLoading(true);
+    setFeaturedErr('');
+    fetchFeaturedListingOptions(listingPublicId)
+      .then((opts) => {
+        if (!cancelled) setFeaturedOpts(opts);
+      })
+      .catch(() => {
+        if (!cancelled) setFeaturedErr(t('listingFeatured.loadFailed'));
+      })
+      .finally(() => {
+        if (!cancelled) setFeaturedLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [listingPublicId, listing, forbidden, t]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.location.hash !== '#featured-ad-panel') return;
+    if (!listing || forbidden) return;
+    const timer = window.setTimeout(() => {
+      document.getElementById('featured-ad-panel')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }, 120);
+    return () => window.clearTimeout(timer);
+  }, [listing, forbidden]);
+
   const listingType = listing?.listing_type || 'used_car';
 
   const conditionDefault = useMemo(() => {
@@ -137,6 +180,62 @@ export function EditListingPage({ listingPublicId }: { listingPublicId?: string 
     if (!next.length) return;
     setFiles((prev) => [...prev, ...next]);
     setPreviews((prev) => [...prev, ...urls]);
+  };
+
+  const formatFeaturedEnd = (iso: string | null | undefined) => {
+    if (!iso) return '';
+    try {
+      return new Intl.DateTimeFormat(i18n.language || 'en', { dateStyle: 'medium', timeStyle: 'short' }).format(
+        new Date(iso),
+      );
+    } catch {
+      return iso;
+    }
+  };
+
+  const refreshFeaturedOpts = () => {
+    if (!listingPublicId) return;
+    fetchFeaturedListingOptions(listingPublicId).then(setFeaturedOpts).catch(() => undefined);
+  };
+
+  const canBoostListing = listing?.status === 'active' && !!listing?.approved_at;
+
+  const onTogglePlanFeatured = async (next: boolean) => {
+    if (!listingPublicId) return;
+    setPlanBusy(true);
+    setFeaturedErr('');
+    try {
+      const row = await setListingFeaturedFromPlan(listingPublicId, next);
+      if (row) setListing(row);
+      refreshFeaturedOpts();
+    } catch (e) {
+      setFeaturedErr(e instanceof Error ? e.message : t('listingFeatured.loadFailed'));
+    } finally {
+      setPlanBusy(false);
+    }
+  };
+
+  const onBuyBoostPackage = async (slug: string, currency: string, price: string | number) => {
+    if (!listingPublicId || !listing) return;
+    setBoostBusy(true);
+    setFeaturedErr('');
+    try {
+      const origin = window.location.origin;
+      const ret = `${origin}/my-listings/${listingPublicId}/edit`;
+      const intent = await createPaymentIntent({
+        amount: Number(price),
+        currency,
+        method: boostMethod,
+        payable_type: 'listing',
+        payable_id: listing.id,
+        listing_boost_package_slug: slug,
+        return_url: ret,
+      });
+      window.location.href = intent.redirect_url || ret;
+    } catch (e) {
+      setFeaturedErr(e instanceof Error ? e.message : t('listingFeatured.loadFailed'));
+      setBoostBusy(false);
+    }
   };
 
   const removeImage = (index: number) => {
@@ -394,6 +493,118 @@ export function EditListingPage({ listingPublicId }: { listingPublicId?: string 
             <div>
               <label className="mb-2 block text-sm font-semibold text-gray-700">Description</label>
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={5} className="w-full resize-none rounded-lg border-2 border-gray-300 px-4 py-3" />
+            </div>
+
+            <div id="featured-ad-panel" className="rounded-xl border border-amber-200 bg-amber-50/90 scroll-mt-24 p-6 shadow-sm">
+              <h3 className="text-lg font-bold text-gray-900">{t('listingFeatured.title')}</h3>
+              <p className="mt-2 text-sm text-gray-700">{t('listingFeatured.lead')}</p>
+
+              {featuredErr ? (
+                <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{featuredErr}</div>
+              ) : null}
+
+              {featuredLoading ? (
+                <p className="mt-4 text-sm text-gray-600">{t('listingFeatured.loading')}</p>
+              ) : featuredOpts ? (
+                <div className="mt-4 space-y-6">
+                  <p className="text-sm text-gray-800">
+                    {listing.featured && listing.featured_until
+                      ? t('listingFeatured.statusFeaturedUntil', { date: formatFeaturedEnd(listing.featured_until) })
+                      : listing.featured
+                        ? t('listingFeatured.statusFeaturedIndefinite')
+                        : t('listingFeatured.statusNotFeatured')}
+                  </p>
+                  {!canBoostListing ? (
+                    <p className="text-sm font-semibold text-amber-900">{t('listingFeatured.mustBeLive')}</p>
+                  ) : null}
+
+                  {featuredOpts.dealer_subscription ? (
+                    <div className="rounded-lg border border-white/80 bg-white/70 p-4">
+                      <p className="text-sm font-bold text-gray-900">{t('listingFeatured.dealerPlanHeading')}</p>
+                      {!featuredOpts.dealer_subscription.plan_name ? (
+                        <p className="mt-2 text-sm text-gray-600">{t('listingFeatured.dealerNoSlots')}</p>
+                      ) : featuredOpts.dealer_subscription.featured_slots === null ? (
+                        <p className="mt-2 text-sm text-gray-700">
+                          {t('listingFeatured.dealerSlotsUnlimited', { plan: featuredOpts.dealer_subscription.plan_name })}
+                        </p>
+                      ) : (
+                        <p className="mt-2 text-sm text-gray-700">
+                          {t('listingFeatured.dealerSlots', {
+                            plan: featuredOpts.dealer_subscription.plan_name,
+                            used: featuredOpts.dealer_subscription.featured_slots_used,
+                            total: featuredOpts.dealer_subscription.featured_slots,
+                          })}
+                        </p>
+                      )}
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {canBoostListing &&
+                        featuredOpts.dealer_subscription.can_enable_via_plan &&
+                        !listing.featured ? (
+                          <button
+                            type="button"
+                            disabled={planBusy}
+                            onClick={() => onTogglePlanFeatured(true)}
+                            className="rounded-lg bg-[#233D7B] px-4 py-2 text-sm font-bold text-white hover:bg-[#1a2d5a] disabled:opacity-50"
+                          >
+                            {planBusy ? t('listingFeatured.planWorking') : t('listingFeatured.usePlanSlot')}
+                          </button>
+                        ) : null}
+                        {listing.featured ? (
+                          <button
+                            type="button"
+                            disabled={planBusy}
+                            onClick={() => onTogglePlanFeatured(false)}
+                            className="rounded-lg border border-gray-400 bg-white px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50 disabled:opacity-50"
+                          >
+                            {planBusy ? t('listingFeatured.planWorking') : t('listingFeatured.removeFeatured')}
+                          </button>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">{t('listingFeatured.packagesHeading')}</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
+                      <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">
+                        {t('listingFeatured.payWith')}
+                      </label>
+                      <select
+                        value={boostMethod}
+                        onChange={(e) => setBoostMethod(e.target.value as 'cash' | 'bank_transfer' | 'rocket')}
+                        className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+                      >
+                        <option value="cash">Cash (demo)</option>
+                        <option value="bank_transfer">Bank transfer (demo)</option>
+                        <option value="rocket">Rocket (demo)</option>
+                      </select>
+                    </div>
+                    <ul className="mt-3 divide-y divide-amber-100 rounded-lg border border-amber-100 bg-white/80">
+                      {featuredOpts.packages.map((pkg) => (
+                        <li key={pkg.slug} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                          <div>
+                            <p className="font-semibold text-gray-900">{pkg.name}</p>
+                            <p className="text-xs text-gray-600">
+                              {t('listingFeatured.packageDays', { count: pkg.duration_days })}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm font-bold text-[#3EB549]">{formatMoney(pkg.price, pkg.currency)}</span>
+                            <button
+                              type="button"
+                              disabled={!canBoostListing || boostBusy}
+                              onClick={() => onBuyBoostPackage(pkg.slug, pkg.currency, pkg.price)}
+                              className="rounded-lg bg-[#C4161C] px-4 py-2 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-50"
+                            >
+                              {boostBusy ? t('listingFeatured.boostWorking') : t('listingFeatured.buyPackage')}
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <div>

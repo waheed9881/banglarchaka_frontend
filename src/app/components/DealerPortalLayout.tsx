@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router';
-import { Landmark, LayoutDashboard, MessagesSquare, UsersRound } from 'lucide-react';
+import { Gavel, Landmark, LayoutDashboard, MessagesSquare, UsersRound } from 'lucide-react';
 import { fetchMe } from '@/lib/auth';
 import { dp } from '@/app/components/dealerPortalTheme';
 import { setPageSeo } from '@/lib/seo';
@@ -9,6 +9,7 @@ const DEALER_PORTAL_ROLES = new Set(['dealer', 'super_admin', 'admin']);
 
 const nav = [
   { to: '/dealer/portal', end: true, label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/dealer/portal/auctions', end: false, label: 'Auctions', icon: Gavel },
   { to: '/dealer/portal/hr', end: false, label: 'Human resources', icon: UsersRound },
   { to: '/dealer/portal/finance', end: false, label: 'Finance', icon: Landmark },
 ] as const;

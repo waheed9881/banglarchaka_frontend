@@ -1,6 +1,6 @@
 import { CheckCircle2 } from 'lucide-react';
 import { Link, type To } from 'react-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   fetchDealers,
@@ -79,6 +79,7 @@ export function InnerContentPage({
   quickLinks,
   listingsSections,
   dealersPreview,
+  beforeHighlights,
 }: {
   title: string;
   subtitle: string;
@@ -86,6 +87,8 @@ export function InnerContentPage({
   quickLinks?: QuickLink[];
   listingsSections?: InnerListingFeed[];
   dealersPreview?: InnerDealersPreview;
+  /** Rendered below the hero, above the highlights card (e.g. service protocol). */
+  beforeHighlights?: ReactNode;
 }) {
   const { t } = useTranslation();
 
@@ -175,6 +178,7 @@ export function InnerContentPage({
       <InnerPageHero title={title} subtitle={subtitle} />
 
       <div className="max-w-6xl mx-auto px-4 py-10 sm:py-12">
+        {beforeHighlights ? <div className="mb-8">{beforeHighlights}</div> : null}
         <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200/80 p-6 sm:p-8 mb-8">
           <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
             <span className="h-8 w-1 rounded-full bg-[#C4161C]" aria-hidden />

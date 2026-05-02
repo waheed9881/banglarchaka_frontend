@@ -198,6 +198,10 @@ export function Header({
                 </div>
               </div>
 
+              <Link to="/auctions" className={navLinkElevated} title={t('nav.tooltipAuctions')}>
+                {t('nav.auctions')}
+              </Link>
+
               <div className="group/new">
                 <Link
                   to="/new-cars"
@@ -362,6 +366,14 @@ export function Header({
                     </div>
                   ) : null}
                 </div>
+
+                <Link
+                  to="/auctions"
+                  className="block py-3 px-3 rounded-lg hover:bg-white/10 text-white font-medium"
+                  onClick={closeMobileNav}
+                >
+                  {t('nav.auctions')}
+                </Link>
 
                 <div className="flex flex-col rounded-lg bg-white/[0.06] px-1 py-1">
                   <button
