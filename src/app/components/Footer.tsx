@@ -2,6 +2,7 @@ import { Facebook, Instagram, Twitter, Youtube, Linkedin } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
+import logoUrl from '@/assets/logo_3.webp';
 
 const BG = '#23292d';
 const LINK = 'text-gray-400 hover:text-white transition-colors';
@@ -182,6 +183,18 @@ export function Footer() {
   return (
     <footer className="text-white" style={{ backgroundColor: BG }}>
       <div className="max-w-7xl mx-auto px-4 pt-14 pb-8">
+        <div className="pb-10 mb-2 border-b border-gray-700/80">
+          <Link to="/" className="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3EB549]/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[#23292d] rounded">
+            <img
+              src={logoUrl}
+              alt="Banglar Chaka — বাংলার চাকা"
+              className="h-12 sm:h-14 w-auto max-w-full object-contain object-left"
+              width={240}
+              height={56}
+              decoding="async"
+            />
+          </Link>
+        </div>
         <div className="flex flex-col xl:flex-row gap-12 xl:gap-16">
           <div className="flex-1 min-w-0 space-y-12">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10">

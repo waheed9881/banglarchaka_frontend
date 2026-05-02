@@ -9,6 +9,7 @@ import { POST_AD_MENU_LINKS, PostAdDropdownPanel } from './PostAdDropdown';
 import { BIKES_MOBILE_LINKS, BIKES_NAV_TOOLTIP, BikesMegaMenuPanel } from './BikesMegaMenu';
 import { NEW_CARS_MOBILE_LINKS, NEW_CARS_NAV_TOOLTIP, NewCarsMegaMenuPanel } from './NewCarsMegaMenu';
 import { UsedCarsMegaMenuPanel } from './UsedCarsMegaMenu';
+import logoUrl from '@/assets/logo_3.webp';
 
 const navBtn =
   'flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white rounded-md transition-colors';
@@ -136,15 +137,14 @@ export function Header({
         <div className="flex items-center justify-between gap-3 min-h-[52px] py-1">
           <div className="flex items-center gap-4 lg:gap-6 min-w-0 flex-1">
             <Link to="/" className="flex items-center gap-2 shrink-0 min-w-0">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#C4161C] rounded-full flex items-center justify-center ring-2 ring-white/20 shrink-0">
-                <span className="text-white font-bold text-lg sm:text-xl">B</span>
-              </div>
-              <span
-                className="text-lg sm:text-xl font-bold text-white tracking-tight truncate max-w-[9.5rem] sm:max-w-none"
-                style={{ letterSpacing: '-0.5px' }}
-              >
-                BanglarChaka
-              </span>
+              <img
+                src={logoUrl}
+                alt="Banglar Chaka — বাংলার চাকা"
+                className="h-9 sm:h-10 w-auto max-w-[min(200px,48vw)] object-contain object-left"
+                width={200}
+                height={40}
+                decoding="async"
+              />
             </Link>
 
             <nav className="hidden lg:flex items-center gap-0.5 flex-wrap xl:flex-nowrap min-w-0">
