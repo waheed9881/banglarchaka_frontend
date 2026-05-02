@@ -1,6 +1,7 @@
 import { ArrowLeft, Bike, Camera, Car, CheckCircle2, Lightbulb, Smartphone, Tag, X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { FormEvent, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router';
 import { apiFetch, getAuthToken } from '@/lib/api';
 import {
@@ -14,15 +15,15 @@ import {
 import { setPageSeo } from '@/lib/seo';
 import { SubscriptionPlansStrip } from './SubscriptionPlansStrip';
 
-const LISTING_TYPES = [
-  { value: 'used_car', label: 'Used car' },
-  { value: 'new_car', label: 'New car' },
-  { value: 'used_bike', label: 'Used bike' },
-  { value: 'new_bike', label: 'New bike' },
-  { value: 'auto_part', label: 'Auto part' },
-  { value: 'tyre_rim', label: 'Tyre / rim' },
-  { value: 'accessory', label: 'Accessory' },
-  { value: 'service', label: 'Service' },
+const LISTING_TYPE_VALUES = [
+  'used_car',
+  'new_car',
+  'used_bike',
+  'new_bike',
+  'auto_part',
+  'tyre_rim',
+  'accessory',
+  'service',
 ] as const;
 
 const PARENT_SLUG_BY_LISTING_TYPE: Record<string, string> = {
@@ -59,18 +60,10 @@ const BIKE_ASSEMBLY_OPTIONS = ['Local assembled', 'CBU / Imported', 'CKD', 'Othe
 
 const BIKE_ENGINE_TYPES = ['4 Stroke', '2 Stroke', 'Electric', 'Other'];
 
-const BIKE_FEATURE_OPTIONS = [
-  { key: 'anti_theft_lock', label: 'Anti Theft Lock' },
-  { key: 'disc_brake', label: 'Disc Brake' },
-  { key: 'led_light', label: 'Led Light' },
-  { key: 'wind_shield', label: 'Wind Shield' },
-] as const;
+const BIKE_FEATURE_KEYS = ['anti_theft_lock', 'disc_brake', 'led_light', 'wind_shield'] as const;
 
-function emptyBikeFeatures(): Record<(typeof BIKE_FEATURE_OPTIONS)[number]['key'], boolean> {
-  return Object.fromEntries(BIKE_FEATURE_OPTIONS.map((o) => [o.key, false])) as Record<
-    (typeof BIKE_FEATURE_OPTIONS)[number]['key'],
-    boolean
-  >;
+function emptyBikeFeatures(): Record<(typeof BIKE_FEATURE_KEYS)[number], boolean> {
+  return Object.fromEntries(BIKE_FEATURE_KEYS.map((k) => [k, false])) as Record<(typeof BIKE_FEATURE_KEYS)[number], boolean>;
 }
 
 const DESCRIPTION_CHIPS = [
@@ -115,8 +108,8 @@ function categoryForListingType(roots: CategoryDto[], listingType: string): Cate
   return roots.find((c) => c.slug === slug) ?? null;
 }
 
-function isKnownListingType(value: string | null): value is (typeof LISTING_TYPES)[number]['value'] {
-  return !!value && LISTING_TYPES.some((t) => t.value === value);
+function isKnownListingType(value: string | null): value is (typeof LISTING_TYPE_VALUES)[number] {
+  return !!value && (LISTING_TYPE_VALUES as readonly string[]).includes(value);
 }
 
 function Tip({ children }: { children: ReactNode }) {
@@ -129,6 +122,7 @@ function Tip({ children }: { children: ReactNode }) {
 }
 
 export function PostAdPage({ onBack }: { onBack?: () => void }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [categories, setCategories] = useState<CategoryDto[]>([]);
@@ -151,6 +145,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
   const [status, setStatus] = useState('');
 
   const [step, setStep] = useState(1);
+  const [statusIsError, setStatusIsError] = useState(false);
   const [registeredIn, setRegisteredIn] = useState('unregistered');
   const [exteriorColor, setExteriorColor] = useState('');
   const [mobilePrimary, setMobilePrimary] = useState('');
@@ -161,9 +156,22 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
   const [bikeEngineType, setBikeEngineType] = useState('');
   const [bikeFeatures, setBikeFeatures] = useState(emptyBikeFeatures);
 
+  const clearStatus = () => {
+    setStatus('');
+    setStatusIsError(false);
+  };
+  const putError = (msg: string) => {
+    setStatus(msg);
+    setStatusIsError(true);
+  };
+  const putInfo = (msg: string) => {
+    setStatus(msg);
+    setStatusIsError(false);
+  };
+
   useEffect(() => {
-    setPageSeo('Post an ad · BanglarChaka', 'Create a listing for your vehicle, part, tyre, accessory, or service.');
-  }, []);
+    setPageSeo(t('postAdForm.seoTitle'), t('postAdForm.seoDesc'));
+  }, [t]);
 
   useEffect(() => {
     fetchCategories().then(setCategories).catch(() => setCategories([]));
@@ -225,7 +233,8 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
     listingType === 'new_bike';
 
   const isBike = listingType === 'used_bike' || listingType === 'new_bike';
-  const vehicleWord = isBike ? 'Bike' : 'Car';
+  const vehicleTitle = isBike ? t('postAdForm.vehicleBikeTitle') : t('postAdForm.vehicleCarTitle');
+  const vehicleLower = isBike ? t('postAdForm.vehicleBike') : t('postAdForm.vehicleCar');
   const useSellWizard = showVehicleFields;
   /** PakWheels-style used bike: one scrollable page */
   const bikePakStyle = listingType === 'used_bike';
@@ -271,77 +280,77 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
 
   const validateStep1 = () => {
     if (!title.trim()) {
-      setStatus(bikePakStyle ? 'Please enter make / model.' : 'Please enter title / make-model-version.');
+      putError(bikePakStyle ? t('postAdForm.errors.enterMakeModelBike') : t('postAdForm.errors.enterTitleMakeModel'));
       return false;
     }
     if (!city.trim()) {
-      setStatus('Please select a city.');
+      putError(t('postAdForm.errors.selectCity'));
       return false;
     }
     if (!bikePakStyle && !exteriorColor) {
-      setStatus('Please select exterior color.');
+      putError(t('postAdForm.errors.selectExteriorColor'));
       return false;
     }
     if (bikePakStyle && !bikeEngineType) {
-      setStatus('Please select engine type.');
+      putError(t('postAdForm.errors.selectEngineType'));
       return false;
     }
     if (bikePakStyle) {
       const d = description.trim();
       if (d.length < 25) {
-        setStatus('Please describe your bike (at least 25 characters).');
+        putError(t('postAdForm.errors.bikeDescMin25'));
         return false;
       }
     }
     if (listingType === 'used_car' || listingType === 'used_bike') {
       if (mileage === '' || Number.isNaN(Number(mileage))) {
-        setStatus('Please enter valid mileage (km).');
+        putError(t('postAdForm.errors.validMileageKm'));
         return false;
       }
     }
-    setStatus('');
+    clearStatus();
     return true;
   };
 
   const validateWizardFinalFields = () => {
     if (!price.trim() || Number(price) < 0) {
-      setStatus('Please enter a valid asking price.');
+      putError(t('postAdForm.errors.validAskingPrice'));
       return false;
     }
     if (!bikePakStyle && !carPakStyle && !description.trim()) {
-      setStatus('Please write a short description for buyers.');
+      putError(t('postAdForm.errors.shortDescriptionBuyers'));
       return false;
     }
-    setStatus('');
+    clearStatus();
     return true;
   };
 
   const validateCarPakSinglePage = () => {
     if (!title.trim()) {
-      setStatus('Please enter make / model / version.');
+      putError(t('postAdForm.errors.enterMakeModelVersion'));
       return false;
     }
     if (!city.trim()) {
-      setStatus('Please select a city.');
+      putError(t('postAdForm.errors.selectCity'));
       return false;
     }
     if (!exteriorColor) {
-      setStatus('Please select exterior color.');
+      putError(t('postAdForm.errors.selectExteriorColor'));
       return false;
     }
     if (mileage === '' || Number.isNaN(Number(mileage))) {
-      setStatus('Please enter valid mileage (km).');
+      putError(t('postAdForm.errors.validMileageKm'));
       return false;
     }
     if (!price.trim() || Number(price) < 0) {
-      setStatus('Please enter a valid asking price.');
+      putError(t('postAdForm.errors.validAskingPrice'));
       return false;
     }
     if (!description.trim()) {
-      setStatus('Please write your ad description.');
+      putError(t('postAdForm.errors.writeAdDescription'));
       return false;
     }
-    setStatus('');
+    clearStatus();
     return true;
   };
 
@@ -352,7 +361,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!getAuthToken()) {
-      setStatus('Please sign in (header) before posting.');
+      putError(t('postAdForm.errors.signInBeforePost'));
       return;
     }
     if (useSellWizard && bikePakStyle && !validateStep1()) return;
@@ -360,10 +369,10 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
     if (useSellWizard && !bikePakStyle && !carPakStyle && !validateWizardFinalFields()) return;
     if (useSellWizard && !validateStep3Contact()) return;
 
-    setStatus('Submitting…');
+    putInfo(t('postAdForm.submitting'));
     try {
       const cat = categoryForListingType(categories, listingType);
-      if (!cat) throw new Error('Categories not loaded — run seeders or refresh.');
+      if (!cat) throw new Error(t('postAdForm.categoriesNotLoaded'));
 
       const brand = brandSlug ? brands.find((b) => b.slug === brandSlug) : undefined;
       const dyn: Record<string, unknown> = {
@@ -374,7 +383,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
       if (bikePakStyle) {
         if (bikeAssembly) dyn.bike_assembly = bikeAssembly;
         dyn.bike_engine_type = bikeEngineType || null;
-        const feats = BIKE_FEATURE_OPTIONS.filter((o) => bikeFeatures[o.key]).map((o) => o.label);
+        const feats = BIKE_FEATURE_KEYS.filter((key) => bikeFeatures[key]).map((key) => t(`postAdForm.bikeFeatures.${key}`));
         if (feats.length) dyn.bike_features = feats;
       }
       if (mobilePrimary.trim()) dyn.contact_mobile = mobilePrimary.trim();
@@ -410,7 +419,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
         body: JSON.stringify(body),
       });
       const listingId = created.data?.id;
-      if (!listingId) throw new Error('Unexpected API response (missing listing id).');
+      if (!listingId) throw new Error(t('postAdForm.unexpectedListingId'));
 
       if (files.length > 0) {
         const fd = new FormData();
@@ -421,7 +430,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
       previews.forEach((u) => URL.revokeObjectURL(u));
       navigate(`/my-listings/${listingId}/edit`, { replace: true });
     } catch (err) {
-      setStatus(err instanceof Error ? err.message : 'Submit failed');
+      putError(err instanceof Error ? err.message : t('postAdForm.submitFailed'));
     }
   };
 
@@ -430,23 +439,26 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
   const labelClass = 'text-sm font-medium text-gray-700';
 
   const WizardIcon1 = bikePakStyle ? Bike : Car;
-  const wizardSteps = [
-    { n: 1, label: `Enter Your ${vehicleWord} Information`, Icon: WizardIcon1 },
-    { n: 2, label: 'Upload Photos', Icon: Camera },
-    { n: 3, label: 'Enter Your Selling Price', Icon: Tag },
-  ];
+  const wizardSteps = useMemo(
+    () => [
+      { n: 1, label: t('postAdForm.wizardStepInfo', { vehicle: vehicleTitle }), Icon: WizardIcon1 },
+      { n: 2, label: t('postAdForm.wizardStepPhotos'), Icon: Camera },
+      { n: 3, label: t('postAdForm.wizardStepPrice'), Icon: Tag },
+    ],
+    [t, vehicleTitle, WizardIcon1],
+  );
 
   const validateStep3Contact = () => {
     const digits = mobilePrimary.replace(/\D/g, '');
     if (!mobilePrimary.trim()) {
-      setStatus('Please enter your mobile number.');
+      putError(t('postAdForm.errors.enterMobile'));
       return false;
     }
     if (digits.length < 11) {
-      setStatus('Enter a valid 11-digit mobile (01XXXXXXXXX).');
+      putError(t('postAdForm.errors.mobile11Digits'));
       return false;
     }
-    setStatus('');
+    clearStatus();
     return true;
   };
 
@@ -461,12 +473,12 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
           <div className="relative mx-auto max-w-4xl px-4 py-8 text-center sm:py-10">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/95 backdrop-blur-sm sm:text-[11px]">
               <Tag className="h-3.5 w-3.5 opacity-95" aria-hidden />
-              Free listing
+              {t('postAdForm.freeListing')}
             </div>
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-[32px]">Sell your {vehicleWord}</h1>
-            <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-white/88 sm:text-base">
-              Three steps — details, photos, contact. Most listings go live in a few minutes.
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-[32px]">
+              {t('postAdForm.sellYourVehicle', { vehicle: vehicleLower })}
+            </h1>
+            <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-white/88 sm:text-base">{t('postAdForm.wizardSubtitle')}</p>
 
             <div className="mx-auto mt-8 flex max-w-xl items-center justify-center gap-2 sm:gap-6">
               {wizardSteps.map(({ n, label, Icon }, i) => (
@@ -499,8 +511,8 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
       ) : (
         <div className="border-b border-white/10 bg-gradient-to-br from-[#233D7B] via-[#1a3266] to-[#152a52] py-10 text-white shadow-md">
           <div className="mx-auto max-w-4xl px-4 text-center">
-            <h1 className="mb-2 text-3xl font-bold sm:text-4xl">Post your ad</h1>
-            <p className="mx-auto max-w-lg text-base text-white/85">Choose a category and fill in the details below.</p>
+            <h1 className="mb-2 text-3xl font-bold sm:text-4xl">{t('postAdForm.postYourAdHeading')}</h1>
+            <p className="mx-auto max-w-lg text-base text-white/85">{t('postAdForm.postYourAdLead')}</p>
           </div>
         </div>
       )}
@@ -513,15 +525,17 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
         >
           <div className="flex flex-wrap items-center gap-3 border-b border-emerald-500/15 bg-gradient-to-r from-emerald-50/95 via-white to-sky-50/40 px-4 py-4 sm:gap-4 sm:px-6">
             <Car className="hidden h-6 w-6 shrink-0 text-[#233D7B] opacity-90 sm:block" aria-hidden />
-            <span className={`${labelClass} text-xs font-bold uppercase tracking-wide text-[#233D7B]`}>Listing type</span>
+            <span className={`${labelClass} text-xs font-bold uppercase tracking-wide text-[#233D7B]`}>
+              {t('postAdForm.listingTypeLabel')}
+            </span>
             <select
               value={listingType}
               onChange={(e) => setListingType(e.target.value)}
               className={`${inputClass} max-w-[min(100%,240px)] rounded-lg border-gray-200 bg-white py-2.5 text-sm font-medium shadow-sm`}
             >
-              {LISTING_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
+              {LISTING_TYPE_VALUES.map((lt) => (
+                <option key={lt} value={lt}>
+                  {t(`postAdForm.types.${lt}`)}
                 </option>
               ))}
             </select>
@@ -561,6 +575,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                   removeImage,
                   inputClass,
                   labelClass,
+                  tr: t,
                 }}
               />
               <div className="flex gap-3 pt-2">
@@ -568,14 +583,14 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                   type="submit"
                   className="flex-1 bg-[#C4161C] text-white py-3.5 rounded-lg font-bold hover:bg-red-700 transition"
                 >
-                  Post Your Ad
+                  {t('postAdForm.shared.postYourAd')}
                 </button>
                 <button
                   type="button"
                   onClick={onBack}
                   className="px-6 border-2 border-gray-200 text-gray-700 py-3.5 rounded-lg font-semibold hover:bg-gray-50"
                 >
-                  Cancel
+                  {t('postAdForm.shared.cancel')}
                 </button>
               </div>
             </div>
@@ -589,8 +604,8 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                 <div className="space-y-8">
                   <section className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 sm:p-8">
                     <div className="mb-6">
-                      <h2 className="text-xl font-bold text-gray-900">Bike Information</h2>
-                      <p className="text-sm text-gray-500 mt-1">All fields marked with * are mandatory</p>
+                      <h2 className="text-xl font-bold text-gray-900">{t('postAdForm.shared.bikeInformationHeading')}</h2>
+                      <p className="text-sm text-gray-500 mt-1">{t('postAdForm.shared.mandatoryNote')}</p>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-[1fr_240px] gap-8">
                       <div className="space-y-5">
@@ -602,12 +617,12 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                             <select value={city} onChange={(e) => setCity(e.target.value)} className={inputClass}>
                               {BD_CITIES.map((c) => (
                                 <option key={c} value={c}>
-                                  {c}
+                                  {t(`postAdForm.cities.${c}`)}
                                 </option>
                               ))}
                             </select>
                             <div className="mt-2 lg:hidden">
-                              <Tip>We don&apos;t allow duplicates of the same ad.</Tip>
+                              <Tip>{t('postAdForm.shared.tipNoDuplicates')}</Tip>
                             </div>
                           </div>
                         </div>
@@ -657,7 +672,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                             <option value="">Color</option>
                             {EXTERIOR_COLORS.map((c) => (
                               <option key={c} value={c}>
-                                {c}
+                                {t(`postAdForm.colors.${c}`)}
                               </option>
                             ))}
                           </select>
@@ -668,7 +683,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                             <option value="">Assembly</option>
                             {BIKE_ASSEMBLY_OPTIONS.map((a) => (
                               <option key={a} value={a}>
-                                {a}
+                                {t(`postAdForm.bikeAssembly.${a}`)}
                               </option>
                             ))}
                           </select>
@@ -680,14 +695,14 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                           <div>
                             <select value={bikeEngineType} onChange={(e) => setBikeEngineType(e.target.value)} className={inputClass}>
                               <option value="">Engine Type</option>
-                              {BIKE_ENGINE_TYPES.map((t) => (
-                                <option key={t} value={t}>
-                                  {t}
+                              {BIKE_ENGINE_TYPES.map((engType) => (
+                                <option key={engType} value={engType}>
+                                  {t(`postAdForm.bikeEngine.${engType}`)}
                                 </option>
                               ))}
                             </select>
                             <div className="mt-2 lg:hidden">
-                              <Tip>We don&apos;t allow promotional messages that are not relevant to the ad.</Tip>
+                              <Tip>{t('postAdForm.shared.tipNoPromo')}</Tip>
                             </div>
                           </div>
                         </div>
@@ -725,14 +740,14 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                         </div>
                       </div>
                       <div className="hidden lg:flex flex-col gap-3">
-                        <Tip>We don&apos;t allow duplicates of the same ad.</Tip>
-                        <Tip>We don&apos;t allow promotional messages that are not relevant to the ad.</Tip>
+                        <Tip>{t('postAdForm.shared.tipNoDuplicates')}</Tip>
+                        <Tip>{t('postAdForm.shared.tipNoPromo')}</Tip>
                       </div>
                     </div>
                   </section>
 
                   <section className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 sm:p-8">
-                    <h2 className="text-xl font-bold text-gray-900 mb-6">Expected Selling Price</h2>
+                      <h2 className="text-xl font-bold text-gray-900 mb-6">{t('postAdForm.shared.expectedSellingPrice')}</h2>
                     <div className="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-6 items-start">
                       <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-x-4 gap-y-2 items-start sm:items-center">
                         <label className={`${labelClass} sm:text-right sm:pt-2`}>
@@ -752,23 +767,23 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                           />
                         </div>
                       </div>
-                      <Tip>Please enter a realistic price to get more genuine responses.</Tip>
+                      <Tip>{t('postAdForm.shared.tipRealisticPrice')}</Tip>
                     </div>
                   </section>
 
                   <section className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 sm:p-8">
-                    <h2 className="text-xl font-bold text-gray-900 mb-2">Additional Information</h2>
-                    <p className="text-sm font-medium text-gray-700 mb-4">Features</p>
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">{t('postAdForm.shared.additionalInfo')}</h2>
+                    <p className="text-sm font-medium text-gray-700 mb-4">{t('postAdForm.shared.features')}</p>
                     <div className="grid sm:grid-cols-2 gap-3">
-                      {BIKE_FEATURE_OPTIONS.map((o) => (
-                        <label key={o.key} className="flex items-center gap-3 cursor-pointer text-sm text-gray-800">
+                      {BIKE_FEATURE_KEYS.map((key) => (
+                        <label key={key} className="flex items-center gap-3 cursor-pointer text-sm text-gray-800">
                           <input
                             type="checkbox"
-                            checked={bikeFeatures[o.key]}
-                            onChange={(e) => setBikeFeatures((prev) => ({ ...prev, [o.key]: e.target.checked }))}
+                            checked={bikeFeatures[key]}
+                            onChange={(e) => setBikeFeatures((prev) => ({ ...prev, [key]: e.target.checked }))}
                             className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                           />
-                          {o.label}
+                          {t(`postAdForm.bikeFeatures.${key}`)}
                         </label>
                       ))}
                     </div>
@@ -797,15 +812,10 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                       />
                     </label>
                     <div className="grid sm:grid-cols-2 gap-3 mt-6 text-sm text-gray-700">
-                      {[
-                        'Adding at least 5 pictures improves the chances for a quick sale.',
-                        "Photos should be in jpeg, jpg, png, gif format.",
-                        'Adding clear front, back and side pictures increases the quality of your ad.',
-                        'Pictures should be 800×600 centred-frame shots when possible.',
-                      ].map((t) => (
-                        <div key={t} className="flex gap-2 items-start">
+                      {(['photoTip1', 'photoTip2', 'photoTip3', 'photoTip4'] as const).map((key) => (
+                        <div key={key} className="flex gap-2 items-start">
                           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" aria-hidden />
-                          <span>{t}</span>
+                          <span>{t(`postAdForm.shared.${key}`)}</span>
                         </div>
                       ))}
                     </div>
@@ -903,8 +913,8 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                 <div className="space-y-8">
                   <section className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 sm:p-8">
                     <div className="mb-6">
-                      <h2 className="text-xl font-bold text-gray-900">Car Information</h2>
-                      <p className="text-sm text-gray-500 mt-1">All fields marked with * are mandatory</p>
+                      <h2 className="text-xl font-bold text-gray-900">{t('postAdForm.shared.carInformationHeading')}</h2>
+                      <p className="text-sm text-gray-500 mt-1">{t('postAdForm.shared.mandatoryNote')}</p>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-[1fr_240px] gap-8">
                       <div className="space-y-5">
@@ -916,12 +926,12 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                             <select value={city} onChange={(e) => setCity(e.target.value)} className={inputClass}>
                               {BD_CITIES.map((c) => (
                                 <option key={c} value={c}>
-                                  {c}
+                                  {t(`postAdForm.cities.${c}`)}
                                 </option>
                               ))}
                             </select>
                             <div className="mt-2 lg:hidden">
-                              <Tip>We don&apos;t allow duplicates of the same ad.</Tip>
+                              <Tip>{t('postAdForm.shared.tipNoDuplicates')}</Tip>
                             </div>
                           </div>
                         </div>
@@ -950,10 +960,10 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                             Exterior Color <span className="text-red-500">*</span>
                           </label>
                           <select value={exteriorColor} onChange={(e) => setExteriorColor(e.target.value)} className={inputClass}>
-                            <option value="">Exterior Color</option>
+                            <option value="">{t('postAdForm.shared.exteriorColorPlaceholder')}</option>
                             {EXTERIOR_COLORS.map((c) => (
                               <option key={c} value={c}>
-                                {c}
+                                {t(`postAdForm.colors.${c}`)}
                               </option>
                             ))}
                           </select>
@@ -1027,7 +1037,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                               disabled={!brandSlug || models.length === 0}
                               className={`${inputClass} mt-1.5 disabled:bg-gray-100`}
                             >
-                              <option value="">{brandSlug ? 'Select model' : 'Pick make first'}</option>
+                              <option value="">{brandSlug ? t('postAdForm.simple.selectModel') : t('postAdForm.shared.pickMakeFirstShort')}</option>
                               {models.map((m) => (
                                 <option key={m.id} value={String(m.id)}>
                                   {m.name}
@@ -1105,9 +1115,9 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                         </div>
                       </div>
                       <div className="hidden lg:flex flex-col gap-3">
-                        <Tip>We don&apos;t allow duplicates of the same ad.</Tip>
-                        <Tip>We don&apos;t allow promotional messages that are not relevant to the ad.</Tip>
-                        <Tip>Please enter a realistic price to get more genuine responses.</Tip>
+                        <Tip>{t('postAdForm.shared.tipNoDuplicates')}</Tip>
+                        <Tip>{t('postAdForm.shared.tipNoPromo')}</Tip>
+                        <Tip>{t('postAdForm.shared.tipRealisticPrice')}</Tip>
                       </div>
                     </div>
                   </section>
@@ -1135,15 +1145,10 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                       />
                     </label>
                     <div className="grid sm:grid-cols-2 gap-3 mt-6 text-sm text-gray-700">
-                      {[
-                        'Adding at least 3 pictures improves the chances for a quick sale.',
-                        'Photos should be in jpeg, jpg, png, gif format only.',
-                        'Adding clear front, back and interior pictures increases quality of your ad.',
-                        'Pictures should be 600×450 centred-frame shots when possible.',
-                      ].map((t) => (
-                        <div key={t} className="flex gap-2 items-start">
+                      {(['photoTipCar1', 'photoTipCar2', 'photoTipCar3', 'photoTipCar4'] as const).map((key) => (
+                        <div key={key} className="flex gap-2 items-start">
                           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" aria-hidden />
-                          <span>{t}</span>
+                          <span>{t(`postAdForm.shared.${key}`)}</span>
                         </div>
                       ))}
                     </div>
@@ -1244,8 +1249,8 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
               {step === 1 ? (
                   <>
                     <div className="mb-6">
-                      <h2 className="text-xl font-bold text-gray-900">{vehicleWord} information</h2>
-                      <p className="text-sm text-gray-500 mt-1">(All fields marked with * are mandatory)</p>
+                      <h2 className="text-xl font-bold text-gray-900">{t('postAdForm.shared.wizardVehicleInfoTitle', { vehicle: vehicleTitle })}</h2>
+                      <p className="text-sm text-gray-500 mt-1">{t('postAdForm.shared.wizardMandatoryNote')}</p>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-[1fr_240px] gap-8">
@@ -1258,19 +1263,20 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                             <select value={city} onChange={(e) => setCity(e.target.value)} className={inputClass}>
                               {BD_CITIES.map((c) => (
                                 <option key={c} value={c}>
-                                  {c}
+                                  {t(`postAdForm.cities.${c}`)}
                                 </option>
                               ))}
                             </select>
                             <div className="mt-2 lg:hidden">
-                              <Tip>We don&apos;t allow duplicate ads for the same vehicle.</Tip>
+                              <Tip>{t('postAdForm.shared.tipNoDuplicateVehicle')}</Tip>
                             </div>
                           </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-x-4 gap-y-2 items-start sm:items-center">
                           <label className={`${labelClass} sm:text-right sm:pt-2`}>
-                            {vehicleWord} info <span className="text-red-500">*</span>
+                            {t('postAdForm.shared.vehicleInfoStar', { vehicle: vehicleTitle })}{' '}
+                            <span className="text-red-500">*</span>{' '}
                           </label>
                           <input
                             value={title}
@@ -1299,10 +1305,10 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                           onChange={(e) => setExteriorColor(e.target.value)}
                           className={inputClass}
                         >
-                          <option value="">Exterior Color</option>
+                          <option value="">{t('postAdForm.shared.exteriorColorPlaceholder')}</option>
                           {EXTERIOR_COLORS.map((c) => (
                             <option key={c} value={c}>
-                              {c}
+                              {t(`postAdForm.colors.${c}`)}
                             </option>
                           ))}
                         </select>
@@ -1327,7 +1333,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                             />
                           </div>
                           <div className="mt-2 lg:hidden">
-                            <Tip>Please avoid promotional text that isn&apos;t relevant to the ad.</Tip>
+                            <Tip>{t('postAdForm.shared.tipAvoidPromoVehicle')}</Tip>
                           </div>
                         </div>
                       </div>
@@ -1362,7 +1368,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                             disabled={!brandSlug || models.length === 0}
                             className={`${inputClass} mt-1.5 disabled:bg-gray-100`}
                           >
-                            <option value="">{brandSlug ? 'Select model' : 'Pick make first'}</option>
+                            <option value="">{brandSlug ? t('postAdForm.simple.selectModel') : t('postAdForm.shared.pickMakeFirstShort')}</option>
                             {models.map((m) => (
                               <option key={m.id} value={String(m.id)}>
                                 {m.name}
@@ -1394,8 +1400,8 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                     </div>
 
                     <div className="hidden lg:flex flex-col gap-3">
-                      <Tip>We don&apos;t allow duplicate ads for the same vehicle.</Tip>
-                      <Tip>Please avoid promotional text that isn&apos;t relevant to the ad.</Tip>
+                      <Tip>{t('postAdForm.shared.tipNoDuplicateVehicle')}</Tip>
+                      <Tip>{t('postAdForm.shared.tipAvoidPromoVehicle')}</Tip>
                     </div>
                   </div>
 
@@ -1442,15 +1448,10 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                   </label>
 
                   <div className="grid sm:grid-cols-2 gap-3 mt-6 text-sm text-gray-700">
-                    {[
-                      'Adding several pictures improves chances for a quick sale.',
-                      'Include front, back and interior shots where possible.',
-                      'Use jpeg, jpg, png, or webp format.',
-                      'Prefer well-lit, centred photos.',
-                    ].map((t) => (
-                      <div key={t} className="flex gap-2 items-start">
+                    {(['wizPhotoTip1', 'wizPhotoTip2', 'wizPhotoTip3', 'wizPhotoTip4'] as const).map((key) => (
+                      <div key={key} className="flex gap-2 items-start">
                         <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" aria-hidden />
-                        <span>{t}</span>
+                        <span>{t(`postAdForm.shared.${key}`)}</span>
                       </div>
                     ))}
                   </div>
@@ -1614,8 +1615,8 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                       </div>
 
                       <div className="flex flex-col gap-3">
-                        <Tip>We don&apos;t allow promotional messages that are not relevant to the ad.</Tip>
-                        <Tip>Please enter a realistic price to get more genuine responses.</Tip>
+                        <Tip>{t('postAdForm.shared.tipNoPromo')}</Tip>
+                        <Tip>{t('postAdForm.shared.tipRealisticPrice')}</Tip>
                       </div>
                     </div>
 
@@ -1646,9 +1647,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
         {status ? (
           <div
             className={`mt-4 text-sm font-semibold px-4 py-3 rounded-lg ${
-              /fail|sign in|Please enter|Please select|Please write|valid 11-digit/i.test(status)
-                ? 'bg-red-50 text-red-800 border border-red-100'
-                : 'bg-emerald-50 text-emerald-900 border border-emerald-100'
+              statusIsError ? 'bg-red-50 text-red-800 border border-red-100' : 'bg-emerald-50 text-emerald-900 border border-emerald-100'
             }`}
           >
             {status}
@@ -1694,6 +1693,7 @@ function SimpleFields(props: {
   removeImage: (i: number) => void;
   inputClass: string;
   labelClass: string;
+  tr: (key: string) => string;
 }) {
   const {
     title,
@@ -1724,19 +1724,20 @@ function SimpleFields(props: {
     removeImage,
     inputClass,
     labelClass,
+    tr,
   } = props;
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="md:col-span-2">
-          <label className={`${labelClass} mb-2 block`}>Title *</label>
+          <label className={`${labelClass} mb-2 block`}>{tr('postAdForm.simple.title')}</label>
           <input value={title} onChange={(e) => setTitle(e.target.value)} required className={inputClass} />
         </div>
         <div>
-          <label className={`${labelClass} mb-2 block`}>Make</label>
+          <label className={`${labelClass} mb-2 block`}>{tr('postAdForm.simple.make')}</label>
           <select value={brandSlug} onChange={(e) => setBrandSlug(e.target.value)} className={inputClass}>
-            <option value="">Any / skip</option>
+            <option value="">{tr('postAdForm.simple.anySkip')}</option>
             {brands.map((b) => (
               <option key={b.id} value={b.slug}>
                 {b.name}
@@ -1745,14 +1746,14 @@ function SimpleFields(props: {
           </select>
         </div>
         <div>
-          <label className={`${labelClass} mb-2 block`}>Model</label>
+          <label className={`${labelClass} mb-2 block`}>{tr('postAdForm.simple.model')}</label>
           <select
             value={vehicleModelId}
             onChange={(e) => setVehicleModelId(e.target.value)}
             disabled={!brandSlug || models.length === 0}
             className={`${inputClass} disabled:bg-gray-100`}
           >
-            <option value="">{brandSlug ? 'Select model' : 'Pick a make first'}</option>
+            <option value="">{brandSlug ? tr('postAdForm.simple.selectModel') : tr('postAdForm.simple.pickMakeFirst')}</option>
             {models.map((m) => (
               <option key={m.id} value={String(m.id)}>
                 {m.name}
@@ -1763,11 +1764,11 @@ function SimpleFields(props: {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className={`${labelClass} mb-2 block`}>City</label>
+          <label className={`${labelClass} mb-2 block`}>{tr('postAdForm.simple.city')}</label>
           <select value={city} onChange={(e) => setCity(e.target.value)} className={inputClass}>
             {BD_CITIES.map((c) => (
               <option key={c} value={c}>
-                {c}
+                {tr(`postAdForm.cities.${c}`)}
               </option>
             ))}
           </select>
@@ -1775,7 +1776,7 @@ function SimpleFields(props: {
         {showVehicleFields ? (
           <>
             <div>
-              <label className={`${labelClass} mb-2 block`}>Year</label>
+              <label className={`${labelClass} mb-2 block`}>{tr('postAdForm.simple.year')}</label>
               <select value={year} onChange={(e) => setYear(e.target.value)} className={inputClass}>
                 {Array.from({ length: 26 }, (_, i) => 2026 - i).map((y) => (
                   <option key={y} value={String(y)}>
@@ -1785,38 +1786,38 @@ function SimpleFields(props: {
               </select>
             </div>
             <div>
-              <label className={`${labelClass} mb-2 block`}>Mileage (KM)</label>
+              <label className={`${labelClass} mb-2 block`}>{tr('postAdForm.simple.mileageKm')}</label>
               <input value={mileage} onChange={(e) => setMileage(e.target.value)} type="number" className={inputClass} />
             </div>
             <div>
-              <label className={`${labelClass} mb-2 block`}>Transmission</label>
+              <label className={`${labelClass} mb-2 block`}>{tr('postAdForm.simple.transmission')}</label>
               <select value={transmission} onChange={(e) => setTransmission(e.target.value)} className={inputClass}>
-                <option value="manual">Manual</option>
-                <option value="automatic">Automatic</option>
+                <option value="manual">{tr('postAdForm.simple.manual')}</option>
+                <option value="automatic">{tr('postAdForm.simple.automatic')}</option>
               </select>
             </div>
             <div>
-              <label className={`${labelClass} mb-2 block`}>Fuel</label>
+              <label className={`${labelClass} mb-2 block`}>{tr('postAdForm.simple.fuel')}</label>
               <select value={fuelType} onChange={(e) => setFuelType(e.target.value)} className={inputClass}>
-                <option value="petrol">Petrol</option>
-                <option value="diesel">Diesel</option>
-                <option value="hybrid">Hybrid</option>
-                <option value="electric">Electric</option>
+                <option value="petrol">{tr('postAdForm.simple.petrol')}</option>
+                <option value="diesel">{tr('postAdForm.simple.diesel')}</option>
+                <option value="hybrid">{tr('postAdForm.simple.hybrid')}</option>
+                <option value="electric">{tr('postAdForm.simple.electric')}</option>
               </select>
             </div>
           </>
         ) : null}
         <div>
-          <label className={`${labelClass} mb-2 block`}>Price (BDT) *</label>
+          <label className={`${labelClass} mb-2 block`}>{tr('postAdForm.simple.priceBdt')}</label>
           <input value={price} onChange={(e) => setPrice(e.target.value)} required min={0} type="number" className={inputClass} />
         </div>
       </div>
       <div>
-        <label className={`${labelClass} mb-2 block`}>Description</label>
+        <label className={`${labelClass} mb-2 block`}>{tr('postAdForm.simple.description')}</label>
         <textarea rows={5} value={description} onChange={(e) => setDescription(e.target.value)} className={`${inputClass} resize-none`} />
       </div>
       <div>
-        <label className={`${labelClass} mb-3 block`}>Photos</label>
+        <label className={`${labelClass} mb-3 block`}>{tr('postAdForm.simple.photos')}</label>
         <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
           {previews.map((src, index) => (
             <div key={src} className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
@@ -1833,7 +1834,7 @@ function SimpleFields(props: {
           {props.files.length < 12 ? (
             <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 hover:border-[#233D7B]">
               <Camera className="mb-1 h-8 w-8 text-gray-400" />
-              <span className="text-xs text-gray-500">Add</span>
+              <span className="text-xs text-gray-500">{tr('postAdForm.simple.addPhoto')}</span>
               <input
                 type="file"
                 accept="image/*"

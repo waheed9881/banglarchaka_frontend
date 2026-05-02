@@ -54,7 +54,7 @@ const COLS_TOP: FootCol[] = [
     links: [
       { labelKey: 'footer.usedCars', to: '/listings?type=used_car' },
       { labelKey: 'footer.usedBikes', to: '/listings?type=used_bike' },
-      { labelKey: 'footer.newCars', to: '/listings?type=new_car' },
+      { labelKey: 'footer.newCars', to: '/new-cars' },
       { labelKey: 'footer.partsAccessories', to: '/listings?type=auto_part' },
       { labelKey: 'footer.coolRides', to: '/listings?type=used_car&sort=views' },
       { labelKey: 'footer.forums', to: '/forums' },

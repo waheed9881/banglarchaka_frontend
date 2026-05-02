@@ -16,7 +16,9 @@ import {
   Sparkles,
   User,
 } from 'lucide-react';
+import type { TFunction } from 'i18next';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router';
 import { getAuthToken } from '@/lib/api';
 import { addToWishlist, fetchWishlistListings, removeFromWishlist } from '@/lib/engagement';
@@ -37,24 +39,6 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 const GREEN = '#3EB549';
 const BLUE = '#3483D1';
 
-function formatUpdated(iso: string | null | undefined): string {
-  if (!iso) return '—';
-  try {
-    return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
-  } catch {
-    return '—';
-  }
-}
-
-function formatMemberSince(iso: string | null | undefined): string | null {
-  if (!iso) return null;
-  try {
-    return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-  } catch {
-    return null;
-  }
-}
-
 function inspectionScoreFromDyn(d: Record<string, unknown> | undefined): string | null {
   if (!d) return null;
   const raw =
@@ -65,12 +49,12 @@ function inspectionScoreFromDyn(d: Record<string, unknown> | undefined): string 
   return String(raw);
 }
 
-function FeatureSectionIcon({ title }: { title: string }) {
-  const t = title.toLowerCase();
-  if (t.includes('exterior')) return <Car className="h-5 w-5 shrink-0 text-[#3483D1]" aria-hidden />;
-  if (t.includes('interior')) return <Armchair className="h-5 w-5 shrink-0 text-[#3483D1]" aria-hidden />;
-  if (t.includes('safety')) return <Shield className="h-5 w-5 shrink-0 text-[#3483D1]" aria-hidden />;
-  if (t.includes('comfort')) return <Sparkles className="h-5 w-5 shrink-0 text-[#3483D1]" aria-hidden />;
+function FeatureSectionIcon({ hint }: { hint: string }) {
+  const h = hint.toLowerCase();
+  if (h.includes('exterior')) return <Car className="h-5 w-5 shrink-0 text-[#3483D1]" aria-hidden />;
+  if (h.includes('interior')) return <Armchair className="h-5 w-5 shrink-0 text-[#3483D1]" aria-hidden />;
+  if (h.includes('safety')) return <Shield className="h-5 w-5 shrink-0 text-[#3483D1]" aria-hidden />;
+  if (h.includes('comfort')) return <Sparkles className="h-5 w-5 shrink-0 text-[#3483D1]" aria-hidden />;
   return <Car className="h-5 w-5 shrink-0 text-[#3483D1]" aria-hidden />;
 }
 
@@ -97,39 +81,52 @@ function indicativeMonthlyPayment(price: string | number | null | undefined): nu
   return Math.round(n / 60);
 }
 
-function featureSections(d: Record<string, unknown> | undefined): { title: string; items: string[] }[] {
+function featureSections(
+  d: Record<string, unknown> | undefined,
+  t: TFunction,
+): { hint: string; title: string; items: string[] }[] {
   if (!d) return [];
-  const pairs: [string, string][] = [
-    ['exterior_features', 'Exterior'],
-    ['interior_features', 'Interior'],
-    ['safety_features', 'Safety & security'],
-    ['comfort_features', 'Comfort & convenience'],
-    ['features_exterior', 'Exterior'],
-    ['features_interior', 'Interior'],
+  const defs: { keys: string[]; hint: string; titleKey: string }[] = [
+    { keys: ['exterior_features', 'features_exterior'], hint: 'exterior', titleKey: 'listingDetail.featureExterior' },
+    { keys: ['interior_features', 'features_interior'], hint: 'interior', titleKey: 'listingDetail.featureInterior' },
+    { keys: ['safety_features'], hint: 'safety', titleKey: 'listingDetail.featureSafety' },
+    { keys: ['comfort_features'], hint: 'comfort', titleKey: 'listingDetail.featureComfort' },
   ];
-  const out: { title: string; items: string[] }[] = [];
+  const out: { hint: string; title: string; items: string[] }[] = [];
   const seenTitle = new Set<string>();
-  for (const [key, title] of pairs) {
+  for (const def of defs) {
+    const title = t(def.titleKey);
     if (seenTitle.has(title)) continue;
-    const v = d[key];
-    if (Array.isArray(v) && v.every((x) => typeof x === 'string')) {
-      const items = (v as string[]).filter(Boolean);
-      if (items.length) {
-        out.push({ title, items });
-        seenTitle.add(title);
+    let items: string[] | null = null;
+    for (const key of def.keys) {
+      const v = d[key];
+      if (Array.isArray(v) && v.every((x) => typeof x === 'string')) {
+        const arr = (v as string[]).filter(Boolean);
+        if (arr.length) {
+          items = arr;
+          break;
+        }
+      } else if (typeof v === 'string' && v.trim()) {
+        const arr = v
+          .split(/[,|]/)
+          .map((s) => s.trim())
+          .filter(Boolean);
+        if (arr.length) {
+          items = arr;
+          break;
+        }
       }
-    } else if (typeof v === 'string' && v.trim()) {
-      const items = v.split(/[,|]/).map((s) => s.trim()).filter(Boolean);
-      if (items.length) {
-        out.push({ title, items });
-        seenTitle.add(title);
-      }
+    }
+    if (items?.length) {
+      out.push({ hint: def.hint, title, items });
+      seenTitle.add(title);
     }
   }
   return out;
 }
 
 export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBack?: () => void }) {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [car, setCar] = useState<ListingDto | null>(null);
   const [similar, setSimilar] = useState<ListingDto[]>([]);
@@ -171,9 +168,9 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
     const desc =
       typeof car.description === 'string' && car.description.trim()
         ? car.description.trim().slice(0, 160)
-        : `${formatMoney(car.price, car.currency)} · ${car.location_city || 'Bangladesh'}`;
-    setPageSeo(`${car.title} · BanglarChaka`, desc);
-  }, [car]);
+        : `${formatMoney(car.price, car.currency)} · ${car.location_city || t('innerUi.defaultCountry')}`;
+    setPageSeo(`${car.title}${t('listingDetail.seoTitleSuffix')}`, desc);
+  }, [car, t]);
 
   useEffect(() => {
     if (!car || !getAuthToken()) {
@@ -188,16 +185,16 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
   const canBoostListing = !!(car && (car.can_manage ?? false));
 
   const dyn = car?.dynamic_attributes as Record<string, unknown> | undefined;
-  const feats = useMemo(() => featureSections(dyn), [dyn]);
+  const feats = useMemo(() => featureSections(dyn, t), [dyn, t]);
 
   const toggleWishlist = () => {
     if (!car || !getAuthToken()) {
-      window.alert('Sign in to use wishlist.');
+      window.alert(t('listingDetail.wishlistSignIn'));
       return;
     }
     (wishlisted ? removeFromWishlist(car.id) : addToWishlist(car.id))
       .then(() => setWishlisted(!wishlisted))
-      .catch((err) => window.alert(err instanceof Error ? err.message : 'Wishlist failed'));
+      .catch((err) => window.alert(err instanceof Error ? err.message : t('listingDetail.wishlistFailed')));
   };
 
   const shareListing = async () => {
@@ -208,7 +205,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
         await navigator.share({ title: car.title, text: car.title, url });
       } else {
         await navigator.clipboard.writeText(url);
-        window.alert('Link copied to clipboard.');
+        window.alert(t('listingDetail.linkCopied'));
       }
     } catch {
       /* dismissed share sheet */
@@ -217,7 +214,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
 
   const galleryFeaturedBadge = car?.featured ? (
     <span className="rounded bg-[#C4161C] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-md">
-      Featured
+      {t('listingDetail.featured')}
     </span>
   ) : null;
 
@@ -225,8 +222,8 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
     <>
       <button
         type="button"
-        aria-label={wishlisted ? 'Remove from saved' : 'Save listing'}
-        title="Save"
+        aria-label={wishlisted ? t('listingDetail.removeSavedAria') : t('listingDetail.saveListingAria')}
+        title={t('listingDetail.saveTitle')}
         onClick={(e) => {
           e.preventDefault();
           toggleWishlist();
@@ -237,8 +234,8 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
       </button>
       <button
         type="button"
-        aria-label={wishlisted ? 'Remove from favorites' : 'Add to favorites'}
-        title="Favorite"
+        aria-label={wishlisted ? t('listingDetail.removeFavAria') : t('listingDetail.addFavAria')}
+        title={t('listingDetail.favoriteTitle')}
         onClick={(e) => {
           e.preventDefault();
           toggleWishlist();
@@ -249,7 +246,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
       </button>
       <button
         type="button"
-        aria-label="Share listing"
+        aria-label={t('listingDetail.shareAria')}
         onClick={(e) => {
           e.preventDefault();
           shareListing();
@@ -271,22 +268,22 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
       <div className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <button type="button" onClick={onBack} className="text-sm font-medium text-gray-600 hover:text-gray-900">
-            ← Back to results
+            {t('listingDetail.backToResults')}
           </button>
           {car ? (
-            <nav className="hidden min-w-0 flex-1 flex-wrap items-center gap-1 text-[11px] text-gray-500 sm:flex sm:text-sm" aria-label="Breadcrumb">
+            <nav className="hidden min-w-0 flex-1 flex-wrap items-center gap-1 text-[11px] text-gray-500 sm:flex sm:text-sm" aria-label={t('listingDetail.breadcrumbAria')}>
               <Link to="/" className="shrink-0 hover:text-[#233D7B]">
-                Home
+                {t('listingDetail.breadcrumbHome')}
               </Link>
               <ChevronRight className="h-3.5 w-3.5 shrink-0 text-gray-400" aria-hidden />
               <Link to={listingsQueryHref} className="shrink-0 hover:text-[#233D7B]">
-                {car.listing_type === 'used_car' ? 'Used Cars' : 'Listings'}
+                {car.listing_type === 'used_car' ? t('listingDetail.breadcrumbUsedCars') : t('listingDetail.breadcrumbListings')}
               </Link>
               {car.location_city ? (
                 <>
                   <ChevronRight className="h-3.5 w-3.5 shrink-0 text-gray-400" aria-hidden />
                   <Link to={listingsQueryHref} className="shrink-0 hover:text-[#233D7B]">
-                    Cars {car.location_city}
+                    {t('listingDetail.breadcrumbCarsIn', { city: car.location_city })}
                   </Link>
                 </>
               ) : null}
@@ -313,7 +310,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
               <span className="max-w-[160px] truncate font-medium text-gray-900 sm:max-w-[280px] lg:max-w-md">{car.title}</span>
             </nav>
           ) : (
-            <span className="text-sm text-gray-400">{loading ? 'Loading…' : ''}</span>
+            <span className="text-sm text-gray-400">{loading ? t('listingDetail.loadingShort') : ''}</span>
           )}
         </div>
       </div>
@@ -321,33 +318,50 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
       <div className="mx-auto max-w-7xl px-4 py-6 lg:py-8">
         {loading ? (
           <div className="rounded-xl border border-gray-200 bg-white p-12 text-center text-gray-600 shadow-sm">
-            Loading vehicle details…
+            {t('listingDetail.loadingDetails')}
           </div>
         ) : !car ? (
           <div className="rounded-xl border border-gray-200 bg-white p-12 text-center text-gray-800 shadow-sm">
-            No listing found.
+            {t('listingDetail.notFound')}
           </div>
         ) : (
           (() => {
             const inspectionScore = inspectionScoreFromDyn(dyn);
             const ringScore = inspectionScore && inspectionScore !== '—' ? inspectionScore : '—';
             const monthly = indicativeMonthlyPayment(car.price);
-            const memberSince = formatMemberSince(car.created_at);
+            const loc = i18n.language?.startsWith('bn') ? 'bn-BD' : undefined;
+            const fmtDate = (iso: string | null | undefined) => {
+              if (!iso) return '—';
+              try {
+                return new Date(iso).toLocaleDateString(loc, { day: 'numeric', month: 'short', year: 'numeric' });
+              } catch {
+                return '—';
+              }
+            };
+            const fmtMember = (iso: string | null | undefined): string | null => {
+              if (!iso) return null;
+              try {
+                return new Date(iso).toLocaleDateString(loc, { month: 'short', day: 'numeric', year: 'numeric' });
+              } catch {
+                return null;
+              }
+            };
+            const memberSince = fmtMember(car.created_at);
             const specPairs: [string, string][] = [
               [
-                'Registered in',
+                t('listingDetail.registeredIn'),
                 strAttr(dyn, 'registered_in', 'registration') !== '—'
                   ? strAttr(dyn, 'registered_in', 'registration')
                   : car.condition
                     ? car.condition.replace(/_/g, ' ')
                     : '—',
               ],
-              ['Color', strAttr(dyn, 'color', 'body_color', 'exterior_color')],
-              ['Assembly', strAttr(dyn, 'assembly', 'import_status')],
-              ['Engine capacity', strAttr(dyn, 'engine_cc', 'engine_capacity', 'engine')],
-              ['Body type', car.category?.name || strAttr(dyn, 'body_type')],
-              ['Last updated', formatUpdated(car.updated_at)],
-              ['Ad Ref #', car.id.length > 12 ? `${car.id.slice(0, 12)}…` : car.id],
+              [t('listingDetail.color'), strAttr(dyn, 'color', 'body_color', 'exterior_color')],
+              [t('listingDetail.assembly'), strAttr(dyn, 'assembly', 'import_status')],
+              [t('listingDetail.engineCapacity'), strAttr(dyn, 'engine_cc', 'engine_capacity', 'engine')],
+              [t('listingDetail.bodyType'), car.category?.name || strAttr(dyn, 'body_type')],
+              [t('listingDetail.lastUpdated'), fmtDate(car.updated_at)],
+              [t('listingDetail.adRef'), car.id.length > 12 ? `${car.id.slice(0, 12)}…` : car.id],
             ];
             const specRows: [string, string][][] = [];
             for (let i = 0; i < specPairs.length; i += 2) {
@@ -355,10 +369,10 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
             }
 
             const sectionLinks = [
-              { id: 'detail-car-info', label: 'Car Info' },
-              { id: 'detail-car-details', label: 'Car Details' },
-              { id: 'detail-seller-comments', label: "Seller's Comments" },
-              { id: 'detail-similar-ads', label: 'Similar Ads' },
+              { id: 'detail-car-info', label: t('listingDetail.navCarInfo') },
+              { id: 'detail-car-details', label: t('listingDetail.navCarDetails') },
+              { id: 'detail-seller-comments', label: t('listingDetail.navSellerComments') },
+              { id: 'detail-similar-ads', label: t('listingDetail.navSimilarAds') },
             ] as const;
 
             const sectionNavClass =
@@ -368,9 +382,9 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-[148px_minmax(0,1fr)_min(340px,100%)] lg:items-start lg:gap-8">
                 <nav
                   className="scrollbar-thin hidden max-h-[calc(100dvh-1.5rem)] overflow-y-auto overscroll-contain lg:block lg:sticky lg:top-6 lg:self-start"
-                  aria-label="On this page"
+                  aria-label={t('listingDetail.onThisPageAria')}
                 >
-                  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">On this page</p>
+                  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">{t('listingDetail.onThisPage')}</p>
                   <ul className="space-y-0.5 border-r border-gray-200 pr-2">
                     {sectionLinks.map(({ id, label }) => (
                       <li key={id}>
@@ -401,10 +415,10 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600">
                         <span className="inline-flex items-center gap-1.5">
                           <MapPin className="h-4 w-4 shrink-0 text-gray-400" aria-hidden />
-                          {car.location_city || 'Location not specified'}
+                          {car.location_city || t('listingDetail.locationUnknown')}
                         </span>
                         <span className="hidden text-gray-300 sm:inline">·</span>
-                        <span className="text-xs text-gray-500">Added via listing</span>
+                        <span className="text-xs text-gray-500">{t('listingDetail.addedViaListing')}</span>
                       </div>
                     </header>
 
@@ -420,14 +434,17 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
 
                     <div className="grid grid-cols-2 divide-x divide-gray-200 rounded-xl border border-gray-200 bg-white shadow-sm md:grid-cols-4">
                       {[
-                        { icon: Calendar, label: 'Year', value: car.vehicle_year != null ? String(car.vehicle_year) : '—' },
+                        { icon: Calendar, label: t('listingDetail.year'), value: car.vehicle_year != null ? String(car.vehicle_year) : '—' },
                         {
                           icon: Gauge,
-                          label: 'Mileage',
-                          value: car.mileage_km != null ? `${Number(car.mileage_km).toLocaleString()} km` : '—',
+                          label: t('listingDetail.mileage'),
+                          value:
+                            car.mileage_km != null
+                              ? t('listingDetail.mileageKm', { n: Number(car.mileage_km).toLocaleString() })
+                              : '—',
                         },
-                        { icon: Fuel, label: 'Fuel', value: car.fuel_type || '—' },
-                        { icon: Settings, label: 'Transmission', value: car.transmission || '—' },
+                        { icon: Fuel, label: t('listingDetail.fuel'), value: car.fuel_type || '—' },
+                        { icon: Settings, label: t('listingDetail.transmission'), value: car.transmission || '—' },
                       ].map(({ icon: Icon, label, value }) => (
                         <div key={label} className="flex flex-col items-center gap-2 px-3 py-5 text-center">
                           <Icon className="h-6 w-6 text-gray-400" aria-hidden />
@@ -446,13 +463,17 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                           🚗
                         </div>
                         <div>
-                          <h2 className="text-lg font-bold text-gray-900">Car Inspection</h2>
-                          <p className="mt-1 text-sm text-gray-500">Engine · Suspension · Exterior · Interior</p>
+                          <h2 className="text-lg font-bold text-gray-900">{t('listingDetail.inspectionTitle')}</h2>
+                          <p className="mt-1 text-sm text-gray-500">{t('listingDetail.inspectionSubtitle')}</p>
                         </div>
                         <div
                           className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border-[3px] text-sm font-bold tabular-nums text-emerald-800 shadow-inner"
                           style={{ borderColor: GREEN, backgroundColor: '#ecfdf5' }}
-                          aria-label={ringScore === '—' ? 'Inspection score not available' : `Inspection score ${ringScore} out of 10`}
+                          aria-label={
+                            ringScore === '—'
+                              ? t('listingDetail.inspectionScoreAriaNA')
+                              : t('listingDetail.inspectionScoreAria', { score: ringScore })
+                          }
                         >
                           {ringScore === '—' ? '—' : `${ringScore}/10`}
                         </div>
@@ -462,7 +483,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                         className="mt-4 w-full rounded-lg px-5 py-3 text-sm font-bold text-white shadow-md transition hover:opacity-95 md:mt-0 md:w-auto md:shrink-0"
                         style={{ backgroundColor: GREEN }}
                       >
-                        Schedule Inspection
+                        {t('listingDetail.scheduleInspection')}
                       </button>
                     </section>
                   </section>
@@ -471,7 +492,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                     <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm md:p-6">
                       <h2 className="mb-5 flex items-center gap-2 text-lg font-bold text-gray-900">
                         <Car className="h-5 w-5 text-[#233D7B]" aria-hidden />
-                        Detailed specifications
+                        {t('listingDetail.detailedSpecs')}
                       </h2>
                       <div className="space-y-0">
                         {specRows.map((pair, rowIdx) => (
@@ -497,15 +518,15 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                     {feats.length > 0 ? (
                       <section className="rounded-xl border border-gray-200 bg-white shadow-sm">
                         <div className="border-b border-gray-100 px-5 py-4 md:px-6">
-                          <h2 className="text-lg font-bold text-gray-900">Car features</h2>
-                          <p className="mt-1 text-sm text-gray-500">Tap a category to expand.</p>
+                          <h2 className="text-lg font-bold text-gray-900">{t('listingDetail.carFeatures')}</h2>
+                          <p className="mt-1 text-sm text-gray-500">{t('listingDetail.tapExpand')}</p>
                         </div>
                         <div className="divide-y divide-gray-100 px-2 pb-2 md:px-4">
                           {feats.map((sec) => (
                             <details key={sec.title} className="group rounded-lg px-3 py-1 open:bg-gray-50/80">
                               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-3 marker:content-none [&::-webkit-details-marker]:hidden">
                                 <span className="flex items-center gap-3 font-semibold text-gray-900">
-                                  <FeatureSectionIcon title={sec.title} />
+                                  <FeatureSectionIcon hint={sec.hint} />
                                   {sec.title}
                                 </span>
                                 <ChevronRight className="h-5 w-5 shrink-0 text-gray-400 transition group-open:rotate-90" aria-hidden />
@@ -527,11 +548,11 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
 
                   <section id="detail-seller-comments" className="scroll-mt-6 space-y-6">
                     <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm md:p-6">
-                      <h2 className="mb-3 text-lg font-bold text-gray-900">Seller&apos;s comments</h2>
+                      <h2 className="mb-3 text-lg font-bold text-gray-900">{t('listingDetail.sellerComments')}</h2>
                       <div className="prose prose-sm max-w-none whitespace-pre-wrap leading-relaxed text-gray-700">
                         {car.description?.trim()
                           ? car.description
-                          : 'The seller has not added a detailed description yet.'}
+                          : t('listingDetail.noDescription')}
                       </div>
                     </section>
 
@@ -542,13 +563,13 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                     {similar.length > 0 ? (
                       <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm md:p-6">
                         <div className="mb-4 flex items-center justify-between gap-2">
-                          <h2 className="text-lg font-bold text-gray-900">Similar ads</h2>
+                          <h2 className="text-lg font-bold text-gray-900">{t('listingDetail.similarAds')}</h2>
                           <Link
                             to={`/listings?type=${encodeURIComponent(car.listing_type)}`}
                             className="text-sm font-semibold hover:underline"
                             style={{ color: BLUE }}
                           >
-                            View all →
+                            {t('listingDetail.viewAll')}
                           </Link>
                         </div>
                         <div className="flex gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -583,8 +604,8 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                           🚙
                         </span>
                         <div>
-                          <p className="font-bold text-gray-900">Post an ad for FREE</p>
-                          <p className="text-sm text-gray-500">Reach buyers across the marketplace.</p>
+                          <p className="font-bold text-gray-900">{t('listingDetail.postFreeTitle')}</p>
+                          <p className="text-sm text-gray-500">{t('listingDetail.postFreeSubtitle')}</p>
                         </div>
                       </div>
                       <Link
@@ -592,7 +613,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                         className="inline-flex w-full items-center justify-center rounded-lg px-8 py-3 text-sm font-bold text-white shadow-md transition hover:opacity-95 sm:w-auto"
                         style={{ backgroundColor: GREEN }}
                       >
-                        Sell Your Car
+                        {t('listingDetail.sellYourCar')}
                       </Link>
                     </div>
                   </section>
@@ -601,13 +622,16 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                 <aside className="lg:sticky lg:top-6 lg:self-start">
                   <div className="space-y-4">
                     <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-md sm:p-5">
-                      <p className="text-center text-xs font-semibold uppercase tracking-wide text-gray-500">Price</p>
+                      <p className="text-center text-xs font-semibold uppercase tracking-wide text-gray-500">{t('listingDetail.price')}</p>
                       <p className="mt-1 text-center text-3xl font-bold tabular-nums md:text-[34px]" style={{ color: GREEN }}>
                         {formatMoney(car.price, car.currency)}
                       </p>
                       {monthly != null ? (
                         <p className="mt-2 text-center text-sm font-semibold" style={{ color: BLUE }}>
-                          Financing starts from {car.currency} {monthly.toLocaleString()}/month
+                          {t('listingDetail.financingFrom', {
+                            currency: car.currency,
+                            amount: monthly.toLocaleString(),
+                          })}
                         </p>
                       ) : null}
                     </div>
@@ -634,11 +658,11 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                               <Phone className="h-5 w-5 shrink-0" aria-hidden />
                               {maskPhoneDisplay(car.seller.phone)}
                             </span>
-                            <span className="text-xs font-semibold opacity-95">Show Phone Number</span>
+                            <span className="text-xs font-semibold opacity-95">{t('listingDetail.showPhone')}</span>
                           </button>
                         )
                       ) : (
-                        <p className="rounded-lg bg-gray-50 py-3 text-center text-sm text-gray-500">Phone not listed</p>
+                        <p className="rounded-lg bg-gray-50 py-3 text-center text-sm text-gray-500">{t('listingDetail.phoneNotListed')}</p>
                       )}
 
                       <button
@@ -656,24 +680,24 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                         style={{ borderColor: BLUE, color: BLUE }}
                       >
                         <MessageCircle className="h-5 w-5 shrink-0" aria-hidden />
-                        Send Message
+                        {t('listingDetail.sendMessage')}
                       </button>
 
                       {!getAuthToken() ? (
-                        <p className="text-center text-xs text-gray-500">Sign in to message — we&apos;ll take you to login, then you can open Messages.</p>
+                        <p className="text-center text-xs text-gray-500">{t('listingDetail.signInMessageHint')}</p>
                       ) : null}
                     </div>
 
                     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-md">
-                      <h3 className="border-b border-gray-100 pb-3 text-sm font-bold text-gray-900">Seller Details</h3>
+                      <h3 className="border-b border-gray-100 pb-3 text-sm font-bold text-gray-900">{t('listingDetail.sellerDetails')}</h3>
                       <div className="mt-4 flex min-w-0 gap-3">
                         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gray-100 ring-1 ring-gray-200">
                           <User className="h-7 w-7 text-gray-400" aria-hidden />
                         </div>
                         <div className="min-w-0 flex-1 overflow-hidden">
-                          <p className="truncate font-bold text-gray-900">{car.seller?.name || 'Private seller'}</p>
+                          <p className="truncate font-bold text-gray-900">{car.seller?.name || t('listingDetail.privateSeller')}</p>
                           {memberSince ? (
-                            <p className="mt-1 text-xs text-gray-500">Member since {memberSince}</p>
+                            <p className="mt-1 text-xs text-gray-500">{t('listingDetail.memberSince', { date: memberSince })}</p>
                           ) : null}
                           {car.seller?.email ? (
                             <a
@@ -684,7 +708,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                               {car.seller.email}
                             </a>
                           ) : (
-                            <p className="mt-2 text-xs text-gray-400">Connect via call or message</p>
+                            <p className="mt-2 text-xs text-gray-400">{t('listingDetail.connectVia')}</p>
                           )}
                         </div>
                       </div>
@@ -693,32 +717,32 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                     <div className="rounded-xl border border-amber-100 bg-amber-50/90 p-4 shadow-sm">
                       <div className="mb-2 flex items-center gap-2 text-sm font-bold text-amber-950">
                         <Shield className="h-4 w-4 shrink-0" aria-hidden />
-                        Safety tips
+                        {t('listingDetail.safetyTitle')}
                       </div>
                       <ul className="space-y-2 text-xs leading-relaxed text-amber-950/90">
-                        <li>Meet in a safe, public place for viewings.</li>
-                        <li>Inspect documents and chassis before payment.</li>
-                        <li>Avoid advance payments to unknown accounts.</li>
+                        <li>{t('listingDetail.safety1')}</li>
+                        <li>{t('listingDetail.safety2')}</li>
+                        <li>{t('listingDetail.safety3')}</li>
                       </ul>
                       <button type="button" className="mt-3 text-xs font-bold hover:underline" style={{ color: BLUE }}>
-                        Learn more
+                        {t('listingDetail.learnMore')}
                       </button>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
-                        onClick={() => window.alert('Thanks — we will follow up if needed.')}
+                        onClick={() => window.alert(t('listingDetail.alertSold'))}
                         className="rounded-lg border border-gray-300 bg-white py-2.5 text-center text-xs font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50"
                       >
-                        Notify As Sold
+                        {t('listingDetail.notifySold')}
                       </button>
                       <button
                         type="button"
-                        onClick={() => window.alert('Thank you — moderators will review this report.')}
+                        onClick={() => window.alert(t('listingDetail.alertReport'))}
                         className="rounded-lg border border-gray-300 bg-white py-2.5 text-center text-xs font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50"
                       >
-                        Report This Ad
+                        {t('listingDetail.reportAd')}
                       </button>
                     </div>
 

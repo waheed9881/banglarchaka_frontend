@@ -10,6 +10,7 @@ import {
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { POPULAR_NEW_BIKES, POPULAR_USED_BIKES } from '@/app/data/usedBikesBrowse';
 
 function MegaLink({
   title,
@@ -43,8 +44,8 @@ function BikeModelLink({ listingType, label, q }: { listingType: 'used_bike' | '
 }
 
 export const BIKES_MOBILE_LINKS: Array<{ labelKey: string; to: string }> = [
-  { labelKey: 'nav.mobileBikesFindUsed', to: '/listings?type=used_bike' },
-  { labelKey: 'nav.mobileBikesListings', to: '/listings?type=used_bike' },
+  { labelKey: 'nav.mobileBikesFindUsed', to: '/used-bikes' },
+  { labelKey: 'nav.mobileBikesListings', to: '/used-bikes' },
   { labelKey: 'nav.mobileBikesFeatured', to: '/listings?type=used_bike&featured=1' },
   { labelKey: 'nav.mobileBikesSell', to: '/used-bikes/sell' },
   { labelKey: 'nav.mobileBikesDealersUsed', to: '/listings?type=used_bike&dealer_only=1' },
@@ -53,28 +54,6 @@ export const BIKES_MOBILE_LINKS: Array<{ labelKey: string; to: string }> = [
   { labelKey: 'nav.mobileBikesReviews', to: '/bike-reviews' },
   { labelKey: 'nav.mobileBikesPricesNew', to: '/bike-prices' },
   { labelKey: 'nav.mobileBikesDealersNew', to: '/listings?type=new_bike&dealer_only=1' },
-];
-
-const POPULAR_NEW_BIKES: Array<{ label: string; q: string }> = [
-  { label: 'Honda CG 125', q: 'Honda CG 125' },
-  { label: 'Yamaha YBR 125', q: 'Yamaha YBR 125' },
-  { label: 'Honda CD 70', q: 'Honda CD 70' },
-  { label: 'Suzuki GD 110S', q: 'Suzuki GD 110S' },
-  { label: 'Suzuki GS 150', q: 'Suzuki GS 150' },
-  { label: 'Honda Pridor', q: 'Honda Pridor' },
-  { label: 'Yamaha YBR 125G', q: 'Yamaha YBR 125G' },
-  { label: 'Honda CB 150F', q: 'Honda CB 150F' },
-];
-
-const POPULAR_USED_BIKES: Array<{ label: string; q: string }> = [
-  { label: 'Honda CG 125', q: 'Honda CG 125' },
-  { label: 'Honda CD 70', q: 'Honda CD 70' },
-  { label: 'Yamaha YBR 125', q: 'Yamaha YBR 125' },
-  { label: 'Suzuki GS 150', q: 'Suzuki GS 150' },
-  { label: 'Honda CB 125F', q: 'Honda CB 125F' },
-  { label: 'Yamaha YBR 125G', q: 'Yamaha YBR 125G' },
-  { label: 'Honda Pridor', q: 'Honda Pridor' },
-  { label: 'Hi Speed Infinity 150', q: 'Hi Speed Infinity 150' },
 ];
 
 export function BikesMegaMenuPanel({ className = '' }: { className?: string }) {
@@ -95,13 +74,13 @@ export function BikesMegaMenuPanel({ className = '' }: { className?: string }) {
           <MegaLink
             title={t('mega.bikes.findUsedTitle')}
             desc={t('mega.bikes.findUsedDesc')}
-            to="/listings?type=used_bike"
+            to="/used-bikes"
             icon={<Search className="w-5 h-5" />}
           />
           <MegaLink
             title={t('mega.bikes.listingsTitle')}
             desc={t('mega.bikes.listingsDesc')}
-            to="/listings?type=used_bike"
+            to="/used-bikes"
             icon={<Bike className="w-5 h-5" />}
           />
           <MegaLink

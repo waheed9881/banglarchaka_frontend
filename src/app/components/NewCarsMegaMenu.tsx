@@ -76,7 +76,7 @@ const POPULAR_NEW_MODELS: Array<{ label: string; q: string }> = [
 ];
 
 export const NEW_CARS_MOBILE_LINKS: Array<{ labelKey: string; to: string }> = [
-  { labelKey: 'nav.mobileNewCarsFindNew', to: '/listings?type=new_car' },
+  { labelKey: 'nav.mobileNewCarsFindNew', to: '/new-cars' },
   { labelKey: 'nav.mobileNewCarsCompare', to: '/compare' },
   { labelKey: 'nav.mobileNewCarsReviews', to: '/car-reviews' },
   { labelKey: 'nav.mobileNewCarsPrices', to: '/car-prices' },
@@ -101,7 +101,7 @@ export function NewCarsMegaMenuPanel({ className = '' }: { className?: string })
           <MegaLink
             title={t('mega.newCars.findTitle')}
             desc={t('mega.newCars.findDesc')}
-            to="/listings?type=new_car"
+            to="/new-cars"
             icon={<Search className="w-5 h-5" />}
           />
           <MegaLink

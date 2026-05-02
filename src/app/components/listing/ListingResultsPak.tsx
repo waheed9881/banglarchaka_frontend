@@ -1,4 +1,6 @@
 import type { Dispatch, MouseEvent, SetStateAction } from 'react';
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import {
   Check,
   Heart,
@@ -17,6 +19,7 @@ import {
   type BrandDto,
   type ListingDto,
 } from '@/lib/marketplace';
+import { PK_CITIES_BROWSE } from '@/app/data/usedBikesBrowse';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 const FALLBACK =
@@ -35,20 +38,28 @@ export function mergeListingParams(
   return next;
 }
 
-export function formatListingUpdated(car: ListingDto): string {
+export function formatListingUpdated(car: ListingDto, t: TFunction): string {
   const raw = car.updated_at || car.created_at;
-  if (!raw) return 'Recently updated';
+  if (!raw) return t('listingBrowse.updatedRecently');
   const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return 'Recently updated';
+  if (Number.isNaN(d.getTime())) return t('listingBrowse.updatedRecently');
   const diffMs = Date.now() - d.getTime();
   const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return 'Updated just now';
-  if (mins < 60) return `Updated ${mins} minute${mins === 1 ? '' : 's'} ago`;
+  if (mins < 1) return t('listingBrowse.updatedJustNow');
+  if (mins < 60) {
+    return mins === 1 ? t('listingBrowse.updatedOneMinute') : t('listingBrowse.updatedMinutes', { count: mins });
+  }
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `Updated ${hrs} hour${hrs === 1 ? '' : 's'} ago`;
+  if (hrs < 24) {
+    return hrs === 1 ? t('listingBrowse.updatedOneHour') : t('listingBrowse.updatedHours', { count: hrs });
+  }
   const days = Math.floor(hrs / 24);
-  if (days < 14) return `Updated ${days} day${days === 1 ? '' : 's'} ago`;
-  return `Updated ${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  if (days < 14) {
+    return days === 1 ? t('listingBrowse.updatedOneDay') : t('listingBrowse.updatedDays', { count: days });
+  }
+  const locale = typeof document !== 'undefined' && document.documentElement.lang === 'bn' ? 'bn-BD' : 'en-GB';
+  const dateStr = d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
+  return t('listingBrowse.updatedOnDate', { date: dateStr });
 }
 
 export function listingSpecsLine(car: ListingDto): string {
@@ -119,16 +130,39 @@ type SidebarPakProps = {
   setFeaturedOnly: (v: boolean) => void;
   commitFiltersToUrl: () => void;
   clearFiltersToUrl: () => void;
+  listingType: string;
 };
 
-const CITY_CHIPS = ['Dhaka', 'Chattogram', 'Sylhet', 'Rajshahi', 'Khulna', 'Gazipur', 'Cumilla', 'Barishal'];
-const COLOR_CHIPS = ['White', 'Black', 'Silver', 'Grey', 'Blue', 'Red', 'Green'];
-const BODY_CHIPS: Array<{ label: string; q: string }> = [
-  { label: 'Sedan', q: 'sedan' },
-  { label: 'Hatchback', q: 'hatchback' },
-  { label: 'SUV', q: 'SUV' },
-  { label: 'Crossover', q: 'crossover' },
+const CITY_CHIPS: Array<{ slug: string; labelKey: string }> = [
+  { slug: 'Dhaka', labelKey: 'footer.cityDhaka' },
+  { slug: 'Chattogram', labelKey: 'footer.cityChattogram' },
+  { slug: 'Sylhet', labelKey: 'footer.citySylhet' },
+  { slug: 'Rajshahi', labelKey: 'footer.cityRajshahi' },
+  { slug: 'Khulna', labelKey: 'footer.cityKhulna' },
+  { slug: 'Gazipur', labelKey: 'footer.cityGazipur' },
+  { slug: 'Cumilla', labelKey: 'footer.cityCumilla' },
+  { slug: 'Barishal', labelKey: 'footer.cityBarishal' },
 ];
+const COLOR_CHIPS: Array<{ q: string; labelKey: string }> = [
+  { q: 'white', labelKey: 'listingBrowse.colWhite' },
+  { q: 'black', labelKey: 'listingBrowse.colBlack' },
+  { q: 'silver', labelKey: 'listingBrowse.colSilver' },
+  { q: 'grey', labelKey: 'listingBrowse.colGrey' },
+  { q: 'blue', labelKey: 'listingBrowse.colBlue' },
+  { q: 'red', labelKey: 'listingBrowse.colRed' },
+  { q: 'green', labelKey: 'listingBrowse.colGreen' },
+];
+const BODY_CHIPS: Array<{ labelKey: string; q: string }> = [
+  { labelKey: 'listingBrowse.chipSedan', q: 'sedan' },
+  { labelKey: 'listingBrowse.chipHatchback', q: 'hatchback' },
+  { labelKey: 'listingBrowse.chipSuv', q: 'SUV' },
+  { labelKey: 'listingBrowse.chipCrossover', q: 'crossover' },
+];
+
+const BD_CITY_SLUGS = new Set(CITY_CHIPS.map((c) => c.slug));
+const BIKE_EXTRA_CITY_CHIPS: Array<{ slug: string; plainLabel: string }> = PK_CITIES_BROWSE.filter(
+  (slug) => !BD_CITY_SLUGS.has(slug),
+).map((slug) => ({ slug, plainLabel: slug }));
 
 export function PakFiltersSidebar({
   locationSearch,
@@ -162,7 +196,9 @@ export function PakFiltersSidebar({
   setFeaturedOnly,
   commitFiltersToUrl,
   clearFiltersToUrl,
+  listingType,
 }: SidebarPakProps) {
+  const { t } = useTranslation();
   const applyChip = (updates: Record<string, string | null | undefined>) => {
     setSearchParams(mergeListingParams(locationSearch, updates), { replace: true });
   };
@@ -172,24 +208,24 @@ export function PakFiltersSidebar({
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm sticky top-24">
       <div className="border-b border-gray-100 px-4 py-3 bg-[#f8f9fa]">
-        <h3 className="text-[13px] font-bold uppercase tracking-wide text-gray-800">Show results by</h3>
+        <h3 className="text-[13px] font-bold uppercase tracking-wide text-gray-800">{t('listingBrowse.showResultsBy')}</h3>
       </div>
       <div className="p-4 pb-28 space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto lg:pb-4">
         <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Search keyword</div>
+          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.searchKeyword')}</div>
           <div className="flex gap-2">
             <input
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && commitFiltersToUrl()}
-              placeholder="Make, model…"
+              placeholder={t('listingBrowse.placeholderKeyword')}
               className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded text-sm text-gray-900"
             />
             <button
               type="button"
               onClick={() => commitFiltersToUrl()}
               className="shrink-0 rounded bg-[#233D7B] text-white p-2 hover:bg-[#1a2d5a]"
-              aria-label="Search"
+              aria-label={t('listingBrowse.searchAria')}
             >
               <Search className="w-4 h-4" />
             </button>
@@ -197,7 +233,7 @@ export function PakFiltersSidebar({
         </div>
 
         <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">City</div>
+          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.city')}</div>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -206,37 +242,53 @@ export function PakFiltersSidebar({
                 !city ? 'border-[#233D7B] bg-[#233D7B]/10 text-[#233D7B]' : 'border-gray-200 text-gray-600 hover:border-gray-300'
               }`}
             >
-              All
+              {t('listingBrowse.all')}
             </button>
             {CITY_CHIPS.map((c) => (
               <button
-                key={c}
+                key={c.slug}
                 type="button"
-                onClick={() => applyChip({ city: c })}
+                onClick={() => applyChip({ city: c.slug })}
                 className={`rounded-full px-2.5 py-1 text-[11px] font-semibold border ${
-                  chipActive('city', c) ? 'border-[#233D7B] bg-[#233D7B]/10 text-[#233D7B]' : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                  chipActive('city', c.slug) ? 'border-[#233D7B] bg-[#233D7B]/10 text-[#233D7B]' : 'border-gray-200 text-gray-600 hover:border-gray-300'
                 }`}
               >
-                {c}
+                {t(c.labelKey)}
               </button>
             ))}
+            {listingType === 'used_bike'
+              ? BIKE_EXTRA_CITY_CHIPS.map((c) => (
+                  <button
+                    key={c.slug}
+                    type="button"
+                    onClick={() => applyChip({ city: c.slug })}
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold border ${
+                      chipActive('city', c.slug)
+                        ? 'border-[#233D7B] bg-[#233D7B]/10 text-[#233D7B]'
+                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                    }`}
+                  >
+                    {c.plainLabel}
+                  </button>
+                ))
+              : null}
           </div>
           <input
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            placeholder="Other city"
+            placeholder={t('listingBrowse.otherCity')}
             className="mt-2 w-full px-3 py-2 border border-gray-300 rounded text-sm"
           />
         </div>
 
         <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Make</div>
+          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.make')}</div>
           <select
             value={brandId}
             onChange={(e) => setBrandId(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
           >
-            <option value="">All makes</option>
+            <option value="">{t('listingBrowse.allMakes')}</option>
             {brands.map((b) => (
               <option value={String(b.id)} key={b.id}>
                 {b.name}
@@ -246,18 +298,18 @@ export function PakFiltersSidebar({
         </div>
 
         <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Price (BDT)</div>
+          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.priceBdt')}</div>
           <div className="flex gap-2 items-center">
             <input
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
-              placeholder="From"
+              placeholder={t('listingBrowse.from')}
               className="w-full px-2 py-2 border border-gray-300 rounded text-sm"
             />
             <input
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
-              placeholder="To"
+              placeholder={t('listingBrowse.to')}
               className="w-full px-2 py-2 border border-gray-300 rounded text-sm"
             />
             <button
@@ -265,24 +317,24 @@ export function PakFiltersSidebar({
               onClick={() => commitFiltersToUrl()}
               className="shrink-0 rounded bg-[#233D7B] text-white px-3 py-2 text-xs font-bold hover:bg-[#1a2d5a]"
             >
-              Go
+              {t('listingBrowse.go')}
             </button>
           </div>
         </div>
 
         <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Year</div>
+          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.year')}</div>
           <div className="flex gap-2 items-center">
             <input
               value={minYear}
               onChange={(e) => setMinYear(e.target.value)}
-              placeholder="From"
+              placeholder={t('listingBrowse.from')}
               className="w-full px-2 py-2 border border-gray-300 rounded text-sm"
             />
             <input
               value={maxYear}
               onChange={(e) => setMaxYear(e.target.value)}
-              placeholder="To"
+              placeholder={t('listingBrowse.to')}
               className="w-full px-2 py-2 border border-gray-300 rounded text-sm"
             />
             <button
@@ -290,96 +342,100 @@ export function PakFiltersSidebar({
               onClick={() => commitFiltersToUrl()}
               className="shrink-0 rounded bg-[#233D7B] text-white px-3 py-2 text-xs font-bold hover:bg-[#1a2d5a]"
             >
-              Go
+              {t('listingBrowse.go')}
             </button>
           </div>
         </div>
 
-        <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Transmission</div>
-          <div className="flex flex-wrap gap-2">
-            {[
-              { label: 'Any', v: '' },
-              { label: 'Automatic', v: 'automatic' },
-              { label: 'Manual', v: 'manual' },
-            ].map(({ label, v }) => (
-              <button
-                key={label}
-                type="button"
-                onClick={() => {
-                  setTransmission(v);
-                  applyChip({ transmission: v || null });
-                }}
-                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold border ${
-                  (v === '' && !transmission) || transmission === v
-                    ? 'border-[#233D7B] bg-[#233D7B]/10 text-[#233D7B]'
-                    : 'border-gray-200 text-gray-600'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+        {listingType !== 'used_bike' ? (
+          <div>
+            <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.transmission')}</div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: t('listingBrowse.transAny'), v: '' },
+                { label: t('hero.automatic'), v: 'automatic' },
+                { label: t('hero.manual'), v: 'manual' },
+              ].map(({ label, v }) => (
+                <button
+                  key={v || 'any'}
+                  type="button"
+                  onClick={() => {
+                    setTransmission(v);
+                    applyChip({ transmission: v || null });
+                  }}
+                  className={`rounded-full px-2.5 py-1 text-[11px] font-semibold border ${
+                    (v === '' && !transmission) || transmission === v
+                      ? 'border-[#233D7B] bg-[#233D7B]/10 text-[#233D7B]'
+                      : 'border-gray-200 text-gray-600'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : null}
 
         <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Fuel type</div>
+          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.fuelType')}</div>
           <select
             value={fuelType}
             onChange={(e) => setFuelType(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
           >
-            <option value="">Any</option>
-            <option value="petrol">Petrol</option>
-            <option value="diesel">Diesel</option>
-            <option value="hybrid">Hybrid</option>
-            <option value="electric">Electric</option>
+            <option value="">{t('listingBrowse.fuelAny')}</option>
+            <option value="petrol">{t('hero.petrol')}</option>
+            <option value="diesel">{t('hero.diesel')}</option>
+            <option value="hybrid">{t('hero.hybrid')}</option>
+            <option value="electric">{t('hero.electric')}</option>
           </select>
         </div>
 
         <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Colour (keyword)</div>
+          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.colourKeyword')}</div>
           <div className="flex flex-wrap gap-2">
             {COLOR_CHIPS.map((col) => (
               <button
-                key={col}
+                key={col.q}
                 type="button"
-                onClick={() => applyChip({ q: col.toLowerCase() })}
+                onClick={() => applyChip({ q: col.q })}
                 className="rounded-full px-2 py-1 text-[11px] font-medium border border-gray-200 text-gray-700 hover:border-[#233D7B]"
               >
-                {col}
+                {t(col.labelKey)}
               </button>
             ))}
           </div>
         </div>
 
-        <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Body type (keyword)</div>
-          <div className="flex flex-wrap gap-2">
-            {BODY_CHIPS.map(({ label, q }) => (
-              <button
-                key={label}
-                type="button"
-                onClick={() => applyChip({ q })}
-                className="rounded-full px-2 py-1 text-[11px] font-medium border border-gray-200 text-gray-700 hover:border-[#233D7B]"
-              >
-                {label}
-              </button>
-            ))}
+        {listingType !== 'used_bike' ? (
+          <div>
+            <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.bodyKeyword')}</div>
+            <div className="flex flex-wrap gap-2">
+              {BODY_CHIPS.map(({ labelKey, q }) => (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => applyChip({ q })}
+                  className="rounded-full px-2 py-1 text-[11px] font-medium border border-gray-200 text-gray-700 hover:border-[#233D7B]"
+                >
+                  {t(labelKey)}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : null}
 
         <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Condition</div>
+          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.condition')}</div>
           <select
             value={condition}
             onChange={(e) => setCondition(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
           >
-            <option value="">Any</option>
-            <option value="used">Used</option>
-            <option value="reconditioned">Reconditioned</option>
-            <option value="new">New</option>
+            <option value="">{t('listingBrowse.fuelAny')}</option>
+            <option value="used">{t('hero.used')}</option>
+            <option value="reconditioned">{t('hero.reconditioned')}</option>
+            <option value="new">{t('hero.new')}</option>
           </select>
         </div>
 
@@ -390,15 +446,15 @@ export function PakFiltersSidebar({
               checked={verifiedDealerOnly}
               onChange={(e) => setVerifiedDealerOnly(e.target.checked)}
             />
-            Verified dealers only
+            {t('listingBrowse.verifiedDealersOnly')}
           </label>
           <label className="flex items-center gap-2 text-sm text-gray-800">
             <input type="checkbox" checked={dealerOnly} onChange={(e) => setDealerOnly(e.target.checked)} />
-            Dealer listings only
+            {t('listingBrowse.dealerListingsOnly')}
           </label>
           <label className="flex items-center gap-2 text-sm text-gray-800">
             <input type="checkbox" checked={featuredOnly} onChange={(e) => setFeaturedOnly(e.target.checked)} />
-            Featured ads only
+            {t('listingBrowse.featuredAdsOnly')}
           </label>
         </div>
 
@@ -407,14 +463,14 @@ export function PakFiltersSidebar({
           onClick={() => commitFiltersToUrl()}
           className="w-full bg-[#3EB549] text-white py-2.5 rounded font-bold hover:bg-[#36a340] transition shadow-sm"
         >
-          Apply filters
+          {t('listingBrowse.applyFilters')}
         </button>
         <button
           type="button"
           onClick={() => clearFiltersToUrl()}
           className="w-full border border-gray-300 text-gray-800 py-2.5 rounded font-semibold hover:bg-gray-50 transition"
         >
-          Clear all
+          {t('listingBrowse.clearAll')}
         </button>
       </div>
     </div>
@@ -440,6 +496,7 @@ export function PakListingRow({
   phoneRevealId,
   setPhoneRevealId,
 }: RowPakProps) {
+  const { t } = useTranslation();
   const href = listingPublicHref(car);
   const phone = car.seller?.phone?.trim();
   const showPhone = phoneRevealId === car.id;
@@ -458,7 +515,7 @@ export function PakListingRow({
         />
         {car.featured ? (
           <span className="absolute top-2 left-2 bg-[#C4161C] text-white text-[10px] font-extrabold uppercase px-2 py-0.5 rounded shadow">
-            Featured
+            {t('listingBrowse.featured')}
           </span>
         ) : null}
       </Link>
@@ -470,10 +527,10 @@ export function PakListingRow({
           </Link>
           <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
             <MapPin className="w-3.5 h-3.5 shrink-0" />
-            {car.location_city || 'Bangladesh'}
+            {car.location_city || t('listingBrowse.defaultCountry')}
           </div>
           <p className="text-sm text-gray-700 mt-3 leading-relaxed">{listingSpecsLine(car)}</p>
-          <p className="text-xs text-gray-500 mt-3">{formatListingUpdated(car)}</p>
+          <p className="text-xs text-gray-500 mt-3">{formatListingUpdated(car, t)}</p>
         </div>
 
         <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-between gap-3 shrink-0 border-t md:border-t-0 border-gray-100 pt-3 md:pt-0 md:pl-4 md:border-l md:border-gray-100">
@@ -483,7 +540,7 @@ export function PakListingRow({
               type="button"
               className="rounded border border-gray-200 bg-white p-2 hover:bg-gray-50"
               onClick={(e) => copyListingUrl(car, e)}
-              aria-label={copiedListingId === car.id ? 'Copied' : 'Copy link'}
+              aria-label={copiedListingId === car.id ? t('listingBrowse.copied') : t('listingBrowse.copyLink')}
             >
               {copiedListingId === car.id ? (
                 <Check className="h-5 w-5 text-emerald-600" strokeWidth={2.25} />
@@ -497,7 +554,7 @@ export function PakListingRow({
               onClick={(e) => {
                 e.preventDefault();
                 if (!getAuthToken()) {
-                  window.alert('Please sign in to save favourites.');
+                  window.alert(t('listingBrowse.signInFavourites'));
                   return;
                 }
                 const saved = wishlistedIds.has(car.id);
@@ -510,9 +567,9 @@ export function PakListingRow({
                       return next;
                     }),
                   )
-                  .catch((err) => window.alert(err instanceof Error ? err.message : 'Wishlist failed'));
+                  .catch((err) => window.alert(err instanceof Error ? err.message : t('listingBrowse.wishlistFailed')));
               }}
-              aria-label="Wishlist"
+              aria-label={t('listingBrowse.wishlistAria')}
             >
               <Heart
                 className={`w-5 h-5 ${wishlistedIds.has(car.id) ? 'text-[#C4161C] fill-current' : 'text-gray-600'}`}
@@ -525,10 +582,10 @@ export function PakListingRow({
                 className="inline-flex items-center gap-2 rounded bg-[#3EB549] text-white px-4 py-2 text-sm font-bold hover:bg-[#36a340] transition whitespace-nowrap"
               >
                 <Phone className="w-4 h-4" />
-                {showPhone ? phone : 'Show phone no.'}
+                {showPhone ? phone : t('listingBrowse.showPhone')}
               </button>
             ) : (
-              <span className="text-xs text-gray-400 whitespace-nowrap">No phone on file</span>
+              <span className="text-xs text-gray-400 whitespace-nowrap">{t('listingBrowse.noPhone')}</span>
             )}
           </div>
         </div>
@@ -538,28 +595,29 @@ export function PakListingRow({
 }
 
 export function UsedCarsListingFooter() {
+  const { t } = useTranslation();
   const cols = [
     {
-      title: 'By city',
+      titleKey: 'listingBrowse.footerColCity' as const,
       links: ['Dhaka', 'Chattogram', 'Sylhet', 'Rajshahi', 'Khulna'].map((c) => ({
-        label: `Cars in ${c}`,
+        label: t('listingBrowse.carsInCity', { city: c }),
         to: `/listings?type=used_car&city=${encodeURIComponent(c)}`,
       })),
     },
     {
-      title: 'By make',
+      titleKey: 'listingBrowse.footerColMake' as const,
       links: ['Toyota', 'Honda', 'Suzuki', 'Hyundai', 'Nissan'].map((m) => ({
-        label: `Used ${m}`,
+        label: t('listingBrowse.usedMake', { make: m }),
         to: `/listings?type=used_car&q=${encodeURIComponent(m)}`,
       })),
     },
     {
-      title: 'By budget',
+      titleKey: 'listingBrowse.footerColBudget' as const,
       links: [
-        { label: 'Under ৳5 lac', to: '/listings?type=used_car&max_price=500000' },
-        { label: '৳5L – ৳15L', to: '/listings?type=used_car&min_price=500000&max_price=1500000' },
-        { label: '৳15L – ৳40L', to: '/listings?type=used_car&min_price=1500000&max_price=4000000' },
-        { label: 'Featured cars', to: '/listings?type=used_car&featured=1' },
+        { label: t('listingBrowse.budgetUnder5'), to: '/listings?type=used_car&max_price=500000' },
+        { label: t('listingBrowse.budget5to15'), to: '/listings?type=used_car&min_price=500000&max_price=1500000' },
+        { label: t('listingBrowse.budget15to40'), to: '/listings?type=used_car&min_price=1500000&max_price=4000000' },
+        { label: t('listingBrowse.featuredCars'), to: '/listings?type=used_car&featured=1' },
       ],
     },
   ];
@@ -568,32 +626,28 @@ export function UsedCarsListingFooter() {
     <div className="mt-12 space-y-10 border-t border-gray-200 pt-10">
       <div className="rounded-xl border border-[#233D7B]/15 bg-gradient-to-r from-gray-50 to-blue-50/50 px-6 py-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div>
-          <h3 className="text-xl font-bold text-gray-900">Post an ad for free</h3>
-          <p className="text-gray-600 mt-1 text-sm">Reach buyers across Bangladesh with photos and price in BDT.</p>
+          <h3 className="text-xl font-bold text-gray-900">{t('listingBrowse.footerSellTitle')}</h3>
+          <p className="text-gray-600 mt-1 text-sm">{t('listingBrowse.footerSellSubtitle')}</p>
         </div>
         <Link
           to="/used-cars/sell"
           className="inline-flex justify-center rounded-lg bg-[#3EB549] px-8 py-3 text-white font-bold hover:bg-[#36a340] transition shadow-md shrink-0"
         >
-          Sell your car
+          {t('listingBrowse.sellYourCar')}
         </Link>
       </div>
 
       <div>
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Used cars in Bangladesh</h3>
-        <p className="text-sm text-gray-600 leading-relaxed max-w-4xl">
-          Browse verified-style dealer listings where available, compare specs side-by-side, and contact sellers after you
-          review the full ad. Always inspect the vehicle and paperwork before paying — BanglarChaka is a discovery and
-          contact platform.
-        </p>
+        <h3 className="text-lg font-bold text-gray-900 mb-4">{t('listingBrowse.footerSectionTitle')}</h3>
+        <p className="text-sm text-gray-600 leading-relaxed max-w-4xl">{t('listingBrowse.footerSectionBody')}</p>
       </div>
 
       <div className="rounded-xl bg-[#eef5fb] border border-blue-100 px-4 py-8">
-        <h3 className="text-center text-lg font-bold text-[#233D7B] mb-6">Browse more used cars</h3>
+        <h3 className="text-center text-lg font-bold text-[#233D7B] mb-6">{t('listingBrowse.browseMoreTitle')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {cols.map((col) => (
-            <div key={col.title}>
-              <div className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-3">{col.title}</div>
+            <div key={col.titleKey}>
+              <div className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-3">{t(col.titleKey)}</div>
               <ul className="space-y-2">
                 {col.links.map((l) => (
                   <li key={l.to}>
@@ -609,9 +663,11 @@ export function UsedCarsListingFooter() {
       </div>
 
       <div className="rounded-lg bg-blue-50 border border-blue-100 px-4 py-4 text-center text-sm text-gray-700">
-        <strong className="text-[#233D7B]">Notify me:</strong> Save a search from the filters above — bookmark this page
-        with your criteria or use <Link to="/login" className="underline font-semibold">sign-in</Link> for messages &
-        wishlist.
+        <strong className="text-[#233D7B]">{t('listingBrowse.notifyLead')}</strong> {t('listingBrowse.notifyTrail')}{' '}
+        <Link to="/login" className="underline font-semibold">
+          {t('listingBrowse.notifySignIn')}
+        </Link>{' '}
+        {t('listingBrowse.notifyEnd')}
       </div>
     </div>
   );

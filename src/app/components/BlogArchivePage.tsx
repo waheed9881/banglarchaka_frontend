@@ -1,6 +1,7 @@
 import { Calendar, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { Link } from 'react-router';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   fetchBrandNews,
   fetchListings,
@@ -31,6 +32,7 @@ function BlogCardSkeleton() {
 }
 
 export function BlogArchivePage() {
+  const { t, i18n } = useTranslation();
   const [news, setNews] = useState<BrandNewsArticleDto[]>([]);
   const [fallback, setFallback] = useState<ListingDto[]>([]);
   const [meta, setMeta] = useState<BrandNewsMetaDto | null>(null);
@@ -63,14 +65,16 @@ export function BlogArchivePage() {
   }, [page]);
 
   useEffect(() => {
-    const title = page > 1 ? `Blog · Page ${page} · BanglarChaka` : 'Blog · BanglarChaka';
-    setPageSeo(title, 'Automotive news, brand updates, buying guides and marketplace stories from Bangladesh.');
-  }, [page]);
+    const title =
+      page > 1 ? t('blogArchive.seoTitlePage', { page }) : t('blogArchive.seoTitle');
+    setPageSeo(title, t('blogArchive.seoDesc'));
+  }, [page, t]);
 
   const formatDate = (iso: string | null) => {
     if (!iso) return '—';
     try {
-      return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(
+      const locale = i18n.language?.startsWith('bn') ? 'bn-BD' : 'en-GB';
+      return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' }).format(
         new Date(iso),
       );
     } catch {
@@ -78,12 +82,11 @@ export function BlogArchivePage() {
     }
   };
 
-  const heroSubtitle =
-    'Editorial notes from brands we track — plus fresh marketplace picks when articles are still onboarding.';
+  const heroSubtitle = t('blogArchive.heroSubtitle');
 
   return (
     <div className="min-h-screen bg-[#f4f6fa]">
-      <InnerPageHero title="Blog" subtitle={heroSubtitle} />
+      <InnerPageHero title={t('nav.blog')} subtitle={heroSubtitle} />
 
       <div className="max-w-6xl mx-auto px-4 py-10 sm:py-12">
         {loading ? (
@@ -112,7 +115,7 @@ export function BlogArchivePage() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-80 pointer-events-none" />
                         <span className="absolute top-4 left-4 bg-[#C4161C] text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg">
-                          {article.brand?.name || 'Desk'}
+                          {article.brand?.name || t('blogArchive.deskFallback')}
                         </span>
                       </div>
                       <div className="p-6 sm:p-7 flex-1 flex flex-col">
@@ -129,7 +132,7 @@ export function BlogArchivePage() {
                           </span>
                           <span className="inline-flex items-center gap-1.5 font-medium">
                             <User className="w-4 h-4 text-[#233D7B]" />
-                            {article.brand?.name || 'BanglarChaka'} desk
+                            {article.brand?.name || 'BanglarChaka'} {t('blogArchive.deskSuffix')}
                           </span>
                         </div>
                       </div>
@@ -147,10 +150,10 @@ export function BlogArchivePage() {
                   className="inline-flex items-center gap-1 rounded-xl border-2 border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:border-[#233D7B] hover:text-[#233D7B] disabled:opacity-35 disabled:pointer-events-none transition-colors"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  Previous
+                  {t('blogArchive.previous')}
                 </button>
                 <span className="text-sm text-gray-600 px-2 font-medium">
-                  Page {meta.current_page} of {meta.last_page}
+                  {t('blogArchive.pageOf', { current: meta.current_page, last: meta.last_page })}
                 </span>
                 <button
                   type="button"
@@ -158,7 +161,7 @@ export function BlogArchivePage() {
                   onClick={() => setPage((p) => p + 1)}
                   className="inline-flex items-center gap-1 rounded-xl border-2 border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:border-[#233D7B] hover:text-[#233D7B] disabled:opacity-35 disabled:pointer-events-none transition-colors"
                 >
-                  Next
+                  {t('blogArchive.next')}
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -167,8 +170,8 @@ export function BlogArchivePage() {
         ) : fallback.length > 0 ? (
           <div className="space-y-6">
             <div className="rounded-2xl border border-amber-200/80 bg-amber-50/90 px-5 py-4 text-sm text-amber-950">
-              <strong className="font-semibold">Showing marketplace highlights</strong> — publish brand articles to replace
-              this feed with editorial cards.
+              <strong className="font-semibold">{t('blogArchive.fallbackBannerLead')}</strong>{' '}
+              {t('blogArchive.fallbackBannerTrail')}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {fallback.map((listing) => (
@@ -186,7 +189,7 @@ export function BlogArchivePage() {
                       className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-300"
                     />
                     <span className="absolute top-4 left-4 bg-[#233D7B] text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg">
-                      Marketplace
+                      {t('blogArchive.marketplaceBadge')}
                     </span>
                   </Link>
                   <div className="p-6 sm:p-7 flex-1 flex flex-col">
@@ -210,12 +213,12 @@ export function BlogArchivePage() {
           </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-8 py-16 text-center shadow-sm">
-            <p className="text-gray-700 font-medium">Nothing to show yet — seed editorial items or listings.</p>
+            <p className="text-gray-700 font-medium">{t('blogArchive.emptyMessage')}</p>
             <Link
               to="/post-ad"
               className="inline-flex mt-6 rounded-full bg-[#C4161C] px-6 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors"
             >
-              Post an ad
+              {t('nav.postAd')}
             </Link>
           </div>
         )}

@@ -4,6 +4,7 @@ import { FeaturedCars } from './components/FeaturedCars';
 import { BrowseUsedCarsSection } from './components/BrowseUsedCarsSection';
 import { BrowseByBrand } from './components/BrowseByBrand';
 import { NewCars } from './components/NewCars';
+import { NewCarsLandingPage } from './components/NewCarsLandingPage';
 import { Bikes } from './components/Bikes';
 import { AutoParts } from './components/AutoParts';
 import { CompareSection } from './components/CompareSection';
@@ -38,6 +39,7 @@ import { LoginPage } from './components/LoginPage';
 import { ComparePage } from './components/ComparePage';
 import { SellCarLandingPage } from './components/SellCarLandingPage';
 import { SellBikeLandingPage } from './components/SellBikeLandingPage';
+import { UsedBikesLandingPage } from './components/UsedBikesLandingPage';
 import { InnerContentPage } from './components/InnerContentPage';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -172,10 +174,7 @@ function CarDetailRoute() {
 function NewCarRoute() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-  return (
-    <NewCarDetailPage listingId={id} onBack={() => navigate(`/listings${location.search}`)} />
-  );
+  return <NewCarDetailPage listingId={id} onBack={() => navigate('/new-cars')} />;
 }
 
 function PostAdRoute() {
@@ -490,7 +489,7 @@ function AppShell() {
         <Route path="/" element={<HomePage />} />
         <Route path="/listings" element={<ListingRoute />} />
         <Route path="/listings/:id" element={<CarDetailRoute />} />
-        <Route path="/new-cars" element={<Navigate to="/listings?type=new_car" replace />} />
+        <Route path="/new-cars" element={<NewCarsLandingPage />} />
         <Route path="/new-cars/:id" element={<NewCarRoute />} />
         <Route path="/post-ad" element={<PostAdRoute />} />
         <Route path="/admin/moderation" element={<AdminModerationPage />} />
@@ -525,6 +524,7 @@ function AppShell() {
         <Route path="/sitemap" element={<SiteMapPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/used-cars/sell" element={<SellCarLandingPage />} />
+        <Route path="/used-bikes" element={<UsedBikesLandingPage />} />
         <Route path="/used-bikes/sell" element={<SellBikeLandingPage />} />
         <Route path="/used-cars/featured" element={<UsedCarsFeaturedPage />} />
         <Route path="/used-car-dealers" element={<UsedCarDealersPage />} />

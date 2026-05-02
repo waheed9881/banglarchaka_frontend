@@ -180,7 +180,7 @@ export function Header({
 
               <div className="group/new">
                 <Link
-                  to="/listings?type=new_car"
+                  to="/new-cars"
                   className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/new:bg-white group-hover/new:text-gray-900 group-hover/new:border-white group-hover/new:border-b-white group-hover/new:shadow-[0_1px_0_0_white]"
                   title={t('mega.newCars.banner')}
                 >
@@ -195,7 +195,7 @@ export function Header({
               </div>
               <div className="group/bikes">
                 <Link
-                  to="/listings?type=used_bike"
+                  to="/used-bikes"
                   className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/bikes:bg-white group-hover/bikes:text-gray-900 group-hover/bikes:border-white group-hover/bikes:border-b-white group-hover/bikes:shadow-[0_1px_0_0_white]"
                   title={t('mega.bikes.banner')}
                 >
@@ -292,7 +292,6 @@ export function Header({
             </button>
           </div>
         </div>
-      </div>
 
         {mobileNavOpen ? (
           <nav

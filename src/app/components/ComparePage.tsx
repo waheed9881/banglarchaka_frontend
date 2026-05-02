@@ -1,17 +1,19 @@
 import { ArrowLeft } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { fetchListingById, formatMoney, resolveMediaUrl, type ListingDto } from '@/lib/marketplace';
 import { setPageSeo } from '@/lib/seo';
 
 const FALLBACK =
-  'https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=1080&q=80';
+  'https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=640&q=80';
 
 function Cell({ children }: { children: React.ReactNode }) {
   return <td className="border border-gray-200 px-3 py-3 text-sm text-gray-800 align-top">{children}</td>;
 }
 
 export function ComparePage() {
+  const { t } = useTranslation();
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const queryKey = params.toString();
@@ -36,18 +38,20 @@ export function ComparePage() {
     };
   }, [queryKey]);
 
-  const valid = rows.filter(Boolean) as ListingDto[];
-
   useEffect(() => {
     if (loading) return;
+    const valid = rows.filter(Boolean) as ListingDto[];
     if (!valid.length) {
-      setPageSeo('Compare listings · BanglarChaka', 'Pick two or three listings and compare specs and price side by side.');
+      setPageSeo(t('compare.seoEmpty'), t('compare.seoEmptyDesc'));
       return;
     }
     const joined = valid.map((r) => r.title).join(' vs ');
-    const desc = `${valid.length} listing${valid.length === 1 ? '' : 's'} — ${joined}`.slice(0, 160);
-    setPageSeo(`Compare: ${joined.slice(0, 72)}${joined.length > 72 ? '…' : ''} · BanglarChaka`, desc);
-  }, [loading, queryKey, rows]);
+    const shortJoin = `${joined.slice(0, 72)}${joined.length > 72 ? '…' : ''}`;
+    const descKey = valid.length === 1 ? 'compare.seoDesc' : 'compare.seoDescPlural';
+    setPageSeo(t('compare.seoTitle', { titles: shortJoin }), t(descKey, { count: valid.length, titles: joined }).slice(0, 160));
+  }, [loading, queryKey, rows, t]);
+
+  const valid = rows.filter(Boolean) as ListingDto[];
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
@@ -58,31 +62,31 @@ export function ComparePage() {
           className="inline-flex items-center gap-2 text-[#233D7B] font-semibold mb-6 hover:underline"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back
+          {t('compare.back')}
         </button>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Compare listings</h1>
-        <p className="text-gray-600 mb-8">Side-by-side facts from the BanglarChaka catalog.</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('compare.title')}</h1>
+        <p className="text-gray-600 mb-8">{t('compare.subtitle')}</p>
 
         {ids.length < 2 ? (
           <p className="text-gray-700">
-            Pick two vehicles from the home compare widget first, or{' '}
+            {t('compare.pickTwo')}{' '}
             <Link to="/" className="text-[#233D7B] font-semibold underline">
-              go home
+              {t('compare.goHome')}
             </Link>
             .
           </p>
         ) : loading ? (
-          <p className="text-gray-600">Loading listing details…</p>
+          <p className="text-gray-600">{t('compare.loading')}</p>
         ) : valid.length === 0 ? (
-          <p className="text-gray-700">Could not load those listings. They may be offline or unpublished.</p>
+          <p className="text-gray-700">{t('compare.loadFailed')}</p>
         ) : (
           <div className="overflow-x-auto bg-white rounded-xl shadow border border-gray-100">
             <table className="w-full min-w-[720px] border-collapse">
               <thead>
                 <tr>
                   <th className="border border-gray-200 bg-gray-50 px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wide w-40">
-                    Attribute
+                    {t('compare.attrHeader')}
                   </th>
                   {valid.map((listing) => (
                     <th
@@ -105,70 +109,70 @@ export function ComparePage() {
               </thead>
               <tbody>
                 <tr>
-                  <Cell>Price</Cell>
+                  <Cell>{t('compare.price')}</Cell>
                   {valid.map((listing) => (
                     <Cell key={`p-${listing.id}`}>{formatMoney(listing.price, listing.currency)}</Cell>
                   ))}
                 </tr>
                 <tr>
-                  <Cell>Type</Cell>
+                  <Cell>{t('compare.type')}</Cell>
                   {valid.map((listing) => (
                     <Cell key={`t-${listing.id}`}>{listing.listing_type.replace('_', ' ')}</Cell>
                   ))}
                 </tr>
                 <tr>
-                  <Cell>Brand</Cell>
+                  <Cell>{t('compare.brand')}</Cell>
                   {valid.map((listing) => (
                     <Cell key={`br-${listing.id}`}>{listing.brand?.name || '—'}</Cell>
                   ))}
                 </tr>
                 <tr>
-                  <Cell>Year</Cell>
+                  <Cell>{t('compare.year')}</Cell>
                   {valid.map((listing) => (
                     <Cell key={`y-${listing.id}`}>{listing.vehicle_year ?? '—'}</Cell>
                   ))}
                 </tr>
                 <tr>
-                  <Cell>Mileage</Cell>
+                  <Cell>{t('compare.mileage')}</Cell>
                   {valid.map((listing) => (
                     <Cell key={`m-${listing.id}`}>
-                      {listing.mileage_km != null ? `${listing.mileage_km.toLocaleString()} km` : '—'}
+                      {listing.mileage_km != null ? t('compare.mileageKm', { n: listing.mileage_km.toLocaleString() }) : '—'}
                     </Cell>
                   ))}
                 </tr>
                 <tr>
-                  <Cell>Fuel</Cell>
+                  <Cell>{t('compare.fuel')}</Cell>
                   {valid.map((listing) => (
                     <Cell key={`f-${listing.id}`}>{listing.fuel_type || '—'}</Cell>
                   ))}
                 </tr>
                 <tr>
-                  <Cell>Transmission</Cell>
+                  <Cell>{t('compare.transmission')}</Cell>
                   {valid.map((listing) => (
                     <Cell key={`tr-${listing.id}`}>{listing.transmission || '—'}</Cell>
                   ))}
                 </tr>
                 <tr>
-                  <Cell>Condition</Cell>
+                  <Cell>{t('compare.condition')}</Cell>
                   {valid.map((listing) => (
                     <Cell key={`c-${listing.id}`}>{listing.condition || '—'}</Cell>
                   ))}
                 </tr>
                 <tr>
-                  <Cell>City</Cell>
+                  <Cell>{t('compare.city')}</Cell>
                   {valid.map((listing) => (
                     <Cell key={`l-${listing.id}`}>{listing.location_city || '—'}</Cell>
                   ))}
                 </tr>
                 <tr>
-                  <Cell>Open</Cell>
+                  <Cell>{t('compare.open')}</Cell>
                   {valid.map((listing) => (
                     <Cell key={`o-${listing.id}`}>
                       <Link
                         to={listing.listing_type === 'new_car' ? `/new-cars/${listing.id}` : `/listings/${listing.id}`}
                         className="text-[#233D7B] font-semibold underline"
                       >
-                        View listing
+                        {t('compare.viewListing')}
                       </Link>
                     </Cell>
                   ))}

@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { getAuthToken } from '@/lib/api';
 import { setPageSeo } from '@/lib/seo';
@@ -35,6 +36,7 @@ function statusBadge(status: string | null | undefined) {
 }
 
 export function MyListingsPage() {
+  const { t } = useTranslation();
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [items, setItems] = useState<ListingDto[]>([]);
   const [meta, setMeta] = useState<ListingsPageMeta | null>(null);
@@ -43,14 +45,14 @@ export function MyListingsPage() {
   const [err, setErr] = useState('');
 
   useEffect(() => {
-    setPageSeo('My listings · BanglarChaka', 'Manage your vehicle listings.');
+    setPageSeo(t('myListings.seoTitle'), t('myListings.seoDesc'));
     if (!getAuthToken()) {
       setAllowed(false);
       setLoading(false);
       return;
     }
     setAllowed(true);
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!allowed) return;
@@ -66,7 +68,7 @@ export function MyListingsPage() {
       })
       .catch((e) => {
         if (!cancelled) {
-          setErr(e instanceof Error ? e.message : 'Failed to load');
+          setErr(e instanceof Error ? e.message : t('myListings.loadFailed'));
           setItems([]);
           setMeta(null);
         }
@@ -77,15 +79,15 @@ export function MyListingsPage() {
     return () => {
       cancelled = true;
     };
-  }, [allowed, page]);
+  }, [allowed, page, t]);
 
   if (allowed === false) {
     return (
       <div className="min-h-screen bg-gray-50 px-4 py-16">
         <div className="mx-auto max-w-lg rounded-lg bg-white p-8 text-center shadow">
-          <p className="text-gray-800">Sign in to see your listings.</p>
+          <p className="text-gray-800">{t('myListings.signInPrompt')}</p>
           <Link to="/" className="mt-4 inline-block font-semibold text-[#233D7B] underline">
-            Back to home
+            {t('myListings.backHome')}
           </Link>
         </div>
       </div>
@@ -97,16 +99,14 @@ export function MyListingsPage() {
       <div className="mx-auto max-w-5xl">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">My listings</h1>
-            <p className="mt-1 text-sm text-gray-600">
-              Ads you own plus inventory under dealers you manage (owner or staff).
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900">{t('myListings.title')}</h1>
+            <p className="mt-1 text-sm text-gray-600">{t('myListings.subtitle')}</p>
           </div>
           <Link
             to="/post-ad"
             className="rounded-lg bg-[#C4161C] px-4 py-2 text-sm font-bold text-white hover:bg-red-700"
           >
-            Post an ad
+            {t('myListings.postAd')}
           </Link>
         </div>
 
@@ -115,12 +115,12 @@ export function MyListingsPage() {
         ) : null}
 
         {loading ? (
-          <p className="text-gray-600">Loading…</p>
+          <p className="text-gray-600">{t('myListings.loading')}</p>
         ) : items.length === 0 ? (
           <div className="rounded-lg border border-gray-200 bg-white p-10 text-center text-gray-700 shadow-sm">
-            No listings yet.{' '}
+            {t('myListings.emptyLead')}{' '}
             <Link to="/post-ad" className="font-semibold text-[#233D7B] underline">
-              Post your first ad
+              {t('myListings.postFirst')}
             </Link>
             .
           </div>
@@ -146,7 +146,7 @@ export function MyListingsPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       {statusBadge(row.status)}
                       {row.featured ? (
-                        <span className="rounded bg-[#C4161C] px-2 py-0.5 text-xs font-bold text-white">Featured</span>
+                        <span className="rounded bg-[#C4161C] px-2 py-0.5 text-xs font-bold text-white">{t('myListings.featured')}</span>
                       ) : null}
                     </div>
                     <Link to={listingPublicHref(row)} className="mt-2 block">
@@ -154,7 +154,7 @@ export function MyListingsPage() {
                     </Link>
                     <p className="mt-1 text-sm text-[#3EB549] font-semibold">{formatMoney(row.price, row.currency)}</p>
                     <p className="mt-1 text-xs text-gray-500">
-                      {row.location_city || '—'} · {row.listing_type?.replace(/_/g, ' ') || 'listing'}
+                      {row.location_city || '—'} · {row.listing_type?.replace(/_/g, ' ') || t('myListings.listingFallback')}
                     </p>
                   </div>
                   <div className="flex shrink-0 flex-col gap-2 sm:items-end">
@@ -163,14 +163,14 @@ export function MyListingsPage() {
                         to={`/my-listings/${row.id}/edit`}
                         className="rounded-md border border-[#233D7B] bg-[#233D7B] px-4 py-2 text-center text-sm font-semibold text-white hover:bg-[#1a2d5a]"
                       >
-                        Edit
+                        {t('myListings.edit')}
                       </Link>
                     ) : null}
                     <Link
                       to={listingPublicHref(row)}
                       className="rounded-md border border-gray-300 bg-white px-4 py-2 text-center text-sm font-semibold text-gray-800 hover:border-[#233D7B]"
                     >
-                      View
+                      {t('myListings.view')}
                     </Link>
                   </div>
                 </li>
@@ -180,7 +180,7 @@ export function MyListingsPage() {
             {meta && meta.last_page > 1 ? (
               <nav
                 className="mt-8 flex flex-wrap items-center justify-center gap-1"
-                aria-label="My listings pages"
+                aria-label={t('myListings.pagesAria')}
               >
                 <button
                   type="button"
@@ -189,7 +189,7 @@ export function MyListingsPage() {
                   className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-2 text-sm disabled:opacity-40"
                 >
                   <ChevronLeft className="h-4 w-4" />
-                  Prev
+                  {t('myListings.prev')}
                 </button>
                 {listingPaginationPages(page, meta.last_page).map((entry, idx) =>
                   entry === 'gap' ? (
@@ -217,7 +217,7 @@ export function MyListingsPage() {
                   onClick={() => setPage((p) => p + 1)}
                   className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-2 text-sm disabled:opacity-40"
                 >
-                  Next
+                  {t('myListings.next')}
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </nav>

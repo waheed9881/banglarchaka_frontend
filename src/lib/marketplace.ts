@@ -70,12 +70,15 @@ export type BrandDto = {
   id: number;
   slug: string;
   name: string;
+  logo_path?: string | null;
 };
 
 export type CategoryDto = {
   id: number;
   slug: string;
   name: string;
+  /** Present when API returns catalog roots / children */
+  listing_type?: string;
   children?: CategoryDto[];
 };
 
@@ -330,6 +333,61 @@ export async function fetchNewCarsPulse(): Promise<NewCarsPulseDto | null> {
       return null;
     }
     return d;
+  } catch {
+    return null;
+  }
+}
+
+export type NewCarsLandingArticleDto = {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  published_at: string | null;
+  brand: { name: string; slug: string; logo_path?: string | null } | null;
+};
+
+export type NewCarsLandingCompareSideDto = {
+  id: string;
+  title: string;
+  thumb_path: string | null;
+  subtitle: string;
+};
+
+export type NewCarsLandingListingReviewDto = {
+  id: number;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  created_at?: string;
+  reviewer_name?: string | null;
+  listing: { public_id: string; title: string; thumb_path?: string | null } | null;
+};
+
+export type NewCarsLandingDto = {
+  articles: NewCarsLandingArticleDto[];
+  comparison_pairs: Array<{ left: NewCarsLandingCompareSideDto; right: NewCarsLandingCompareSideDto }>;
+  listing_reviews: NewCarsLandingListingReviewDto[];
+  faqs: Array<{ question: string; answer: string }>;
+  financing_partners: Array<{ name: string }>;
+  insurance_partners: Array<{ name: string }>;
+};
+
+export async function fetchNewCarsLanding(): Promise<NewCarsLandingDto | null> {
+  try {
+    const json = await apiFetch<{ data?: NewCarsLandingDto }>('/editorial/new-cars-landing');
+    const d = json.data;
+    if (!d || !Array.isArray(d.faqs)) {
+      return null;
+    }
+    return {
+      articles: Array.isArray(d.articles) ? d.articles : [],
+      comparison_pairs: Array.isArray(d.comparison_pairs) ? d.comparison_pairs : [],
+      listing_reviews: Array.isArray(d.listing_reviews) ? d.listing_reviews : [],
+      faqs: d.faqs,
+      financing_partners: Array.isArray(d.financing_partners) ? d.financing_partners : [],
+      insurance_partners: Array.isArray(d.insurance_partners) ? d.insurance_partners : [],
+    };
   } catch {
     return null;
   }

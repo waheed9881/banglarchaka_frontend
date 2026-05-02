@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { ArrowLeft, Send, Search } from 'lucide-react';
 import { fetchMe, type MeResponse } from '@/lib/auth';
@@ -20,28 +21,28 @@ function initialsFromName(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-function peerDisplayName(c: ConversationSummaryDto, meId?: number): string {
+function peerDisplayName(c: ConversationSummaryDto, meId?: number, chatFallback = 'Chat'): string {
   const users = c.participants?.map((p) => p.user).filter((u): u is { id: number; name: string } => !!u?.name);
   if (users?.length && meId != null) {
     const other = users.find((u) => u.id !== meId);
     if (other) return other.name;
   }
   if (users?.length === 1) return users[0].name;
-  return c.subject?.trim() || c.listing?.title?.trim() || `Chat`;
+  return c.subject?.trim() || c.listing?.title?.trim() || chatFallback;
 }
 
-function conversationPreviewLine(c: ConversationSummaryDto): string {
+function conversationPreviewLine(c: ConversationSummaryDto, marketplaceFallback: string): string {
   if (c.listing?.title) return c.listing.title;
   if (c.subject?.trim()) return c.subject;
-  return 'Marketplace';
+  return marketplaceFallback;
 }
 
-function formatRelativeShort(iso?: string | null): string {
+function formatRelativeShort(iso: string | undefined | null, nowLabel: string): string {
   if (!iso) return '';
-  const t = new Date(iso).getTime();
-  if (Number.isNaN(t)) return '';
-  const sec = Math.round((Date.now() - t) / 1000);
-  if (sec < 45) return 'Now';
+  const ts = new Date(iso).getTime();
+  if (Number.isNaN(ts)) return '';
+  const sec = Math.round((Date.now() - ts) / 1000);
+  if (sec < 45) return nowLabel;
   const min = Math.round(sec / 60);
   if (min < 60) return `${min}m`;
   const hr = Math.round(min / 60);
@@ -72,6 +73,7 @@ const ms = {
 };
 
 export function MessagesPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const listingPid = searchParams.get('listing');
@@ -95,15 +97,15 @@ export function MessagesPage() {
       const rows = await fetchConversations();
       setConversations(rows);
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : 'Failed to load conversations');
+      setMsg(e instanceof Error ? e.message : t('messages.loadConvFailed'));
     } finally {
       setLoadingList(false);
     }
   };
 
   useEffect(() => {
-    setPageSeo('Messages · BanglarChaka', 'Chat with buyers and sellers.');
-  }, []);
+    setPageSeo(t('messages.seoTitle'), t('messages.seoDesc'));
+  }, [t]);
 
   useEffect(() => {
     fetchMe().then((u) => {
@@ -123,7 +125,7 @@ export function MessagesPage() {
           await loadConversations();
           setSelectedId(conv.id);
         } catch (e) {
-          setMsg(e instanceof Error ? e.message : 'Could not open conversation');
+          setMsg(e instanceof Error ? e.message : t('messages.openConvFailed'));
           setSearchParams({}, { replace: true });
           await loadConversations();
         }
@@ -136,7 +138,7 @@ export function MessagesPage() {
           await loadConversations();
           setSelectedId(conv.id);
         } catch (e) {
-          setMsg(e instanceof Error ? e.message : 'Could not open dealer chat');
+          setMsg(e instanceof Error ? e.message : t('messages.openDealerFailed'));
           setSearchParams({}, { replace: true });
           await loadConversations();
         }
@@ -146,16 +148,16 @@ export function MessagesPage() {
     };
 
     run().catch(() => undefined);
-  }, [allowed, listingPid, dealerSlug]);
+  }, [allowed, listingPid, dealerSlug, t]);
 
   useEffect(() => {
     if (!selectedId || !allowed) return;
     setLoadingMsgs(true);
     fetchConversationMessages(selectedId)
       .then(setMessages)
-      .catch((e) => setMsg(e instanceof Error ? e.message : 'Failed to load messages'))
+      .catch((e) => setMsg(e instanceof Error ? e.message : t('messages.loadMsgsFailed')))
       .finally(() => setLoadingMsgs(false));
-  }, [selectedId, allowed]);
+  }, [selectedId, allowed, t]);
 
   useEffect(() => {
     if (loadingMsgs) return;
@@ -171,7 +173,7 @@ export function MessagesPage() {
       setMessages(next);
       await loadConversations();
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : 'Send failed');
+      setMsg(e instanceof Error ? e.message : t('messages.sendFailed'));
     }
   };
 
@@ -182,17 +184,17 @@ export function MessagesPage() {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#0084ff]/10 text-2xl">
             💬
           </div>
-          <p className="text-[#050505] font-semibold text-lg mb-1">Sign in to use Messages</p>
-          <p className="text-[#65676b] text-sm mb-6">Chat with sellers and dealers after you log in.</p>
+          <p className="text-[#050505] font-semibold text-lg mb-1">{t('messages.signInTitle')}</p>
+          <p className="text-[#65676b] text-sm mb-6">{t('messages.signInSubtitle')}</p>
           <Link
             to="/login"
             className="inline-flex items-center justify-center rounded-full bg-[#0084ff] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#0073e6]"
           >
-            Log in
+            {t('messages.logIn')}
           </Link>
           <div className="mt-4">
             <Link to="/" className="text-sm text-[#0084ff] font-semibold hover:underline">
-              Back to home
+              {t('messages.backHome')}
             </Link>
           </div>
         </div>
@@ -204,16 +206,14 @@ export function MessagesPage() {
   const filteredConversations = listQuery.trim()
     ? conversations.filter((c) => {
         const q = listQuery.toLowerCase();
-        const name = peerDisplayName(c, me?.id).toLowerCase();
-        const sub = conversationPreviewLine(c).toLowerCase();
+        const name = peerDisplayName(c, me?.id, t('messages.chat')).toLowerCase();
+        const sub = conversationPreviewLine(c, t('messages.marketplace')).toLowerCase();
         return name.includes(q) || sub.includes(q);
       })
     : conversations;
 
-  const chatTitle = selected
-    ? peerDisplayName(selected, me?.id)
-    : '';
-  const chatSubtitle = selected ? conversationPreviewLine(selected) : '';
+  const chatTitle = selected ? peerDisplayName(selected, me?.id, t('messages.chat')) : '';
+  const chatSubtitle = selected ? conversationPreviewLine(selected, t('messages.marketplace')) : '';
 
   const showSidebar = !selectedId;
   const showThread = !!selectedId;
@@ -227,12 +227,12 @@ export function MessagesPage() {
               type="button"
               onClick={() => setSelectedId(null)}
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full hover:bg-black/[0.05] text-[#050505]"
-              aria-label="Back to chats"
+              aria-label={t('messages.backToChatsAria')}
             >
               <ArrowLeft className="h-6 w-6" />
             </button>
             <div className="min-w-0 flex-1 text-center pr-2">
-              <div className="truncate font-semibold text-[17px] text-[#050505]">{chatTitle || 'Chat'}</div>
+              <div className="truncate font-semibold text-[17px] text-[#050505]">{chatTitle || t('messages.chat')}</div>
               {chatSubtitle ? (
                 <div className="truncate text-xs text-[#65676b]">{chatSubtitle}</div>
               ) : null}
@@ -242,7 +242,7 @@ export function MessagesPage() {
         ) : (
           <>
             <div className="w-10 shrink-0" />
-            <h1 className="text-xl font-bold text-[#050505] tracking-tight flex-1 text-center">Chats</h1>
+            <h1 className="text-xl font-bold text-[#050505] tracking-tight flex-1 text-center">{t('messages.chats')}</h1>
             <div className="w-10 shrink-0" />
           </>
         )}
@@ -256,13 +256,13 @@ export function MessagesPage() {
           }`}
         >
           <div className="hidden md:flex items-center justify-between px-4 pt-4 pb-3">
-            <h1 className="text-2xl font-bold text-[#050505] tracking-tight">Chats</h1>
+            <h1 className="text-2xl font-bold text-[#050505] tracking-tight">{t('messages.chats')}</h1>
             <button
               type="button"
               onClick={() => navigate(-1)}
               className="text-sm font-semibold text-[#0084ff] hover:underline"
             >
-              Done
+              {t('messages.done')}
             </button>
           </div>
 
@@ -272,7 +272,7 @@ export function MessagesPage() {
               <input
                 value={listQuery}
                 onChange={(e) => setListQuery(e.target.value)}
-                placeholder="Search chats"
+                placeholder={t('messages.searchPlaceholder')}
                 className="w-full rounded-full bg-[#f0f2f5] py-2.5 pl-10 pr-4 text-[15px] text-[#050505] placeholder:text-[#65676b] outline-none ring-0 focus:ring-2 focus:ring-[#0084ff]/30"
               />
             </div>
@@ -300,12 +300,15 @@ export function MessagesPage() {
             ) : filteredConversations.length === 0 ? (
               <div className="px-6 py-12 text-center">
                 <p className="text-[#65676b] text-[15px] leading-relaxed">
-                  {listQuery.trim() ? 'No chats match your search.' : 'No chats yet.'}
+                  {listQuery.trim() ? t('messages.noMatchSearch') : t('messages.noChatsYet')}
                 </p>
                 {!listQuery.trim() && (
                   <p className="text-[#65676b] text-sm mt-3">
-                    From a listing, use <strong className="text-[#050505]">Message seller</strong>. From a dealer page, tap{' '}
-                    <strong className="text-[#050505]">Message showroom</strong>.
+                    {t('messages.emptyHintLead')}{' '}
+                    <strong className="text-[#050505]">{t('messages.messageSeller')}</strong>
+                    {t('messages.emptyHintMid')}{' '}
+                    <strong className="text-[#050505]">{t('messages.messageShowroom')}</strong>
+                    {t('messages.emptyHintEnd')}
                   </p>
                 )}
               </div>
@@ -313,9 +316,9 @@ export function MessagesPage() {
               <ul className="pb-4">
                 {filteredConversations.map((c) => {
                   const active = selectedId === c.id;
-                  const name = peerDisplayName(c, me?.id);
-                  const preview = conversationPreviewLine(c);
-                  const when = formatRelativeShort(c.last_message_at);
+                  const name = peerDisplayName(c, me?.id, t('messages.chat'));
+                  const preview = conversationPreviewLine(c, t('messages.marketplace'));
+                  const when = formatRelativeShort(c.last_message_at, t('messages.relativeNow'));
                   return (
                     <li key={c.id}>
                       <button
@@ -358,10 +361,8 @@ export function MessagesPage() {
               <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-white shadow-lg shadow-black/10 text-5xl">
                 💬
               </div>
-              <p className="text-xl font-semibold text-[#050505]">Select a chat</p>
-              <p className="mt-2 max-w-sm text-[15px] text-[#65676b]">
-                Your conversations stay private. Pick one on the left to continue messaging.
-              </p>
+              <p className="text-xl font-semibold text-[#050505]">{t('messages.selectChat')}</p>
+              <p className="mt-2 max-w-sm text-[15px] text-[#65676b]">{t('messages.selectChatHint')}</p>
             </div>
           ) : (
             <>
@@ -385,7 +386,7 @@ export function MessagesPage() {
                       <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0084ff] border-t-transparent" />
                     </div>
                   ) : messages.length === 0 ? (
-                    <p className="text-center text-[15px] text-[#65676b] py-12">No messages yet — say hello.</p>
+                    <p className="text-center text-[15px] text-[#65676b] py-12">{t('messages.noMessagesYet')}</p>
                   ) : (
                     <div className="mx-auto max-w-3xl space-y-1">
                       {messages.map((m, idx) => {
@@ -401,9 +402,9 @@ export function MessagesPage() {
                               className={`max-w-[85%] md:max-w-[70%] rounded-[18px] px-3.5 py-2 text-[15px] leading-snug ${own ? `${ms.bubbleOwn} rounded-br-md` : `${ms.bubbleOther} rounded-bl-md`}`}
                             >
                               {!own && (
-                                <div className="mb-1 text-xs font-semibold text-[#0084ff]">{m.sender?.name || 'User'}</div>
+                                <div className="mb-1 text-xs font-semibold text-[#0084ff]">{m.sender?.name || t('messages.senderFallback')}</div>
                               )}
-                              <p className="whitespace-pre-wrap break-words">{m.body || '(empty)'}</p>
+                              <p className="whitespace-pre-wrap break-words">{m.body || t('messages.emptyBody')}</p>
                               <div
                                 className={`mt-1 text-[11px] tabular-nums ${own ? 'text-white/75 text-right' : 'text-[#65676b]'}`}
                               >
@@ -430,7 +431,7 @@ export function MessagesPage() {
                             onSend();
                           }
                         }}
-                        placeholder="Aa"
+                        placeholder={t('messages.composerPlaceholder')}
                         rows={1}
                         className={`w-full resize-none bg-transparent ${ms.inputInner} max-h-32 min-h-[44px] py-3 outline-none`}
                       />
@@ -440,7 +441,7 @@ export function MessagesPage() {
                       onClick={() => onSend()}
                       disabled={!draft.trim()}
                       className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0084ff] text-white shadow-md shadow-[#0084ff]/25 transition hover:bg-[#0073e6] disabled:opacity-40 disabled:shadow-none disabled:pointer-events-none"
-                      aria-label="Send"
+                      aria-label={t('messages.sendAria')}
                     >
                       <Send className="h-5 w-5 translate-x-px translate-y-px" strokeWidth={2.25} />
                     </button>

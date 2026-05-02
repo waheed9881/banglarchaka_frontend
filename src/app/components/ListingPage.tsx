@@ -13,6 +13,7 @@ import {
   Check,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useSearchParams } from 'react-router';
 import { getAuthToken } from '@/lib/api';
 import { addToWishlist, fetchWishlistListings, removeFromWishlist } from '@/lib/engagement';
@@ -30,6 +31,7 @@ import {
 import { setPageSeo } from '@/lib/seo';
 import { ApiConnectionHint } from './ApiConnectionHint';
 import {
+  mergeListingParams,
   PakFiltersSidebar,
   PakListingRow,
   UsedCarsListingFooter,
@@ -77,10 +79,16 @@ function listingParamsFromSearchParams(
     ? nextPerPageRaw
     : '48';
 
+  const listingKind = sp.get('type') || 'used_car';
+  /** Motorcycle listings often omit transmission; keeping URL chips would zero results. */
+  const transmissionForApi =
+    listingKind === 'used_bike' ? undefined : sp.get('transmission') || undefined;
+
   const base: Record<string, string | number | boolean | undefined> = {
-    listing_type: sp.get('type') || 'used_car',
+    listing_type: listingKind,
     city: sp.get('city') || undefined,
     brand_id: sp.get('brand_id') || undefined,
+    category_id: sp.get('category_id') || undefined,
     sort: sp.get('sort') || 'newest',
     q: sp.get('q') || undefined,
     min_price: sp.get('min_price') || undefined,
@@ -88,7 +96,7 @@ function listingParamsFromSearchParams(
     min_year: sp.get('min_year') || undefined,
     max_year: sp.get('max_year') || undefined,
     fuel_type: sp.get('fuel_type') || undefined,
-    transmission: sp.get('transmission') || undefined,
+    transmission: transmissionForApi,
     condition: sp.get('condition') || undefined,
     verified_dealer_only: sp.get('verified_dealer_only') === '1' ? 1 : undefined,
     dealer_only: sp.get('dealer_only') === '1' ? 1 : undefined,
@@ -106,6 +114,7 @@ function listingParamsFromSearchParams(
 }
 
 export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => void }) {
+  const { t } = useTranslation();
   const { search: locationSearch } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -122,6 +131,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
 
   const [city, setCity] = useState('');
   const [brandId, setBrandId] = useState('');
+  const [categoryId, setCategoryId] = useState('');
   const [sort, setSort] = useState('newest');
   const [listingType, setListingType] = useState('used_car');
   const [keyword, setKeyword] = useState('');
@@ -210,6 +220,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
     const nextType = sp.get('type') || 'used_car';
     const nextCity = sp.get('city') || '';
     const nextBrand = sp.get('brand_id') || '';
+    const nextCategory = sp.get('category_id') || '';
     const nextSort = sp.get('sort') || 'newest';
     const nextQ = sp.get('q') || '';
     const nextMinPrice = sp.get('min_price') || '';
@@ -232,6 +243,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
     setListingType(nextType);
     setCity(nextCity);
     setBrandId(nextBrand);
+    setCategoryId(nextCategory);
     setSort(nextSort);
     setKeyword(nextQ);
     setMinPrice(nextMinPrice);
@@ -283,7 +295,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
       })
       .catch((err) => {
         if (!cancelled) {
-          setFetchError(err instanceof Error ? err.message : 'Could not load listings.');
+          setFetchError(err instanceof Error ? err.message : t('listingPage.couldNotLoad'));
           setCars([]);
           setListMeta(null);
           setInfiniteHasMore(false);
@@ -296,7 +308,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
     return () => {
       cancelled = true;
     };
-  }, [locationSearch]);
+  }, [locationSearch, t]);
 
   useEffect(() => {
     if (!continuous || !infiniteHasMore) {
@@ -395,7 +407,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
     };
 
     void navigator.clipboard.writeText(url).then(applyCopied).catch(() => {
-      window.prompt('Copy link:', url);
+      window.prompt(t('listingPage.copyLinkPrompt'), url);
       applyCopied();
     });
   };
@@ -410,20 +422,17 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
     setSearchParams(next, { replace: true });
   };
 
-  const heading =
-    listingType === 'used_bike'
-      ? 'Used Bikes for Sale'
-      : listingType === 'auto_part'
-        ? 'Auto Parts for Sale'
-        : listingType === 'new_car'
-          ? 'New Cars'
-          : listingType === 'used_car'
-            ? 'Used Cars For Sale In Bangladesh'
-            : 'Used Cars for Sale';
+  const heading = useMemo(() => {
+    if (listingType === 'used_bike') return t('listingPage.headingUsedBike');
+    if (listingType === 'auto_part') return t('listingPage.headingAutoPart');
+    if (listingType === 'new_car') return t('listingPage.headingNewCar');
+    if (listingType === 'used_car') return t('listingPage.headingUsedCarBd');
+    return t('listingPage.headingUsedCar');
+  }, [listingType, t]);
 
   useEffect(() => {
-    setPageSeo(`${heading} · BanglarChaka`, `Browse ${heading.toLowerCase()} in Bangladesh.`);
-  }, [heading]);
+    setPageSeo(t('innerUi.seoTitle', { title: heading }), t('listingPage.seoBrowseDesc', { topic: heading }));
+  }, [heading, t]);
 
   /** Push current sidebar values into the URL (single source of truth → triggers fetch effect). */
   const commitFiltersToUrl = () => {
@@ -431,6 +440,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
     if (listingType) next.set('type', listingType);
     if (city.trim()) next.set('city', city.trim());
     if (brandId) next.set('brand_id', brandId);
+    if (categoryId) next.set('category_id', categoryId);
     if (sort && sort !== 'newest') next.set('sort', sort);
     if (keyword.trim()) next.set('q', keyword.trim());
     if (minPrice) next.set('min_price', minPrice);
@@ -438,7 +448,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
     if (minYear) next.set('min_year', minYear);
     if (maxYear) next.set('max_year', maxYear);
     if (fuelType) next.set('fuel_type', fuelType);
-    if (transmission) next.set('transmission', transmission);
+    if (listingType !== 'used_bike' && transmission) next.set('transmission', transmission);
     if (condition) next.set('condition', condition);
     if (verifiedDealerOnly) next.set('verified_dealer_only', '1');
     if (dealerOnly) next.set('dealer_only', '1');
@@ -470,7 +480,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
             {heading}
           </h1>
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Link to="/" className="hover:text-[#233D7B]">Home</Link>
+            <Link to="/" className="hover:text-[#233D7B]">{t('listingPage.home')}</Link>
             <span>›</span>
             <span className="text-gray-900">{heading}</span>
           </div>
@@ -488,25 +498,25 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
               className="flex shrink-0 items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-800"
             >
               <SlidersHorizontal className="h-4 w-4" />
-              Filters
+              {t('listingPage.filters')}
             </button>
             <select
               value={sort}
               onChange={(e) => applySortToUrl(e.target.value)}
               className="min-w-0 flex-1 rounded-md border border-gray-300 bg-white px-2 py-2 text-xs text-gray-800"
-              aria-label="Sort listings"
+              aria-label={t('listingPage.sortAria')}
             >
-              <option value="newest">Newest</option>
-              <option value="price_asc">Price ↑</option>
-              <option value="price_desc">Price ↓</option>
-              <option value="views">Views</option>
+              <option value="newest">{t('listingPage.sortNewest')}</option>
+              <option value="price_asc">{t('listingPage.sortPriceAsc')}</option>
+              <option value="price_desc">{t('listingPage.sortPriceDesc')}</option>
+              <option value="views">{t('listingPage.sortViews')}</option>
             </select>
             <div className="flex shrink-0 overflow-hidden rounded-md border border-gray-300">
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
                 className={`p-2 ${viewMode === 'grid' ? 'bg-[#233D7B] text-white' : 'bg-white text-gray-600'}`}
-                aria-label="Grid view"
+                aria-label={t('listingPage.gridViewAria')}
               >
                 <Grid className="h-4 w-4" />
               </button>
@@ -514,7 +524,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                 type="button"
                 onClick={() => setViewMode('list')}
                 className={`p-2 ${viewMode === 'list' ? 'bg-[#233D7B] text-white' : 'bg-white text-gray-600'}`}
-                aria-label="List view"
+                aria-label={t('listingPage.listViewAria')}
               >
                 <List className="h-4 w-4" />
               </button>
@@ -525,11 +535,11 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
               value={perPage}
               onChange={(e) => applyPerPageToUrl(e.target.value)}
               className="min-w-0 flex-1 rounded-md border border-gray-300 bg-white px-2 py-2 text-xs text-gray-800"
-              aria-label="Results per page"
+              aria-label={t('listingPage.sortPerPageAria')}
             >
-              <option value="24">24 / page</option>
-              <option value="48">48 / page</option>
-              <option value="72">72 / page</option>
+              <option value="24">{t('listingPage.perPageShort24')}</option>
+              <option value="48">{t('listingPage.perPageShort48')}</option>
+              <option value="72">{t('listingPage.perPageShort72')}</option>
             </select>
             <label className="flex shrink-0 cursor-pointer select-none items-center gap-1.5 whitespace-nowrap text-[11px] font-semibold text-gray-700">
               <input
@@ -538,7 +548,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                 onChange={(e) => setContinuousInUrl(e.target.checked)}
                 className="rounded border-gray-300"
               />
-              Auto-load
+              {t('listingPage.autoLoad')}
             </label>
           </div>
         </div>
@@ -551,28 +561,26 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
               className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded hover:border-[#233D7B] hover:text-[#233D7B]"
             >
               <SlidersHorizontal className="w-4 h-4" />
-              {showFilters ? 'Hide Filters' : 'Show Filters'}
+              {showFilters ? t('listingPage.hideFilters') : t('listingPage.showFilters')}
             </button>
             <div className="text-sm text-gray-600">
               {continuous && listMeta && listMeta.total > 0 ? (
                 <>
-                  Loaded <span className="font-semibold">{cars.length.toLocaleString()}</span> of{' '}
-                  <span className="font-semibold">{listMeta.total.toLocaleString()}</span> listings
+                  {t('listingPage.loadedOf', {
+                    loaded: cars.length.toLocaleString(),
+                    total: listMeta.total.toLocaleString(),
+                  })}
                 </>
               ) : listMeta && listMeta.total > 0 ? (
                 <>
-                  Showing{' '}
-                  <span className="font-semibold">
-                    {((listMeta.current_page - 1) * listMeta.per_page + 1).toLocaleString()}
-                    –
-                    {Math.min(listMeta.total, listMeta.current_page * listMeta.per_page).toLocaleString()}
-                  </span>{' '}
-                  of <span className="font-semibold">{listMeta.total.toLocaleString()}</span> results
+                  {t('listingPage.showingRange', {
+                    from: ((listMeta.current_page - 1) * listMeta.per_page + 1).toLocaleString(),
+                    to: Math.min(listMeta.total, listMeta.current_page * listMeta.per_page).toLocaleString(),
+                    total: listMeta.total.toLocaleString(),
+                  })}
                 </>
               ) : (
-                <>
-                  Showing <span className="font-semibold">{cars.length}</span> results
-                </>
+                <>{t('listingPage.showingCount', { count: cars.length })}</>
               )}
             </div>
           </div>
@@ -583,21 +591,21 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
               onChange={(e) => applySortToUrl(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded text-sm"
             >
-              <option value="newest">Sort by: Date (Newest)</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-              <option value="views">Most Viewed</option>
+              <option value="newest">{t('listingPage.sortDateNewest')}</option>
+              <option value="price_asc">{t('listingPage.sortPriceLowHigh')}</option>
+              <option value="price_desc">{t('listingPage.sortPriceHighLow')}</option>
+              <option value="views">{t('listingPage.sortMostViewed')}</option>
             </select>
 
             <select
               value={perPage}
               onChange={(e) => applyPerPageToUrl(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded text-sm text-gray-700"
-              aria-label="Results per page"
+              aria-label={t('listingPage.sortPerPageAria')}
             >
-              <option value="24">24 per page</option>
-              <option value="48">48 per page</option>
-              <option value="72">72 per page</option>
+              <option value="24">{t('listingPage.perPage24')}</option>
+              <option value="48">{t('listingPage.perPage48')}</option>
+              <option value="72">{t('listingPage.perPage72')}</option>
             </select>
 
             <label className="flex items-center gap-2 text-xs text-gray-700 whitespace-nowrap cursor-pointer select-none">
@@ -607,7 +615,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                 onChange={(e) => setContinuousInUrl(e.target.checked)}
                 className="rounded border-gray-300"
               />
-              Auto-load on scroll
+              {t('listingPage.autoLoadScroll')}
             </label>
 
             <div className="flex border border-gray-300 rounded overflow-hidden">
@@ -665,29 +673,44 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                   setFeaturedOnly={setFeaturedOnly}
                   commitFiltersToUrl={commitFiltersToUrl}
                   clearFiltersToUrl={clearFiltersToUrl}
+                  listingType={listingType}
                 />
               ) : (
                 <div className="bg-white rounded-lg shadow p-6 sticky top-6">
-                  <h3 className="font-bold text-lg mb-4">Filters</h3>
+                  <h3 className="font-bold text-lg mb-4">{t('listingPage.filtersHeading')}</h3>
+                  {listingType === 'new_car' && categoryId ? (
+                    <div className="mb-4 flex items-start justify-between gap-3 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-950">
+                      <span>{t('listingPage.categoryFilterActive')}</span>
+                      <button
+                        type="button"
+                        className="shrink-0 font-semibold text-[#233D7B] underline"
+                        onClick={() =>
+                          setSearchParams(mergeListingParams(locationSearch, { category_id: null }), { replace: true })
+                        }
+                      >
+                        {t('listingPage.categoryFilterClear')}
+                      </button>
+                    </div>
+                  ) : null}
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">City</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">{t('listingPage.cityLabel')}</label>
                       <input
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
-                        placeholder="e.g. Dhaka"
+                        placeholder={t('listingPage.cityPlaceholder')}
                         className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Make</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">{t('listingPage.makeLabel')}</label>
                       <select
                         value={brandId}
                         onChange={(e) => setBrandId(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                       >
-                        <option value="">All Makes</option>
+                        <option value="">{t('listingPage.allMakes')}</option>
                         {brands.map((b) => (
                           <option value={String(b.id)} key={b.id}>
                             {b.name}
@@ -696,17 +719,17 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Keyword</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">{t('listingPage.keywordLabel')}</label>
                       <input
                         value={keyword}
                         onChange={(e) => setKeyword(e.target.value)}
-                        placeholder="e.g. Corolla, Alloy, Honda"
+                        placeholder={t('listingPage.keywordPlaceholder')}
                         className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-2">Min Price</label>
+                        <label className="block text-xs font-semibold text-gray-700 mb-2">{t('listingPage.minPrice')}</label>
                         <input
                           value={minPrice}
                           onChange={(e) => setMinPrice(e.target.value)}
@@ -715,7 +738,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-2">Max Price</label>
+                        <label className="block text-xs font-semibold text-gray-700 mb-2">{t('listingPage.maxPrice')}</label>
                         <input
                           value={maxPrice}
                           onChange={(e) => setMaxPrice(e.target.value)}
@@ -726,7 +749,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-2">Min Year</label>
+                        <label className="block text-xs font-semibold text-gray-700 mb-2">{t('listingPage.minYear')}</label>
                         <input
                           value={minYear}
                           onChange={(e) => setMinYear(e.target.value)}
@@ -735,7 +758,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-2">Max Year</label>
+                        <label className="block text-xs font-semibold text-gray-700 mb-2">{t('listingPage.maxYear')}</label>
                         <input
                           value={maxYear}
                           onChange={(e) => setMaxYear(e.target.value)}
@@ -745,42 +768,42 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Fuel Type</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">{t('listingPage.fuelTypeLabel')}</label>
                       <select
                         value={fuelType}
                         onChange={(e) => setFuelType(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                       >
-                        <option value="">Any</option>
-                        <option value="petrol">Petrol</option>
-                        <option value="diesel">Diesel</option>
-                        <option value="hybrid">Hybrid</option>
-                        <option value="electric">Electric</option>
+                        <option value="">{t('listingBrowse.fuelAny')}</option>
+                        <option value="petrol">{t('hero.petrol')}</option>
+                        <option value="diesel">{t('hero.diesel')}</option>
+                        <option value="hybrid">{t('hero.hybrid')}</option>
+                        <option value="electric">{t('hero.electric')}</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Transmission</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">{t('listingPage.transmissionLabel')}</label>
                       <select
                         value={transmission}
                         onChange={(e) => setTransmission(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                       >
-                        <option value="">Any</option>
-                        <option value="manual">Manual</option>
-                        <option value="automatic">Automatic</option>
+                        <option value="">{t('listingBrowse.fuelAny')}</option>
+                        <option value="manual">{t('hero.manual')}</option>
+                        <option value="automatic">{t('hero.automatic')}</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Condition</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">{t('listingPage.conditionLabel')}</label>
                       <select
                         value={condition}
                         onChange={(e) => setCondition(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                       >
-                        <option value="">Any</option>
-                        <option value="used">Used</option>
-                        <option value="reconditioned">Reconditioned</option>
-                        <option value="new">New</option>
+                        <option value="">{t('listingBrowse.fuelAny')}</option>
+                        <option value="used">{t('hero.used')}</option>
+                        <option value="reconditioned">{t('hero.reconditioned')}</option>
+                        <option value="new">{t('hero.new')}</option>
                       </select>
                     </div>
                     <label className="flex items-center gap-2 text-sm text-gray-700">
@@ -789,7 +812,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                         checked={verifiedDealerOnly}
                         onChange={(e) => setVerifiedDealerOnly(e.target.checked)}
                       />
-                      Verified dealers only
+                      {t('listingBrowse.verifiedDealersOnly')}
                     </label>
                     <label className="flex items-center gap-2 text-sm text-gray-700">
                       <input
@@ -797,7 +820,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                         checked={dealerOnly}
                         onChange={(e) => setDealerOnly(e.target.checked)}
                       />
-                      Dealer listings only
+                      {t('listingBrowse.dealerListingsOnly')}
                     </label>
 
                     <button
@@ -805,7 +828,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                       onClick={() => commitFiltersToUrl()}
                       className="w-full bg-[#C4161C] text-white py-2 rounded font-semibold hover:bg-red-700 transition"
                     >
-                      Apply Filters
+                      {t('listingPage.apply')}
                     </button>
                     <button
                       type="button"
@@ -827,7 +850,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                       }}
                       className="w-full border border-gray-300 text-gray-700 py-2 rounded font-semibold hover:border-gray-400 transition"
                     >
-                      Clear All
+                      {t('listingPage.clearAllFilters')}
                     </button>
                   </div>
                 </div>
@@ -854,31 +877,24 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                 role="alert"
                 className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
               >
-                <p className="font-semibold">Could not load listings</p>
+                <p className="font-semibold">{t('listingPage.couldNotLoadTitle')}</p>
                 <p className="mt-1">{fetchError}</p>
-                <p className="mt-2 text-red-700">
-                  Start Laravel (<code className="rounded bg-red-100 px-1">php artisan serve</code>, default
-                  port 8000). In dev the UI uses{' '}
-                  <code className="rounded bg-red-100 px-1">/api/v1</code> via the Vite proxy — same target as{' '}
-                  <code className="rounded bg-red-100 px-1">VITE_DEV_API_PROXY</code>.
-                </p>
+                <p className="mt-2 text-red-700">{t('listingPage.apiDevHint')}</p>
               </div>
             )}
             {!loading && !loadingMore && !fetchError && cars.length === 0 && (
               <div className="mb-6 rounded-lg border border-gray-200 bg-white px-4 py-8 text-center text-gray-600">
-                <p className="font-semibold text-gray-900">No listings match these filters</p>
-                <p className="mt-2 text-sm">
-                  Try <span className="font-medium">Clear All</span>, widen the year range, or loosen price limits.
-                </p>
+                <p className="font-semibold text-gray-900">{t('listingPage.noFiltersTitle')}</p>
+                <p className="mt-2 text-sm">{t('listingPage.noFiltersHint')}</p>
                 {(listingType === 'new_car' || listingType === 'new_bike') && (
                   <p className="mt-3 text-sm text-gray-700">
-                    BanglarChaka seed is mostly <span className="font-medium">used</span> inventory — open{' '}
+                    {t('listingPage.seedHint')}{' '}
                     <Link to="/listings?type=used_car" className="text-[#233D7B] font-semibold underline">
-                      Used Cars
+                      {t('nav.usedCars')}
                     </Link>{' '}
-                    or{' '}
-                    <Link to="/listings?type=used_bike" className="text-[#233D7B] font-semibold underline">
-                      Used Bikes
+                    ·{' '}
+                    <Link to="/used-bikes" className="text-[#233D7B] font-semibold underline">
+                      {t('hero.usedBikes')}
                     </Link>
                     .
                   </p>
@@ -925,8 +941,10 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                         type="button"
                         className="absolute top-3 right-14 bg-white/90 p-2 rounded-full hover:bg-white transition z-10"
                         onClick={(e) => copyListingUrl(car, e)}
-                        aria-label={copiedListingId === car.id ? 'Link copied' : 'Copy listing link'}
-                        title="Copy link"
+                        aria-label={
+                          copiedListingId === car.id ? t('listingPage.copyListingCopiedAria') : t('listingPage.copyListingLinkAria')
+                        }
+                        title={t('listingPage.copyLinkTitle')}
                       >
                         {copiedListingId === car.id ? (
                           <Check className="h-5 w-5 text-emerald-600" strokeWidth={2.25} />
@@ -940,7 +958,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                         onClick={(e) => {
                           e.stopPropagation();
                           if (!getAuthToken()) {
-                            window.alert('Please sign in (top bar) to save favourites.');
+                            window.alert(t('listingPage.signInFavouritesBar'));
                             return;
                           }
                           const saved = wishlistedIds.has(car.id);
@@ -953,9 +971,11 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                                 return next;
                               }),
                             )
-                            .catch((err) => window.alert(err instanceof Error ? err.message : 'Wishlist failed'));
+                            .catch((err) => window.alert(err instanceof Error ? err.message : t('listingBrowse.wishlistFailed')));
                         }}
-                        aria-label={wishlistedIds.has(car.id) ? 'Remove from wishlist' : 'Save to wishlist'}
+                        aria-label={
+                          wishlistedIds.has(car.id) ? t('listingPage.removeWishlistAria') : t('listingPage.saveWishlistAria')
+                        }
                       >
                         <Heart
                           className={`w-5 h-5 ${wishlistedIds.has(car.id) ? 'text-[#C4161C] fill-current' : 'text-gray-600'}`}
@@ -963,7 +983,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                       </button>
                       {car.featured && (
                         <div className="absolute top-3 left-3 bg-[#C4161C] text-white px-3 py-1 rounded text-xs font-bold">
-                          FEATURED
+                          {t('listingBrowse.featured')}
                         </div>
                       )}
                     </div>
@@ -975,24 +995,24 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                       <div className="space-y-2 text-sm text-gray-600 mb-3">
                         <div className="flex items-center gap-2">
                           <MapPin className="w-4 h-4" />
-                          {car.location_city || 'N/A'}
+                          {car.location_city || t('homeFeatured.na')}
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
-                            {car.vehicle_year || 'N/A'}
+                            {car.vehicle_year || t('homeFeatured.na')}
                           </div>
                           <div className="flex items-center gap-1">
                             <Gauge className="w-4 h-4" />
-                            {car.mileage_km ? `${car.mileage_km.toLocaleString()} km` : 'N/A'}
+                            {car.mileage_km ? t('listingDetail.mileageKm', { n: car.mileage_km.toLocaleString() }) : t('homeFeatured.na')}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Settings className="w-4 h-4" />
-                          {car.transmission || 'N/A'}
+                          {car.transmission || t('homeFeatured.na')}
                         </div>
                         <div className="text-xs text-gray-500">
-                          Seller: {car.seller?.name || 'Unknown seller'}
+                          {t('listingPage.sellerLabel')} {car.seller?.name || t('listingPage.unknownSeller')}
                         </div>
                       </div>
                     </div>
@@ -1006,7 +1026,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
               <>
                 <div ref={sentinelRef} className="h-2 w-full shrink-0" aria-hidden />
                 {loadingMore && (
-                  <div className="text-center text-sm text-gray-500 py-4">Loading more listings…</div>
+                  <div className="text-center text-sm text-gray-500 py-4">{t('listingPage.loadingMore')}</div>
                 )}
               </>
             )}
@@ -1014,7 +1034,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
             {!loading && !continuous && listMeta && listMeta.last_page > 1 && (
               <nav
                 className="mt-8 flex flex-wrap items-center justify-center gap-1 sm:gap-2"
-                aria-label="Listing pages"
+                aria-label={t('listingPage.listingPagesAria')}
               >
                 <button
                   type="button"
@@ -1022,7 +1042,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                   onClick={() => goPage(listMeta.current_page - 1)}
                   className="px-3 sm:px-4 py-2 text-sm rounded border border-gray-300 bg-white hover:border-[#233D7B] hover:text-[#233D7B] disabled:opacity-40 disabled:pointer-events-none"
                 >
-                  Previous
+                  {t('listingPage.prevPage')}
                 </button>
                 <div className="flex flex-wrap items-center justify-center gap-1">
                   {listingPaginationPages(listMeta.current_page, listMeta.last_page).map((entry, idx) =>
@@ -1053,7 +1073,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
                   onClick={() => goPage(listMeta.current_page + 1)}
                   className="px-3 sm:px-4 py-2 text-sm rounded border border-gray-300 bg-white hover:border-[#233D7B] hover:text-[#233D7B] disabled:opacity-40 disabled:pointer-events-none"
                 >
-                  Next
+                  {t('listingPage.nextPage')}
                 </button>
               </nav>
             )}
@@ -1068,7 +1088,7 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
           type="button"
           onClick={scrollToTopSmooth}
           className="fixed bottom-[8.25rem] right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-[#233D7B] shadow-lg hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#233D7B] focus-visible:ring-offset-2 lg:bottom-8 lg:right-8"
-          aria-label="Back to top"
+          aria-label={t('listingPage.backToTopAria')}
         >
           <ChevronUp className="h-6 w-6" strokeWidth={2.25} />
         </button>

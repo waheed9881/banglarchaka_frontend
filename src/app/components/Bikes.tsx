@@ -34,7 +34,7 @@ export function Bikes() {
             <h2 className="text-3xl font-bold text-gray-900">{t('homeSections.usedBikesTitle')}</h2>
             <p className="text-gray-600 mt-2">{t('homeSections.usedBikesSubtitle')}</p>
           </div>
-          <Link to="/listings?type=used_bike" className="text-[#233D7B] hover:underline font-semibold">
+          <Link to="/used-bikes" className="text-[#233D7B] hover:underline font-semibold">
             {t('homeSections.viewAllBikes')}
           </Link>
         </div>

@@ -1,6 +1,7 @@
 import { ArrowLeft, Calendar, User } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { fetchBrandNewsArticle, resolveMediaUrl, type BrandNewsArticleDetailDto } from '@/lib/marketplace';
 import { setPageSeo } from '@/lib/seo';
 import { ImageWithFallback } from './figma/ImageWithFallback';
@@ -9,6 +10,7 @@ const FALLBACK_COVER =
   'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1080&q=80';
 
 export function BlogArticlePage() {
+  const { t, i18n } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [article, setArticle] = useState<BrandNewsArticleDetailDto | null | undefined>(undefined);
@@ -36,7 +38,7 @@ export function BlogArticlePage() {
   useEffect(() => {
     if (loading) return;
     if (!article) {
-      setPageSeo('Article not found · BanglarChaka', 'This news desk article could not be loaded.');
+      setPageSeo(t('blogArticle.seoNotFoundTitle'), t('blogArticle.seoNotFoundDesc'));
       return;
     }
     const plain =
@@ -44,13 +46,14 @@ export function BlogArticlePage() {
         ? article.body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
         : '';
     const desc = (article.excerpt?.trim() || plain || article.title).slice(0, 160);
-    setPageSeo(`${article.title} · Blog · BanglarChaka`, desc);
-  }, [loading, article]);
+    setPageSeo(t('blogArticle.seoTitle', { title: article.title }), desc);
+  }, [loading, article, t]);
 
   const formatDate = (iso: string | null) => {
     if (!iso) return '—';
     try {
-      return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(
+      const locale = i18n.language?.startsWith('bn') ? 'bn-BD' : 'en-GB';
+      return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' }).format(
         new Date(iso),
       );
     } catch {
@@ -61,7 +64,7 @@ export function BlogArticlePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 px-4 py-12">
-        <div className="mx-auto max-w-3xl text-gray-600">Loading…</div>
+        <div className="mx-auto max-w-3xl text-gray-600">{t('common.loading')}</div>
       </div>
     );
   }
@@ -70,9 +73,9 @@ export function BlogArticlePage() {
     return (
       <div className="min-h-screen bg-gray-50 px-4 py-12">
         <div className="mx-auto max-w-3xl rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
-          <p className="text-gray-800">Article not found.</p>
+          <p className="text-gray-800">{t('blogArticle.notFoundBody')}</p>
           <Link to="/blog" className="mt-4 inline-block font-semibold text-[#233D7B] underline">
-            Back to news desk
+            {t('blogArticle.backToBlog')}
           </Link>
         </div>
       </div>
@@ -90,14 +93,14 @@ export function BlogArticlePage() {
           className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#233D7B] hover:underline"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back
+          {t('common.back')}
         </button>
 
         <article className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow">
           <div className="relative h-52 md:h-64">
             <ImageWithFallback src={cover} alt="" className="h-full w-full object-cover" />
             <span className="absolute left-4 top-4 rounded bg-[#C4161C] px-3 py-1 text-xs font-semibold text-white">
-              {article.brand?.name || 'News desk'}
+              {article.brand?.name || t('blogArticle.newsDeskBadge')}
             </span>
           </div>
           <div className="p-8">
@@ -119,7 +122,7 @@ export function BlogArticlePage() {
               {article.body ? (
                 <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">{article.body}</div>
               ) : (
-                <p className="text-gray-600">No article body stored for this item.</p>
+                <p className="text-gray-600">{t('blogArticle.noBody')}</p>
               )}
             </div>
           </div>
@@ -127,7 +130,7 @@ export function BlogArticlePage() {
 
         <div className="mt-8 text-center">
           <Link to="/blog" className="font-semibold text-[#233D7B] underline">
-            More articles
+            {t('blogArticle.moreArticles')}
           </Link>
         </div>
       </div>
