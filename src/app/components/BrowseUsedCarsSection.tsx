@@ -46,6 +46,16 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return out;
 }
 
+function BrowseTileSkeleton() {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-lg sm:rounded-xl border border-gray-200 bg-white px-2 py-3.5 sm:px-3 sm:py-5 min-h-[100px] sm:min-h-[118px] animate-pulse">
+      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 mb-2 shrink-0" />
+      <div className="h-3 w-[72%] rounded-md bg-gray-200 max-w-full" />
+      <div className="h-3 w-[48%] rounded-md bg-gray-200 mt-2 max-w-full" />
+    </div>
+  );
+}
+
 function BrowseTile({ label, to, Icon }: CardDef) {
   return (
     <Link
@@ -158,11 +168,13 @@ export function BrowseUsedCarsSection() {
   const [tab, setTab] = useState<TabKey>('category');
   const [page, setPage] = useState(0);
   const [brands, setBrands] = useState<BrandDto[]>([]);
+  const [brandsLoading, setBrandsLoading] = useState(true);
 
   useEffect(() => {
     fetchBrands()
       .then(setBrands)
-      .catch(() => setBrands([]));
+      .catch(() => setBrands([]))
+      .finally(() => setBrandsLoading(false));
   }, []);
 
   useEffect(() => {
@@ -286,15 +298,25 @@ export function BrowseUsedCarsSection() {
               className="flex transition-transform duration-300 ease-out touch-pan-y"
               style={{ transform: `translateX(-${safePage * 100}%)` }}
             >
-              {pages.map((slide, si) => (
-                <div key={`${tab}-${si}`} className="min-w-full shrink-0">
+              {brandsLoading && tab === 'make' ? (
+                <div key="make-skeleton" className="min-w-full shrink-0">
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
-                    {slide.map((c) => (
-                      <BrowseTile key={c.to} {...c} />
+                    {Array.from({ length: PER_VIEW }, (_, i) => (
+                      <BrowseTileSkeleton key={i} />
                     ))}
                   </div>
                 </div>
-              ))}
+              ) : (
+                pages.map((slide, si) => (
+                  <div key={`${tab}-${si}`} className="min-w-full shrink-0">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
+                      {slide.map((c) => (
+                        <BrowseTile key={c.to} {...c} />
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 

@@ -167,6 +167,19 @@ const TABS: Array<{ key: TabKey; label: string }> = [
 /** How often to pull fresh new_car listings from the API (homepage strip stays current). */
 const NEW_CARS_REFRESH_MS = 5 * 60 * 1000;
 
+function NewCarCarouselCardSkeleton() {
+  return (
+    <div className="snap-start shrink-0 w-[calc(50%-8px)] sm:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)] min-w-[158px] rounded-lg border border-gray-100 bg-white shadow-sm overflow-hidden animate-pulse flex flex-col">
+      <div className="min-h-[132px] bg-gray-200 mx-3 mt-4 rounded-md" />
+      <div className="px-3 pb-4 pt-3 flex flex-col items-center gap-2 flex-1">
+        <div className="h-4 bg-gray-200 rounded-md w-[88%]" />
+        <div className="h-4 bg-gray-200 rounded-md w-[52%]" />
+        <div className="h-3 bg-gray-200 rounded-md w-[72%] mt-auto" />
+      </div>
+    </div>
+  );
+}
+
 export function NewCars() {
   const [tab, setTab] = useState<TabKey>('newly_launched');
   const [lists, setLists] = useState<Record<TabKey, ListingDto[]>>({
@@ -175,6 +188,7 @@ export function NewCars() {
     newly_launched: [],
   });
   const [pulse, setPulse] = useState<NewCarsPulseDto | null>(null);
+  const [feedLoading, setFeedLoading] = useState(true);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const fetchGenRef = useRef(0);
 
@@ -198,6 +212,10 @@ export function NewCars() {
         if (!cancelled && gen === fetchGenRef.current) {
           setLists({ popular: [], upcoming: [], newly_launched: [] });
           setPulse(null);
+        }
+      } finally {
+        if (!cancelled && gen === fetchGenRef.current) {
+          setFeedLoading(false);
         }
       }
     };
@@ -287,7 +305,18 @@ export function NewCars() {
         </div>
 
         <div className="relative">
-          {activeRows.length > 0 ? (
+          {feedLoading ? (
+            <div
+              className="flex gap-4 overflow-x-auto scroll-smooth pb-2 snap-x snap-mandatory px-1 sm:px-12 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              role="status"
+              aria-busy="true"
+              aria-label="Loading new cars"
+            >
+              {Array.from({ length: 8 }, (_, i) => (
+                <NewCarCarouselCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : activeRows.length > 0 ? (
             <>
               <button
                 type="button"

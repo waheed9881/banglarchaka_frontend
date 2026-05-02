@@ -15,10 +15,25 @@ import {
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=1080&q=80';
 
+function FeaturedCarCardSkeleton() {
+  return (
+    <div className="animate-pulse rounded-lg bg-white shadow overflow-hidden ring-1 ring-gray-100">
+      <div className="h-48 bg-gray-200" />
+      <div className="p-4 space-y-3">
+        <div className="h-5 bg-gray-200 rounded-md w-[85%]" />
+        <div className="h-7 bg-gray-200 rounded-md w-[40%]" />
+        <div className="h-3 bg-gray-200 rounded-md w-full" />
+        <div className="h-3 bg-gray-200 rounded-md w-4/5" />
+      </div>
+    </div>
+  );
+}
+
 export function FeaturedCars() {
   const { t } = useTranslation();
   const [cars, setCars] = useState<ListingDto[]>([]);
   const [feedHint, setFeedHint] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -37,6 +52,8 @@ export function FeaturedCars() {
         setFeedHint(t('homeFeatured.feedHint'));
       } catch {
         if (!cancelled) setCars([]);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     })();
     return () => {
@@ -58,7 +75,11 @@ export function FeaturedCars() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {cars.map((car) => (
+          {loading ? (
+            Array.from({ length: 8 }, (_, i) => <FeaturedCarCardSkeleton key={i} />)
+          ) : null}
+          {!loading &&
+            cars.map((car) => (
             <Link
               key={car.id}
               to={`${listingPublicHref(car)}${car.has_live_auction ? '#detail-auction' : ''}`}

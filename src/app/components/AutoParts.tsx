@@ -244,6 +244,19 @@ const TABS: Array<{ key: TabKey; label: string }> = [
   { key: 'brand', label: 'Brand' },
 ];
 
+function PartTileSkeleton() {
+  return (
+    <div className="flex flex-col items-stretch rounded-lg sm:rounded-xl border border-gray-200/90 bg-white shadow-sm overflow-hidden animate-pulse min-h-[132px] sm:min-h-[156px]">
+      <div className="relative flex min-h-[76px] sm:min-h-[104px] flex-1 w-full items-center justify-center px-2 pt-2 pb-1.5 bg-gradient-to-b from-slate-50/95 via-white to-white">
+        <div className="h-[64px] sm:h-[88px] w-[70%] rounded-md bg-gray-200" />
+      </div>
+      <div className="border-t border-gray-100/80 bg-white px-2 pb-2 sm:pb-3 pt-2 flex justify-center">
+        <div className="h-3 w-[72%] rounded-md bg-gray-200" />
+      </div>
+    </div>
+  );
+}
+
 function PartTile({ label, to, image }: PartCard) {
   const isMarketplacePhoto =
     typeof image === 'string' && image.length > 0 && !image.includes('images.unsplash.com');
@@ -281,6 +294,7 @@ export function AutoParts() {
   const [page, setPage] = useState(0);
   const [brands, setBrands] = useState<BrandDto[]>([]);
   const [listingPool, setListingPool] = useState<ListingDto[]>([]);
+  const [poolLoading, setPoolLoading] = useState(true);
 
   useEffect(() => {
     fetchBrands()
@@ -301,6 +315,9 @@ export function AutoParts() {
       })
       .catch(() => {
         if (!cancelled) setListingPool([]);
+      })
+      .finally(() => {
+        if (!cancelled) setPoolLoading(false);
       });
     return () => {
       cancelled = true;
@@ -447,15 +464,30 @@ export function AutoParts() {
               className="flex transition-transform duration-300 ease-out touch-pan-y"
               style={{ transform: `translateX(-${safePage * 100}%)` }}
             >
-              {slides.map((slide, si) => (
-                <div key={`${tab}-${si}`} className="min-w-full shrink-0">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
-                    {slide.map((c) => (
-                      <PartTile key={`${c.label}-${si}`} {...c} />
+              {poolLoading ? (
+                <div key="pool-skeleton" className="min-w-full shrink-0">
+                  <div
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3 md:gap-4"
+                    role="status"
+                    aria-busy="true"
+                    aria-label="Loading parts"
+                  >
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <PartTileSkeleton key={i} />
                     ))}
                   </div>
                 </div>
-              ))}
+              ) : (
+                slides.map((slide, si) => (
+                  <div key={`${tab}-${si}`} className="min-w-full shrink-0">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
+                      {slide.map((c) => (
+                        <PartTile key={`${c.label}-${si}`} {...c} />
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
