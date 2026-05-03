@@ -43,16 +43,21 @@ function BikeModelLink({ listingType, label, q }: { listingType: 'used_bike' | '
   );
 }
 
-export const BIKES_MOBILE_LINKS: Array<{ labelKey: string; to: string }> = [
-  { labelKey: 'nav.mobileBikesFindUsed', to: '/used-bikes' },
-  { labelKey: 'nav.mobileBikesListings', to: '/used-bikes' },
+/** Mobile hamburger — mirrors Used Cars: browse listings, featured, sell, dealers, prices */
+export const BIKES_MOBILE_USED_PRIMARY_LINKS: Array<{ labelKey: string; to: string }> = [
+  { labelKey: 'nav.browseAllUsedBikes', to: '/listings?type=used_bike' },
   { labelKey: 'nav.mobileBikesFeatured', to: '/listings?type=used_bike&featured=1' },
   { labelKey: 'nav.mobileBikesSell', to: '/used-bikes/sell' },
   { labelKey: 'nav.mobileBikesDealersUsed', to: '/listings?type=used_bike&dealer_only=1' },
+  { labelKey: 'nav.bikePrices', to: '/bike-prices' },
+];
+
+/** New bikes & tools — below used-bike filter blocks in mobile menu */
+export const BIKES_MOBILE_LINKS: Array<{ labelKey: string; to: string }> = [
+  { labelKey: 'nav.mobileBikesHub', to: '/used-bikes' },
   { labelKey: 'nav.mobileBikesFindNew', to: '/listings?type=new_bike' },
   { labelKey: 'nav.mobileBikesCompare', to: '/compare' },
   { labelKey: 'nav.mobileBikesReviews', to: '/bike-reviews' },
-  { labelKey: 'nav.mobileBikesPricesNew', to: '/bike-prices' },
   { labelKey: 'nav.mobileBikesDealersNew', to: '/listings?type=new_bike&dealer_only=1' },
 ];
 

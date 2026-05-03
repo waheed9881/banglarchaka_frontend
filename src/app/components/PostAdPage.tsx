@@ -16,6 +16,7 @@ import { setPageSeo } from '@/lib/seo';
 import { PostAdFeaturedPackagesStrip } from './PostAdFeaturedPackagesStrip';
 import { SubscriptionPlansStrip } from './SubscriptionPlansStrip';
 import { useMarketPrefs } from '@/app/context/MarketPrefsContext';
+import { preventWheelChangeNumber } from '@/lib/formUtils';
 
 const LISTING_TYPE_VALUES = [
   'used_car',
@@ -689,6 +690,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                                 placeholder="Mileage"
                                 type="number"
                                 min={0}
+                                onWheel={preventWheelChangeNumber}
                                 className="flex-1 min-w-0 px-3 py-2.5 outline-none"
                               />
                             </div>
@@ -790,6 +792,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                             onChange={(e) => setPrice(e.target.value)}
                             type="number"
                             min={0}
+                            onWheel={preventWheelChangeNumber}
                             className="flex-1 min-w-0 px-3 py-2.5 outline-none"
                             placeholder="Price"
                           />
@@ -878,6 +881,11 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                               <Smartphone className="w-4 h-4" />
                             </span>
                             <input
+                              type="tel"
+                              inputMode="tel"
+                              autoComplete="tel"
+                              enterKeyHint="done"
+                              name="contact_mobile_primary"
                               value={mobilePrimary}
                               onChange={(e) => setMobilePrimary(e.target.value)}
                               placeholder="01XXXXXXXXX"
@@ -1011,6 +1019,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                                 placeholder="Mileage"
                                 type="number"
                                 min={0}
+                                onWheel={preventWheelChangeNumber}
                                 className="flex-1 min-w-0 px-3 py-2.5 outline-none"
                               />
                             </div>
@@ -1029,6 +1038,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                               onChange={(e) => setPrice(e.target.value)}
                               type="number"
                               min={0}
+                              onWheel={preventWheelChangeNumber}
                               className="flex-1 min-w-0 px-3 py-2.5 outline-none"
                               placeholder="Price"
                             />
@@ -1211,6 +1221,11 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                               <Smartphone className="w-4 h-4" />
                             </span>
                             <input
+                              type="tel"
+                              inputMode="tel"
+                              autoComplete="tel"
+                              enterKeyHint="done"
+                              name="contact_mobile_primary"
                               value={mobilePrimary}
                               onChange={(e) => setMobilePrimary(e.target.value)}
                               placeholder="01XXXXXXXXX"
@@ -1357,6 +1372,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                               placeholder="Mileage"
                               type="number"
                               min={0}
+                              onWheel={preventWheelChangeNumber}
                               className="flex-1 min-w-0 px-3 py-2.5 outline-none"
                             />
                           </div>
@@ -1543,6 +1559,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                               onChange={(e) => setPrice(e.target.value)}
                               type="number"
                               min={0}
+                              onWheel={preventWheelChangeNumber}
                               className="flex-1 min-w-0 px-3 py-2.5 outline-none"
                               placeholder="Asking price"
                             />
@@ -1605,6 +1622,11 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                                     <Smartphone className="w-4 h-4" />
                                   </span>
                                   <input
+                                    type="tel"
+                                    inputMode="tel"
+                                    autoComplete="tel"
+                                    enterKeyHint="done"
+                                    name="contact_mobile_primary_alt"
                                     value={mobilePrimary}
                                     onChange={(e) => setMobilePrimary(e.target.value)}
                                     placeholder="01XXXXXXXXX"
@@ -1816,7 +1838,13 @@ function SimpleFields(props: {
             </div>
             <div>
               <label className={`${labelClass} mb-2 block`}>{tr('postAdForm.simple.mileageKm')}</label>
-              <input value={mileage} onChange={(e) => setMileage(e.target.value)} type="number" className={inputClass} />
+              <input
+                value={mileage}
+                onChange={(e) => setMileage(e.target.value)}
+                type="number"
+                onWheel={preventWheelChangeNumber}
+                className={inputClass}
+              />
             </div>
             <div>
               <label className={`${labelClass} mb-2 block`}>{tr('postAdForm.simple.transmission')}</label>
@@ -1838,7 +1866,15 @@ function SimpleFields(props: {
         ) : null}
         <div>
           <label className={`${labelClass} mb-2 block`}>{tr('postAdForm.simple.priceBdt')}</label>
-          <input value={price} onChange={(e) => setPrice(e.target.value)} required min={0} type="number" className={inputClass} />
+          <input
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            required
+            min={0}
+            type="number"
+            onWheel={preventWheelChangeNumber}
+            className={inputClass}
+          />
         </div>
       </div>
       <div>

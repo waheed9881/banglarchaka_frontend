@@ -142,7 +142,7 @@ function LinkColumn({ col, light }: { col: FootCol; light?: boolean }) {
   return (
     <div>
       <h3 className={HEADING}>{t(col.titleKey)}</h3>
-      <ul className="space-y-2.5">
+      <ul className="space-y-1.5">
         {col.links.map((item) => (
           <li key={item.labelKey}>
             {'kind' in item && item.kind === 'careers' ? (
@@ -214,9 +214,9 @@ export function Footer({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
             <img
               src={logoUrl}
               alt="Banglar Chaka — বাংলার চাকা"
-              className="h-12 sm:h-14 w-auto max-w-full object-contain object-left"
+              className="h-10 sm:h-12 w-auto max-w-full object-contain object-left"
               width={240}
-              height={56}
+              height={48}
               decoding="async"
             />
           </Link>
@@ -318,7 +318,7 @@ export function Footer({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
               <div className="flex flex-col gap-2">
                 <a
                   href="#"
-                  className="flex items-center justify-center rounded-md bg-black px-4 py-2.5 text-left text-xs font-semibold text-white ring-1 ring-gray-700 hover:ring-gray-500 transition"
+                  className="flex items-center justify-center rounded-md bg-black px-4 py-2 text-left text-xs font-semibold text-white ring-1 ring-gray-700 hover:ring-gray-500 transition"
                   onClick={(e) => {
                     e.preventDefault();
                     toast.message(t('footer.appComingSoon'));
@@ -328,7 +328,7 @@ export function Footer({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
                 </a>
                 <a
                   href="#"
-                  className="flex items-center justify-center rounded-md bg-black px-4 py-2.5 text-xs font-semibold text-white ring-1 ring-gray-700 hover:ring-gray-500 transition"
+                  className="flex items-center justify-center rounded-md bg-black px-4 py-2 text-xs font-semibold text-white ring-1 ring-gray-700 hover:ring-gray-500 transition"
                   onClick={(e) => {
                     e.preventDefault();
                     toast.message(t('footer.appComingSoon'));

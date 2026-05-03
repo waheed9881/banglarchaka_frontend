@@ -22,7 +22,14 @@ function StarsRow({ rating }: { rating: number }) {
   );
 }
 
-export function ListingReviewsSection({ listingPublicId }: { listingPublicId: string }) {
+export function ListingReviewsSection({
+  listingPublicId,
+  canSubmitReview,
+}: {
+  listingPublicId: string;
+  /** From listing detail API — true only for the verified buyer after the seller marks sold. */
+  canSubmitReview: boolean;
+}) {
   const [page, setPage] = useState(1);
   const [block, setBlock] = useState<ListingReviewsPage | null>(null);
   const [loading, setLoading] = useState(true);
@@ -152,8 +159,12 @@ export function ListingReviewsSection({ listingPublicId }: { listingPublicId: st
 
       <div className="mt-8 border-t border-gray-100 pt-6">
         <h3 className="text-lg font-semibold text-gray-900">Write a review</h3>
-        {!signedIn ? (
-          <p className="mt-2 text-sm text-gray-600">Sign in via the header to submit a review.</p>
+        {!canSubmitReview ? (
+          <p className="mt-2 text-sm text-gray-600">
+            Only the buyer linked by the seller when marking this vehicle sold can submit a review here.
+          </p>
+        ) : !signedIn ? (
+          <p className="mt-2 text-sm text-gray-600">Sign in with the buyer account to submit your review.</p>
         ) : (
           <form className="mt-4 space-y-3" onSubmit={onSubmitReview}>
             <div>

@@ -1,15 +1,17 @@
 import { User, Menu, X, ChevronDown, LogOut } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { useMarketPrefs } from '@/app/context/MarketPrefsContext';
 import { fetchMe, logoutLocal, type MeResponse } from '@/lib/auth';
 import { getAuthToken } from '@/lib/api';
 import { Link, useLocation, useNavigate } from 'react-router';
+import { POPULAR_USED_BIKES } from '@/app/data/usedBikesBrowse';
+import { BD_CITIES, CITY_LABEL_KEYS } from '@/i18n/bdCities';
 import { MORE_NAV_SECTIONS, MoreNavMenuPanel } from './MoreNavMenu';
 import { AUTO_STORE_MOBILE_LINKS, AutoStoreMegaMenuPanel } from './AutoStoreMegaMenu';
 import { POST_AD_MENU_LINKS, PostAdDropdownPanel } from './PostAdDropdown';
-import { BIKES_MOBILE_LINKS, BikesMegaMenuPanel } from './BikesMegaMenu';
+import { BIKES_MOBILE_LINKS, BIKES_MOBILE_USED_PRIMARY_LINKS, BikesMegaMenuPanel } from './BikesMegaMenu';
 import { NEW_CARS_MOBILE_LINKS, NewCarsMegaMenuPanel } from './NewCarsMegaMenu';
 import { UsedCarsMegaMenuPanel } from './UsedCarsMegaMenu';
 import logoUrl from '@/assets/logo_3.webp';
@@ -23,6 +25,33 @@ function megaTriggerClass(shell: boolean, group: 'used' | 'new' | 'bikes' | 'aut
     return `${base} text-white/95 group-hover/${group}:bg-white group-hover/${group}:text-gray-900 group-hover/${group}:border-white group-hover/${group}:border-b-white group-hover/${group}:shadow-[0_1px_0_0_white]`;
   }
   return `${base} text-slate-800 group-hover/${group}:bg-white group-hover/${group}:text-slate-900 group-hover/${group}:border-slate-200 group-hover/${group}:shadow-md`;
+}
+
+function DealerTrialTicker({ trial }: { trial: NonNullable<MeResponse['dealer_trial']> }) {
+  const ends = useMemo(() => new Date(trial.trial_ends_at).getTime(), [trial.trial_ends_at]);
+  const [remainMs, setRemainMs] = useState(() => Math.max(0, ends - Date.now()));
+
+  useEffect(() => {
+    const t = window.setInterval(() => {
+      setRemainMs(Math.max(0, ends - Date.now()));
+    }, 1000);
+    return () => window.clearInterval(t);
+  }, [ends]);
+
+  const h = Math.floor(remainMs / 3_600_000);
+  const m = Math.floor((remainMs % 3_600_000) / 60_000);
+  const s = Math.floor((remainMs % 60_000) / 1000);
+  const pad = (n: number) => String(n).padStart(2, '0');
+
+  return (
+    <div className="bg-gradient-to-r from-amber-700 to-amber-600 text-white px-4 py-2 text-center text-[13px] sm:text-sm font-medium tracking-tight">
+      <span className="opacity-95">Dealer subscription — free trial</span>
+      {trial.plan_name ? <span className="opacity-90"> · {trial.plan_name}</span> : null}
+      <span className="ml-2 tabular-nums font-bold">
+        {remainMs <= 0 ? 'Trial ended — pick a plan in the dealer portal.' : `${pad(h)}:${pad(m)}:${pad(s)} left`}
+      </span>
+    </div>
+  );
 }
 
 const navBtn =
@@ -286,6 +315,7 @@ export function Header({
       </div>
 
       {msg ? <div className="bg-amber-50 text-amber-900 text-xs px-4 py-2 border-b border-amber-200">{msg}</div> : null}
+      {me?.dealer_trial ? <DealerTrialTicker trial={me.dealer_trial} /> : null}
 
       {/* Main dark nav — relative so mega menus align to full content width (no horizontal overflow) */}
       <div className="relative max-w-7xl mx-auto px-4">
@@ -302,7 +332,10 @@ export function Header({
               />
             </Link>
 
-            <nav className="hidden lg:flex items-center gap-0.5 flex-wrap xl:flex-nowrap min-w-0 min-h-0">
+            <nav
+              key={location.pathname}
+              className="hidden lg:flex items-center gap-0.5 flex-wrap xl:flex-nowrap min-w-0 min-h-0"
+            >
               <div className="group/used">
                 <Link
                   to="/listings?type=used_car"
@@ -545,6 +578,51 @@ export function Header({
                   </button>
                   {bikesMobileOpen ? (
                     <div className="pl-3 pr-2 pb-3 border-l-2 border-[#C4161C]/90 ml-3 space-y-0.5">
+                      {BIKES_MOBILE_USED_PRIMARY_LINKS.map((l) => (
+                        <Link
+                          key={`used-${l.labelKey}`}
+                          to={l.to}
+                          className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                          onClick={closeMobileNav}
+                        >
+                          {t(l.labelKey)}
+                        </Link>
+                      ))}
+                      <div className="pt-2 pb-1 text-[10px] font-bold uppercase tracking-wide text-white/50 px-2">
+                        {t('mega.usedCars.popularCities')}
+                      </div>
+                      {BD_CITIES.map((city) => {
+                        const qs = new URLSearchParams({ type: 'used_bike', city });
+                        return (
+                          <Link
+                            key={city}
+                            to={`/listings?${qs.toString()}`}
+                            className="block py-2 px-2 text-sm text-white/85 hover:text-white hover:bg-white/5 rounded-md"
+                            onClick={closeMobileNav}
+                          >
+                            {t(CITY_LABEL_KEYS[city])}
+                          </Link>
+                        );
+                      })}
+                      <div className="pt-2 pb-1 text-[10px] font-bold uppercase tracking-wide text-white/50 px-2">
+                        {t('mega.bikes.popularUsedBikes')}
+                      </div>
+                      {POPULAR_USED_BIKES.map((m) => {
+                        const qs = new URLSearchParams({ type: 'used_bike', q: m.q });
+                        return (
+                          <Link
+                            key={m.label}
+                            to={`/listings?${qs.toString()}`}
+                            className="block py-2 px-2 text-sm text-white/85 hover:text-white hover:bg-white/5 rounded-md"
+                            onClick={closeMobileNav}
+                          >
+                            {m.label}
+                          </Link>
+                        );
+                      })}
+                      <div className="pt-2 pb-1 mt-2 border-t border-white/15 text-[10px] font-bold uppercase tracking-wide text-white/50 px-2">
+                        {t('nav.mobileBikesMoreSection')}
+                      </div>
                       {BIKES_MOBILE_LINKS.map((l) => (
                         <Link
                           key={l.to}

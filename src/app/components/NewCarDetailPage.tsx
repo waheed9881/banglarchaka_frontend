@@ -248,7 +248,9 @@ export function NewCarDetailPage({ listingId, onBack }: { listingId?: string; on
               </div>
             </div>
 
-            <ListingReviewsSection listingPublicId={car.id} />
+            {car.status === 'sold' ? (
+              <ListingReviewsSection listingPublicId={car.id} canSubmitReview={!!car.can_submit_listing_review} />
+            ) : null}
           </div>
 
           <div className="lg:col-span-1">

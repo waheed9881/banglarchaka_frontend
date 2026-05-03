@@ -20,6 +20,7 @@ import {
   type VehicleModelDto,
 } from '@/lib/marketplace';
 import { setPageSeo } from '@/lib/seo';
+import { preventWheelChangeNumber } from '@/lib/formUtils';
 
 const LISTING_TYPES = [
   { value: 'used_car', label: 'Used car' },
@@ -63,6 +64,7 @@ export function EditListingPage({ listingPublicId }: { listingPublicId?: string 
   const [planBusy, setPlanBusy] = useState(false);
   const [boostBusy, setBoostBusy] = useState(false);
   const [me, setMe] = useState<MeResponse | null>(null);
+  const [soldBuyerEmail, setSoldBuyerEmail] = useState('');
 
   const staffModeration = useMemo(() => hasStaffRole(me, ADMIN_MOD_ROLES), [me]);
 
@@ -123,6 +125,7 @@ export function EditListingPage({ listingPublicId }: { listingPublicId?: string 
       setBrandSlug(row.brand?.slug || '');
       setVehicleModelId(row.vehicle_model?.id != null ? String(row.vehicle_model.id) : '');
       setListingStatus(row.status || 'pending_review');
+      setSoldBuyerEmail(row.sold_buyer_email || '');
       setPageSeo(`Edit: ${row.title} · BanglarChaka`, (row.description || row.title || '').slice(0, 160));
       if (!getAuthToken() || row.can_manage === false) {
         setForbidden(true);
@@ -311,6 +314,11 @@ export function EditListingPage({ listingPublicId }: { listingPublicId?: string 
         }
       }
 
+      const nextStatus = typeof body.status === 'string' ? body.status : listing?.status;
+      if (nextStatus === 'sold') {
+        body.sold_buyer_email = soldBuyerEmail.trim() === '' ? null : soldBuyerEmail.trim();
+      }
+
       await updateListing(listingPublicId, body as Record<string, string | number | boolean | null | undefined>);
 
       if (files.length > 0) {
@@ -447,6 +455,24 @@ export function EditListingPage({ listingPublicId }: { listingPublicId?: string 
                 )}
               </div>
 
+              {listingStatus === 'sold' || listing.status === 'sold' ? (
+                <div className="md:col-span-2 rounded-lg border-2 border-sky-100 bg-sky-50/90 px-4 py-4">
+                  <label className="block text-sm font-semibold text-gray-800">Buyer email (site account)</label>
+                  <p className="mt-1 text-xs text-gray-600">
+                    Use the email the buyer registered with. After you save as sold, only that account can post a verified
+                    review on this listing.
+                  </p>
+                  <input
+                    type="email"
+                    value={soldBuyerEmail}
+                    onChange={(e) => setSoldBuyerEmail(e.target.value)}
+                    autoComplete="email"
+                    className="mt-3 w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3"
+                    placeholder="buyer@example.com"
+                  />
+                </div>
+              ) : null}
+
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700">Condition</label>
                 <select
@@ -512,6 +538,7 @@ export function EditListingPage({ listingPublicId }: { listingPublicId?: string 
                   required
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
+                  onWheel={preventWheelChangeNumber}
                   className="w-full rounded-lg border-2 border-gray-300 px-4 py-3"
                 />
               </div>

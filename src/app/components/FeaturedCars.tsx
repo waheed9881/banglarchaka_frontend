@@ -7,6 +7,7 @@ import {
   fetchListings,
   formatMoney,
   listingPublicHref,
+  listingCoverMediaPath,
   resolveMediaUrl,
   type ListingDto,
 } from '@/lib/marketplace';
@@ -74,7 +75,7 @@ export function FeaturedCars() {
             >
               <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                 <ImageWithFallback
-                  src={resolveMediaUrl(car.media?.[0]?.path) || FALLBACK_IMAGE}
+                  src={resolveMediaUrl(listingCoverMediaPath(car.media)) || FALLBACK_IMAGE}
                   alt={car.title}
                   className="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.04]"
                 />

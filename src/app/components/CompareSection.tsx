@@ -2,7 +2,7 @@ import { ArrowRight, Bike, Car, Gauge, Fuel, Wallet } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router';
-import { fetchListings, resolveMediaUrl, type ListingDto } from '@/lib/marketplace';
+import { fetchListings, listingCoverMediaPath, resolveMediaUrl, type ListingDto } from '@/lib/marketplace';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 
@@ -118,7 +118,7 @@ export function CompareSection() {
                     <div className="flex flex-col items-center flex-1 min-w-0 max-w-[200px] md:max-w-[220px] w-full">
                       <div className="flex h-32 md:h-36 w-full items-center justify-center rounded-lg bg-gray-50 p-3">
                         <ImageWithFallback
-                          src={resolveMediaUrl(featuredPair[0].media?.[0]?.path) || FALLBACK_CAR}
+                          src={resolveMediaUrl(listingCoverMediaPath(featuredPair[0].media)) || FALLBACK_CAR}
                           alt=""
                           className="max-h-full max-w-full object-contain"
                         />
@@ -138,7 +138,7 @@ export function CompareSection() {
                     <div className="flex flex-col items-center flex-1 min-w-0 max-w-[200px] md:max-w-[220px] w-full">
                       <div className="flex h-32 md:h-36 w-full items-center justify-center rounded-lg bg-gray-50 p-3">
                         <ImageWithFallback
-                          src={resolveMediaUrl(featuredPair[1].media?.[0]?.path) || FALLBACK_CAR}
+                          src={resolveMediaUrl(listingCoverMediaPath(featuredPair[1].media)) || FALLBACK_CAR}
                           alt=""
                           className="max-h-full max-w-full object-contain"
                         />

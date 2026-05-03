@@ -7,6 +7,7 @@ import {
   fetchListings,
   formatMoney,
   listingPublicHref,
+  listingCoverMediaPath,
   resolveMediaUrl,
   type ListingDto,
 } from '@/lib/marketplace';
@@ -56,7 +57,7 @@ export function Bikes() {
             >
               <div className="relative h-48 overflow-hidden">
                 <ImageWithFallback
-                  src={resolveMediaUrl(bike.media?.[0]?.path) || FALLBACK_IMAGE}
+                  src={resolveMediaUrl(listingCoverMediaPath(bike.media)) || FALLBACK_IMAGE}
                   alt={bike.title}
                   className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />

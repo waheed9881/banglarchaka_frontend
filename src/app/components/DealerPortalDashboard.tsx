@@ -27,6 +27,7 @@ import {
 import {
   formatMoney,
   listingPublicHref,
+  listingCoverMediaPath,
   resolveMediaUrl,
   type ListingDto,
 } from '@/lib/marketplace';
@@ -415,7 +416,7 @@ export function DealerPortalDashboard() {
                         >
                           <div className="aspect-[16/10] bg-slate-100">
                             <img
-                              src={resolveMediaUrl(listing.media?.[0]?.path) || LISTING_THUMB_FALLBACK}
+                              src={resolveMediaUrl(listingCoverMediaPath(listing.media)) || LISTING_THUMB_FALLBACK}
                               alt=""
                               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                             />

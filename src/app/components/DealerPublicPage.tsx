@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router';
 import {
   fetchDealerProfile,
   formatMoney,
+  listingCoverMediaPath,
   resolveMediaUrl,
   type DealerProfileDto,
 } from '@/lib/marketplace';
@@ -223,7 +224,7 @@ export function DealerPublicPage() {
               >
                 <div className="aspect-[16/10] bg-gray-100">
                   <img
-                    src={resolveMediaUrl(car.media?.[0]?.path) || FALLBACK_IMAGE}
+                    src={resolveMediaUrl(listingCoverMediaPath(car.media)) || FALLBACK_IMAGE}
                     alt=""
                     className="w-full h-full object-cover"
                   />

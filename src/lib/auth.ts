@@ -16,6 +16,12 @@ export type MeResponse = {
   status?: string;
   country_code?: string | null;
   preferred_currency?: string | null;
+  /** Present for dealer owners/staff on an active subscription trial. */
+  dealer_trial?: {
+    trial_ends_at: string;
+    dealer_slug: string;
+    plan_name?: string | null;
+  };
 };
 
 /** Roles that can use moderation APIs (listings, reviews, reports queue). */
@@ -59,9 +65,10 @@ export async function loginWithGoogleIdToken(idToken: string): Promise<AuthRespo
 }
 
 export async function loginWithEmailPassword(email: string, password: string): Promise<AuthResponse> {
+  const normalizedEmail = email.trim().toLowerCase();
   const data = await apiFetch<AuthResponse>('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email: normalizedEmail, password }),
   });
   setAuthToken(data.token);
   return data;

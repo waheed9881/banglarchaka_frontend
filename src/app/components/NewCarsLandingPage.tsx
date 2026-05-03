@@ -9,6 +9,7 @@ import {
   fetchNewCarsLanding,
   fetchNewCarsPulse,
   listingPublicHref,
+  listingCoverMediaPath,
   resolveMediaUrl,
   type BrandDto,
   type CategoryDto,
@@ -20,6 +21,7 @@ import {
   type NewCarsPulseItemDto,
 } from '@/lib/marketplace';
 import { setPageSeo } from '@/lib/seo';
+import { preventWheelChangeNumber } from '@/lib/formUtils';
 import { Footer } from './Footer';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
@@ -248,6 +250,9 @@ export function NewCarsLandingPage() {
   const [categoryRoots, setCategoryRoots] = useState<CategoryDto[]>([]);
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
   const [loading, setLoading] = useState(true);
+  const [loanPrincipal, setLoanPrincipal] = useState('2500000');
+  const [loanMonths, setLoanMonths] = useState('48');
+  const [loanApr, setLoanApr] = useState('11');
 
   useEffect(() => {
     setPageSeo(
@@ -464,7 +469,7 @@ export function NewCarsLandingPage() {
             >
               <div className="flex items-center justify-center bg-white px-3 pt-5 pb-2 min-h-[132px]">
                 <ImageWithFallback
-                  src={resolveMediaUrl(car.media?.[0]?.path) || FALLBACK_CAR}
+                  src={resolveMediaUrl(listingCoverMediaPath(car.media)) || FALLBACK_CAR}
                   alt={formatDisplayName(car)}
                   className="max-h-[112px] w-full object-contain object-center"
                 />
@@ -496,6 +501,24 @@ export function NewCarsLandingPage() {
   const insurance = landing?.insurance_partners ?? [];
 
   const spotlightBrands = ['Toyota', 'Honda', 'Suzuki', 'Nissan', 'Mitsubishi', 'Hyundai', 'Kia', 'MG'];
+
+  const estimatedEmi = useMemo(() => {
+    const P = Number(String(loanPrincipal).replace(/,/g, '').trim());
+    const n = Math.floor(Number(loanMonths));
+    const apr = Number(loanApr);
+    if (!Number.isFinite(P) || P <= 0 || !Number.isFinite(n) || n <= 0 || !Number.isFinite(apr) || apr < 0) {
+      return null;
+    }
+    const r = apr / 100 / 12;
+    if (r === 0) return P / n;
+    const pow = (1 + r) ** n;
+    return (P * r * pow) / (pow - 1);
+  }, [loanPrincipal, loanMonths, loanApr]);
+
+  const emiLabel =
+    estimatedEmi != null && Number.isFinite(estimatedEmi)
+      ? `BDT ${Math.round(estimatedEmi).toLocaleString('en-BD')}`
+      : '—';
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
@@ -885,21 +908,83 @@ export function NewCarsLandingPage() {
 
         {/* Financing */}
         <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 sm:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Banks for New Cars Financing</h2>
-            <Link to="/car-prices" className="text-sm font-semibold text-[#3483D1] hover:underline">
-              Car Finance Calculator
+          <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">New car finance</h2>
+              <p className="mt-1 text-sm text-gray-600 max-w-xl">
+                Estimate a monthly instalment, then speak with your bank or dealer for the exact rate and fees.
+              </p>
+            </div>
+            <Link
+              to="/listings?type=new_car"
+              className="inline-flex items-center gap-2 rounded-lg border-2 border-[#3483D1] px-4 py-2 text-sm font-semibold text-[#3483D1] hover:bg-[#3483D1] hover:text-white transition shrink-0"
+            >
+              <Calculator className="w-4 h-4" aria-hidden />
+              Browse financed inventory
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {financing.map((p) => (
-              <div
-                key={p.name}
-                className="rounded-xl border border-gray-100 bg-white h-24 flex items-center justify-center px-3 text-center shadow-sm"
-              >
-                <span className="text-sm font-bold text-gray-700 leading-tight">{p.name}</span>
+
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+            <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50/90 to-white p-5 shadow-sm ring-1 ring-black/[0.04]">
+              <h3 className="text-sm font-bold uppercase tracking-wide text-[#3483D1] mb-4">Estimated EMI</h3>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <label className="block text-xs font-semibold text-gray-700">
+                  Loan amount (BDT)
+                  <input
+                    type="number"
+                    min={1}
+                    value={loanPrincipal}
+                    onChange={(e) => setLoanPrincipal(e.target.value)}
+                    onWheel={preventWheelChangeNumber}
+                    className="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm"
+                  />
+                </label>
+                <label className="block text-xs font-semibold text-gray-700">
+                  Term (months)
+                  <input
+                    type="number"
+                    min={1}
+                    max={120}
+                    value={loanMonths}
+                    onChange={(e) => setLoanMonths(e.target.value)}
+                    onWheel={preventWheelChangeNumber}
+                    className="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm"
+                  />
+                </label>
+                <label className="block text-xs font-semibold text-gray-700">
+                  APR % (annual)
+                  <input
+                    type="number"
+                    min={0}
+                    step={0.1}
+                    value={loanApr}
+                    onChange={(e) => setLoanApr(e.target.value)}
+                    onWheel={preventWheelChangeNumber}
+                    className="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm"
+                  />
+                </label>
               </div>
-            ))}
+              <div className="mt-5 flex flex-wrap items-baseline gap-2">
+                <span className="text-sm text-gray-600">Estimated payment</span>
+                <span className="text-2xl font-black text-emerald-700 tabular-nums">{emiLabel}</span>
+                <span className="text-xs text-gray-500">/ month · indicative only</span>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-bold text-gray-800 mb-3">Partner banks (financing desks)</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {financing.map((p) => (
+                  <div
+                    key={p.name}
+                    className="flex min-h-[5.25rem] flex-col justify-center rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50/90 px-3 py-3 text-center shadow-sm ring-1 ring-black/[0.03]"
+                  >
+                    <span className="text-[13px] font-bold leading-snug text-gray-800">{p.name}</span>
+                    <span className="mt-1 text-[10px] font-medium uppercase tracking-wide text-gray-400">Auto loan</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 

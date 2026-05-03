@@ -27,6 +27,7 @@ import {
   fetchListingById,
   fetchListings,
   formatMoney,
+  listingCoverMediaPath,
   listingPublicHref,
   resolveMediaUrl,
   type ListingDto,
@@ -291,20 +292,41 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
               {car.brand?.name ? (
                 <>
                   <ChevronRight className="h-3.5 w-3.5 shrink-0 text-gray-400" aria-hidden />
-                  <span className="shrink-0 text-gray-700">
-                    {car.brand.name}
-                    {car.location_city ? ` ${car.location_city}` : ''}
-                  </span>
+                  {car.brand.id != null ? (
+                    <Link
+                      to={`/listings?type=${encodeURIComponent(car.listing_type)}&brand_id=${car.brand.id}`}
+                      className="shrink-0 hover:text-[#233D7B] text-gray-700"
+                    >
+                      {car.brand.name}
+                      {car.location_city ? ` ${car.location_city}` : ''}
+                    </Link>
+                  ) : (
+                    <span className="shrink-0 text-gray-700">
+                      {car.brand.name}
+                      {car.location_city ? ` ${car.location_city}` : ''}
+                    </span>
+                  )}
                 </>
               ) : null}
               {car.vehicle_model?.name ? (
                 <>
                   <ChevronRight className="h-3.5 w-3.5 shrink-0 text-gray-400" aria-hidden />
-                  <span className="hidden text-gray-700 md:inline">
-                    {car.vehicle_model.name}
-                    {car.vehicle_year ? ` ${car.vehicle_year}` : ''}
-                    {car.location_city ? ` ${car.location_city}` : ''}
-                  </span>
+                  {car.brand?.id != null ? (
+                    <Link
+                      to={`/listings?type=${encodeURIComponent(car.listing_type)}&brand_id=${car.brand.id}&q=${encodeURIComponent(car.vehicle_model.name)}`}
+                      className="hidden hover:text-[#233D7B] text-gray-700 md:inline"
+                    >
+                      {car.vehicle_model.name}
+                      {car.vehicle_year ? ` ${car.vehicle_year}` : ''}
+                      {car.location_city ? ` ${car.location_city}` : ''}
+                    </Link>
+                  ) : (
+                    <span className="hidden text-gray-700 md:inline">
+                      {car.vehicle_model.name}
+                      {car.vehicle_year ? ` ${car.vehicle_year}` : ''}
+                      {car.location_city ? ` ${car.location_city}` : ''}
+                    </span>
+                  )}
                 </>
               ) : null}
               <ChevronRight className="h-3.5 w-3.5 shrink-0 text-gray-400" aria-hidden />
@@ -557,7 +579,12 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                       </div>
                     </section>
 
-                    <ListingReviewsSection listingPublicId={car.id} />
+                    {car.status === 'sold' ? (
+                      <ListingReviewsSection
+                        listingPublicId={car.id}
+                        canSubmitReview={!!car.can_submit_listing_review}
+                      />
+                    ) : null}
                   </section>
 
                   <section id="detail-similar-ads" className="scroll-mt-6 space-y-6">
@@ -582,7 +609,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                             >
                               <div className="aspect-[4/3] bg-gray-100">
                                 <ImageWithFallback
-                                  src={resolveMediaUrl(s.media?.[0]?.path) || fallback}
+                                  src={resolveMediaUrl(listingCoverMediaPath(s.media)) || fallback}
                                   alt=""
                                   className="h-full w-full object-cover"
                                 />

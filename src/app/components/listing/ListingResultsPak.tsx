@@ -1,4 +1,4 @@
-import type { Dispatch, MouseEvent, SetStateAction } from 'react';
+import { type Dispatch, type MouseEvent, type SetStateAction } from 'react';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import {
@@ -7,20 +7,13 @@ import {
   Link2,
   MapPin,
   Phone,
-  Search,
 } from 'lucide-react';
 import { Link } from 'react-router';
 import { getAuthToken } from '@/lib/api';
 import { addToWishlist, removeFromWishlist } from '@/lib/engagement';
-import {
-  formatMoney,
-  listingPublicHref,
-  resolveMediaUrl,
-  type BrandDto,
-  type ListingDto,
-} from '@/lib/marketplace';
-import { BD_CITIES as BD_CITIES_ALL, CITY_LABEL_KEYS } from '@/i18n/bdCities';
-import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { formatMoney, listingPublicHref, type BrandDto, type ListingDto } from '@/lib/marketplace';
+import { BD_CITIES as BD_CITIES_ALL } from '@/i18n/bdCities';
+import { ListingCardHoverGallery } from '../ListingCardHoverGallery';
 
 const FALLBACK =
   'https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=640&q=80';
@@ -37,6 +30,17 @@ export function mergeListingParams(
   next.delete('page');
   return next;
 }
+
+export {
+  validatePakListingSidebarInput,
+  type PakFilterFieldErrors,
+  type PakFilterValidSnapshot,
+  type PakListingFilterValidateResult,
+  normalizePriceDigits,
+  KEYWORD_MAX_LEN,
+} from './listingPakFilterValidate';
+
+export { PakFiltersSidebar } from './PakFiltersSidebarPanel';
 
 export function formatListingUpdated(car: ListingDto, t: TFunction): string {
   const raw = car.updated_at || car.created_at;
@@ -98,358 +102,6 @@ export function formatPriceBanglaShort(car: ListingDto): string {
   return formatMoney(car.price, car.currency);
 }
 
-type SidebarPakProps = {
-  locationSearch: string;
-  setSearchParams: (next: URLSearchParams, opts?: { replace?: boolean }) => void;
-  brands: BrandDto[];
-  city: string;
-  setCity: (v: string) => void;
-  brandId: string;
-  setBrandId: (v: string) => void;
-  keyword: string;
-  setKeyword: (v: string) => void;
-  minPrice: string;
-  setMinPrice: (v: string) => void;
-  maxPrice: string;
-  setMaxPrice: (v: string) => void;
-  minYear: string;
-  setMinYear: (v: string) => void;
-  maxYear: string;
-  setMaxYear: (v: string) => void;
-  fuelType: string;
-  setFuelType: (v: string) => void;
-  transmission: string;
-  setTransmission: (v: string) => void;
-  condition: string;
-  setCondition: (v: string) => void;
-  verifiedDealerOnly: boolean;
-  setVerifiedDealerOnly: (v: boolean) => void;
-  dealerOnly: boolean;
-  setDealerOnly: (v: boolean) => void;
-  featuredOnly: boolean;
-  setFeaturedOnly: (v: boolean) => void;
-  commitFiltersToUrl: () => void;
-  clearFiltersToUrl: () => void;
-  listingType: string;
-};
-
-const CITY_CHIPS: Array<{ slug: string; labelKey: string }> = BD_CITIES_ALL.map((slug) => ({
-  slug,
-  labelKey: CITY_LABEL_KEYS[slug],
-}));
-const COLOR_CHIPS: Array<{ q: string; labelKey: string }> = [
-  { q: 'white', labelKey: 'listingBrowse.colWhite' },
-  { q: 'black', labelKey: 'listingBrowse.colBlack' },
-  { q: 'silver', labelKey: 'listingBrowse.colSilver' },
-  { q: 'grey', labelKey: 'listingBrowse.colGrey' },
-  { q: 'blue', labelKey: 'listingBrowse.colBlue' },
-  { q: 'red', labelKey: 'listingBrowse.colRed' },
-  { q: 'green', labelKey: 'listingBrowse.colGreen' },
-];
-const BODY_CHIPS: Array<{ labelKey: string; q: string }> = [
-  { labelKey: 'listingBrowse.chipSedan', q: 'sedan' },
-  { labelKey: 'listingBrowse.chipHatchback', q: 'hatchback' },
-  { labelKey: 'listingBrowse.chipSuv', q: 'SUV' },
-  { labelKey: 'listingBrowse.chipCrossover', q: 'crossover' },
-];
-
-export function PakFiltersSidebar({
-  locationSearch,
-  setSearchParams,
-  brands,
-  city,
-  setCity,
-  brandId,
-  setBrandId,
-  keyword,
-  setKeyword,
-  minPrice,
-  setMinPrice,
-  maxPrice,
-  setMaxPrice,
-  minYear,
-  setMinYear,
-  maxYear,
-  setMaxYear,
-  fuelType,
-  setFuelType,
-  transmission,
-  setTransmission,
-  condition,
-  setCondition,
-  verifiedDealerOnly,
-  setVerifiedDealerOnly,
-  dealerOnly,
-  setDealerOnly,
-  featuredOnly,
-  setFeaturedOnly,
-  commitFiltersToUrl,
-  clearFiltersToUrl,
-  listingType,
-}: SidebarPakProps) {
-  const { t } = useTranslation();
-  const applyChip = (updates: Record<string, string | null | undefined>) => {
-    setSearchParams(mergeListingParams(locationSearch, updates), { replace: true });
-  };
-
-  const chipActive = (key: string, val: string) => new URLSearchParams(locationSearch).get(key) === val;
-
-  return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm sticky top-24">
-      <div className="border-b border-gray-100 px-4 py-3 bg-[#f8f9fa]">
-        <h3 className="text-[13px] font-bold uppercase tracking-wide text-gray-800">{t('listingBrowse.showResultsBy')}</h3>
-      </div>
-      <div className="p-4 pb-28 space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto lg:pb-4">
-        <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.searchKeyword')}</div>
-          <div className="flex gap-2">
-            <input
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && commitFiltersToUrl()}
-              placeholder={t('listingBrowse.placeholderKeyword')}
-              className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded text-sm text-gray-900"
-            />
-            <button
-              type="button"
-              onClick={() => commitFiltersToUrl()}
-              className="shrink-0 rounded bg-[#233D7B] text-white p-2 hover:bg-[#1a2d5a]"
-              aria-label={t('listingBrowse.searchAria')}
-            >
-              <Search className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.city')}</div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => applyChip({ city: null })}
-              className={`rounded-full px-2.5 py-1 text-[11px] font-semibold border ${
-                !city ? 'border-[#233D7B] bg-[#233D7B]/10 text-[#233D7B]' : 'border-gray-200 text-gray-600 hover:border-gray-300'
-              }`}
-            >
-              {t('listingBrowse.all')}
-            </button>
-            {CITY_CHIPS.map((c) => (
-              <button
-                key={c.slug}
-                type="button"
-                onClick={() => applyChip({ city: c.slug })}
-                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold border ${
-                  chipActive('city', c.slug) ? 'border-[#233D7B] bg-[#233D7B]/10 text-[#233D7B]' : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                }`}
-              >
-                {t(c.labelKey)}
-              </button>
-            ))}
-          </div>
-          <input
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder={t('listingBrowse.otherCity')}
-            className="mt-2 w-full px-3 py-2 border border-gray-300 rounded text-sm"
-          />
-        </div>
-
-        <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.make')}</div>
-          <select
-            value={brandId}
-            onChange={(e) => setBrandId(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-          >
-            <option value="">{t('listingBrowse.allMakes')}</option>
-            {brands.map((b) => (
-              <option value={String(b.id)} key={b.id}>
-                {b.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.priceBdt')}</div>
-          <div className="flex gap-2 items-center">
-            <input
-              value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value)}
-              placeholder={t('listingBrowse.from')}
-              className="w-full px-2 py-2 border border-gray-300 rounded text-sm"
-            />
-            <input
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-              placeholder={t('listingBrowse.to')}
-              className="w-full px-2 py-2 border border-gray-300 rounded text-sm"
-            />
-            <button
-              type="button"
-              onClick={() => commitFiltersToUrl()}
-              className="shrink-0 rounded bg-[#233D7B] text-white px-3 py-2 text-xs font-bold hover:bg-[#1a2d5a]"
-            >
-              {t('listingBrowse.go')}
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.year')}</div>
-          <div className="flex gap-2 items-center">
-            <input
-              value={minYear}
-              onChange={(e) => setMinYear(e.target.value)}
-              placeholder={t('listingBrowse.from')}
-              className="w-full px-2 py-2 border border-gray-300 rounded text-sm"
-            />
-            <input
-              value={maxYear}
-              onChange={(e) => setMaxYear(e.target.value)}
-              placeholder={t('listingBrowse.to')}
-              className="w-full px-2 py-2 border border-gray-300 rounded text-sm"
-            />
-            <button
-              type="button"
-              onClick={() => commitFiltersToUrl()}
-              className="shrink-0 rounded bg-[#233D7B] text-white px-3 py-2 text-xs font-bold hover:bg-[#1a2d5a]"
-            >
-              {t('listingBrowse.go')}
-            </button>
-          </div>
-        </div>
-
-        {listingType !== 'used_bike' ? (
-          <div>
-            <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.transmission')}</div>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { label: t('listingBrowse.transAny'), v: '' },
-                { label: t('hero.automatic'), v: 'automatic' },
-                { label: t('hero.manual'), v: 'manual' },
-              ].map(({ label, v }) => (
-                <button
-                  key={v || 'any'}
-                  type="button"
-                  onClick={() => {
-                    setTransmission(v);
-                    applyChip({ transmission: v || null });
-                  }}
-                  className={`rounded-full px-2.5 py-1 text-[11px] font-semibold border ${
-                    (v === '' && !transmission) || transmission === v
-                      ? 'border-[#233D7B] bg-[#233D7B]/10 text-[#233D7B]'
-                      : 'border-gray-200 text-gray-600'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.fuelType')}</div>
-          <select
-            value={fuelType}
-            onChange={(e) => setFuelType(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-          >
-            <option value="">{t('listingBrowse.fuelAny')}</option>
-            <option value="petrol">{t('hero.petrol')}</option>
-            <option value="diesel">{t('hero.diesel')}</option>
-            <option value="hybrid">{t('hero.hybrid')}</option>
-            <option value="electric">{t('hero.electric')}</option>
-          </select>
-        </div>
-
-        <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.colourKeyword')}</div>
-          <div className="flex flex-wrap gap-2">
-            {COLOR_CHIPS.map((col) => (
-              <button
-                key={col.q}
-                type="button"
-                onClick={() => applyChip({ q: col.q })}
-                className="rounded-full px-2 py-1 text-[11px] font-medium border border-gray-200 text-gray-700 hover:border-[#233D7B]"
-              >
-                {t(col.labelKey)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {listingType !== 'used_bike' ? (
-          <div>
-            <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.bodyKeyword')}</div>
-            <div className="flex flex-wrap gap-2">
-              {BODY_CHIPS.map(({ labelKey, q }) => (
-                <button
-                  key={q}
-                  type="button"
-                  onClick={() => applyChip({ q })}
-                  className="rounded-full px-2 py-1 text-[11px] font-medium border border-gray-200 text-gray-700 hover:border-[#233D7B]"
-                >
-                  {t(labelKey)}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        <div>
-          <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{t('listingBrowse.condition')}</div>
-          <select
-            value={condition}
-            onChange={(e) => setCondition(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-          >
-            <option value="">{t('listingBrowse.fuelAny')}</option>
-            <option value="used">{t('hero.used')}</option>
-            <option value="reconditioned">{t('hero.reconditioned')}</option>
-            <option value="new">{t('hero.new')}</option>
-          </select>
-        </div>
-
-        <div className="space-y-2 border-t border-gray-100 pt-4">
-          <label className="flex items-center gap-2 text-sm text-gray-800">
-            <input
-              type="checkbox"
-              checked={verifiedDealerOnly}
-              onChange={(e) => setVerifiedDealerOnly(e.target.checked)}
-            />
-            {t('listingBrowse.verifiedDealersOnly')}
-          </label>
-          <label className="flex items-center gap-2 text-sm text-gray-800">
-            <input type="checkbox" checked={dealerOnly} onChange={(e) => setDealerOnly(e.target.checked)} />
-            {t('listingBrowse.dealerListingsOnly')}
-          </label>
-          <label className="flex items-center gap-2 text-sm text-gray-800">
-            <input type="checkbox" checked={featuredOnly} onChange={(e) => setFeaturedOnly(e.target.checked)} />
-            {t('listingBrowse.featuredAdsOnly')}
-          </label>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => commitFiltersToUrl()}
-          className="w-full bg-[#3EB549] text-white py-2.5 rounded font-bold hover:bg-[#36a340] transition shadow-sm"
-        >
-          {t('listingBrowse.applyFilters')}
-        </button>
-        <button
-          type="button"
-          onClick={() => clearFiltersToUrl()}
-          className="w-full border border-gray-300 text-gray-800 py-2.5 rounded font-semibold hover:bg-gray-50 transition"
-        >
-          {t('listingBrowse.clearAll')}
-        </button>
-      </div>
-    </div>
-  );
-}
-
 type RowPakProps = {
   car: ListingDto;
   wishlistedIds: Set<string>;
@@ -480,9 +132,11 @@ export function PakListingRow({
         to={href}
         className="relative shrink-0 w-full sm:w-[200px] md:w-[220px] h-44 sm:h-auto sm:min-h-[140px] bg-gray-100 block"
       >
-        <ImageWithFallback
-          src={resolveMediaUrl(car.media?.[0]?.path) || FALLBACK}
+        <ListingCardHoverGallery
+          media={car.media}
+          fallbackSrc={FALLBACK}
           alt=""
+          wrapperClassName="sm:absolute sm:inset-0"
           className="h-full w-full object-cover sm:absolute sm:inset-0"
           loading="lazy"
         />

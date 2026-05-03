@@ -3,7 +3,13 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { fetchAuctionsPaged, type AuctionSummaryDto } from '@/lib/auctions';
-import { formatMoney, listingPaginationPages, resolveMediaUrl, type ListingsPageMeta } from '@/lib/marketplace';
+import {
+  formatMoney,
+  listingCoverMediaPath,
+  listingPaginationPages,
+  resolveMediaUrl,
+  type ListingsPageMeta,
+} from '@/lib/marketplace';
 import { setPageSeo } from '@/lib/seo';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ApiConnectionHint } from './ApiConnectionHint';
@@ -143,7 +149,7 @@ export function AuctionsPage() {
               {items.map((a) => {
                 const listing = a.listing;
                 const cur = listing?.currency ?? 'BDT';
-                const thumb = resolveMediaUrl(listing?.media?.[0]?.path) ?? FALLBACK_IMAGE;
+                const thumb = resolveMediaUrl(listingCoverMediaPath(listing?.media)) ?? FALLBACK_IMAGE;
                 const badge = statusBadge(a.display_status);
 
                 return (

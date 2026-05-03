@@ -6,6 +6,7 @@ import {
   fetchBrandNews,
   fetchListings,
   formatMoney,
+  listingCoverMediaPath,
   resolveMediaUrl,
   type BrandNewsArticleDto,
   type BrandNewsMetaDto,
@@ -184,7 +185,7 @@ export function BlogArchivePage() {
                     className="relative block aspect-[16/10] overflow-hidden bg-gray-100"
                   >
                     <ImageWithFallback
-                      src={resolveMediaUrl(listing.media?.[0]?.path) || FALLBACK_COVER}
+                      src={resolveMediaUrl(listingCoverMediaPath(listing.media)) || FALLBACK_COVER}
                       alt=""
                       className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-300"
                     />

@@ -41,6 +41,13 @@ export type ListingDto = {
   /** Present when this listing has a scheduled or active timed auction (see GET listing show). */
   /** True when catalog row has a scheduled/active auction (GET /listings index). */
   has_live_auction?: boolean;
+  sold_to_user_id?: number | null;
+  /** Seller-only: buyer account email linked when marking sold. */
+  sold_buyer_email?: string | null;
+  /** Public listing detail: reviews block is shown only for sold vehicles. */
+  reviews_enabled?: boolean;
+  /** True when the signed-in user is the recorded buyer (may submit one listing review). */
+  can_submit_listing_review?: boolean;
   open_auction?: {
     id: string;
     display_status: string;
@@ -189,17 +196,92 @@ function parseListingsMeta(payload: unknown): ListingsPageMeta | null {
   };
 }
 
-/** Paginated listings (reads Laravel `meta` for totals — use on the main listings grid). */
-export async function fetchListingsPaged(
-  params: Record<string, string | number | boolean | undefined> = {},
-): Promise<{ items: ListingDto[]; meta: ListingsPageMeta | null }> {
-  const query = new URLSearchParams();
+export type ListingsHttpParams = Record<string, string | number | boolean | string[] | undefined | null>;
+
+/** Serialize listing query params — arrays become comma-separated (matches Laravel CSV parsing). */
+export function appendListingsQueryParams(query: URLSearchParams, params: ListingsHttpParams): void {
   Object.entries(params).forEach(([k, v]) => {
     if (v === undefined || v === null || v === '') {
       return;
     }
+    if (Array.isArray(v)) {
+      const parts = v.map(String).filter((s) => s.trim() !== '');
+      if (!parts.length) return;
+      query.set(k, parts.join(','));
+      return;
+    }
+    if (typeof v === 'boolean') {
+      if (v) query.set(k, '1');
+      return;
+    }
     query.set(k, String(v));
   });
+}
+
+export type ListingFacetRow = { key: string | number | null; count: number };
+
+export type ListingFacetBuckets = {
+  brands: ListingFacetRow[];
+  vehicle_models: ListingFacetRow[];
+  fuel_types: ListingFacetRow[];
+  transmissions: ListingFacetRow[];
+  assembly_types?: ListingFacetRow[];
+  registration_regions?: ListingFacetRow[];
+  feature_tags?: ListingFacetRow[];
+};
+
+/** Marginal facet counts for sidebar (GET /listings/filter-facets). */
+export async function fetchListingFilterFacets(
+  params: ListingsHttpParams,
+): Promise<ListingFacetBuckets | null> {
+  const query = new URLSearchParams();
+  appendListingsQueryParams(query, params);
+
+  query.delete('page');
+  query.delete('per_page');
+
+  const suffix = query.toString() ? `?${query.toString()}` : '';
+  try {
+    const json = await apiFetch<unknown>(`/listings/filter-facets${suffix}`);
+    if (!json || typeof json !== 'object' || !('data' in json)) {
+      return null;
+    }
+    const d = (json as { data: unknown }).data;
+    if (!d || typeof d !== 'object') return null;
+    const o = d as Record<string, unknown>;
+    const parseBucket = (x: unknown): ListingFacetRow[] => {
+      if (!Array.isArray(x)) return [];
+      return x
+        .map((row) => {
+          if (!row || typeof row !== 'object') return null;
+          const r = row as Record<string, unknown>;
+          const count = Number(r.count);
+          if (!Number.isFinite(count)) return null;
+          return { key: (r.key as string | number | null) ?? null, count };
+        })
+        .filter(Boolean) as ListingFacetRow[];
+    };
+    return {
+      brands: parseBucket(o.brands),
+      vehicle_models: parseBucket(o.vehicle_models),
+      fuel_types: parseBucket(o.fuel_types),
+      transmissions: parseBucket(o.transmissions),
+      assembly_types: parseBucket(o.assembly_types),
+      registration_regions: parseBucket(o.registration_regions),
+      feature_tags: parseBucket(o.feature_tags),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Paginated listings (reads Laravel `meta` for totals — use on the main listings grid). */
+export async function fetchListingsPaged(params: ListingsHttpParams = {}): Promise<{
+  items: ListingDto[];
+  meta: ListingsPageMeta | null;
+}> {
+  const query = new URLSearchParams();
+  appendListingsQueryParams(query, params);
 
   const suffix = query.toString() ? `?${query.toString()}` : '';
   const json = await apiFetch<unknown>(`/listings${suffix}`);
@@ -216,12 +298,9 @@ export async function fetchListingsPaged(
   };
 }
 
-export async function fetchListings(params: Record<string, string | number | boolean | undefined> = {}): Promise<ListingDto[]> {
+export async function fetchListings(params: ListingsHttpParams = {}): Promise<ListingDto[]> {
   const query = new URLSearchParams();
-  Object.entries(params).forEach(([k, v]) => {
-    if (v === undefined || v === null || v === '') return;
-    query.set(k, String(v));
-  });
+  appendListingsQueryParams(query, params);
 
   const suffix = query.toString() ? `?${query.toString()}` : '';
   const json = await apiFetch<unknown>(`/listings${suffix}`);
@@ -598,4 +677,44 @@ export function resolveMediaUrl(path: string | undefined | null): string | null 
   if (!path) return null;
   if (/^https?:\/\//i.test(path)) return path;
   return `/storage/${path}`;
+}
+
+/**
+ * Bikroy-style CDNs encode thumb size as `/WxH/cropped.` in the path (e.g. 72×54 vs 142×107).
+ * CSV imports often list the smallest variant first — using it as the card cover looks blurry upscaled.
+ */
+export function embeddedListingImagePixelScore(path: string | undefined | null): number {
+  if (!path) return 0;
+  const m = path.match(/\/(\d+)\/(\d+)\/cropped\./i);
+  if (!m) return 0;
+  const w = Number(m[1]);
+  const h = Number(m[2]);
+  return Number.isFinite(w) && Number.isFinite(h) ? w * h : 0;
+}
+
+/** Best thumbnail path for grids/cards — prefers largest Bikroy-style variant when ties exist at score 0, keeps first URL. */
+export function listingCoverMediaPath(
+  media: Array<{ path: string }> | undefined | null,
+): string | undefined {
+  if (!media?.length) return undefined;
+  let best = media[0]!.path;
+  let score = embeddedListingImagePixelScore(best);
+  for (let i = 1; i < media.length; i++) {
+    const path = media[i]!.path;
+    const s = embeddedListingImagePixelScore(path);
+    if (s > score) {
+      score = s;
+      best = path;
+    }
+  }
+  return best;
+}
+
+/** Carousels/galleries: show highest‑res variant first; stable for local `/storage/` paths (all score 0). */
+export function sortListingMediaByCoverPreference<T extends { path: string }>(media: T[] | undefined | null): T[] {
+  if (!media?.length) return [];
+  return [...media].sort((a, b) => {
+    const db = embeddedListingImagePixelScore(b.path) - embeddedListingImagePixelScore(a.path);
+    return db !== 0 ? db : 0;
+  });
 }

@@ -3,7 +3,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { BD_POPULAR_USED_CAR_MODELS } from '@/app/data/bdPopularCars';
-import { fetchBrands, fetchListings, resolveMediaUrl, type BrandDto, type ListingDto } from '@/lib/marketplace';
+import {
+  fetchBrands,
+  fetchListings,
+  listingCoverMediaPath,
+  resolveMediaUrl,
+  type BrandDto,
+  type ListingDto,
+} from '@/lib/marketplace';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 
@@ -51,7 +58,7 @@ const GENERIC_PART_IMAGES = [
 ];
 
 function firstListingPhoto(l: ListingDto): string | null {
-  const u = resolveMediaUrl(l.media?.[0]?.path);
+  const u = resolveMediaUrl(listingCoverMediaPath(l.media));
   return u || null;
 }
 

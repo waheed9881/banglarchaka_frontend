@@ -157,7 +157,7 @@ export function LoginPage({ variant }: { variant: Tab }) {
     try {
       const res = await sendRegisterOtpEmail(em);
       if (res.debugCode) {
-        toast.success(t('auth.otpHintDev', { code: res.debugCode }));
+        // toast.success(t('auth.otpHintDev', { code: res.debugCode }));
       } else {
         toast.success(t('auth.registrationOtpSent'));
       }
@@ -806,18 +806,27 @@ export function LoginPage({ variant }: { variant: Tab }) {
 
             {import.meta.env.DEV ? (
               <div className="mt-8 max-w-md mx-auto lg:mx-0 rounded-md border border-dashed border-gray-200 bg-gray-50 px-3 py-3 text-left text-[11px] leading-relaxed text-gray-600 space-y-2">
-                <p className="font-semibold text-gray-800">Demo admin (after backend seed)</p>
-                <p>
-                  Primary: <code className="bg-white px-1 rounded">admin@banglarchaka.local</code> —{' '}
-                  <code className="bg-white px-1 rounded">BanglarAdmin1!</code>
+                <p className="font-semibold text-gray-800">Demo logins (password for all)</p>
+                <p className="text-gray-700">
+                  Common password: <code className="bg-white px-1 rounded">password</code>
                 </p>
                 <p>
-                  Legacy: <code className="bg-white px-1 rounded">test@example.com</code> —{' '}
-                  <code className="bg-white px-1 rounded">password</code>
+                  Super admin / admin HR:{' '}
+                  <code className="bg-white px-1 rounded">admin@banglarchaka.local</code> —{' '}
+                  <code className="bg-white px-1 rounded">test@example.com</code>
+                </p>
+                <p>
+                  Dealer HR portal: <code className="bg-white px-1 rounded">dealer@banglarchaka.test</code>
+                </p>
+                <p>
+                  Staff roles:{' '}
+                  <code className="bg-white px-1 rounded">hr.manager@banglarchaka.test</code>,{' '}
+                  <code className="bg-white px-1 rounded">finance.officer@banglarchaka.test</code>
                 </p>
                 <p className="text-gray-500">
-                  Header &quot;Admin&quot; appears after login. Seed:{' '}
-                  <code className="bg-white px-1 rounded">php artisan db:seed --class=&quot;Database\\Seeders\\AdminUserSeeder&quot;</code>
+                  Laravel must be running ({' '}
+                  <code className="bg-white px-1 rounded">php artisan serve</code> ). If login still fails, reseed:{' '}
+                  <code className="bg-white px-1 rounded">php artisan db:seed</code>
                 </p>
               </div>
             ) : null}
