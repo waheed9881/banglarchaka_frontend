@@ -1408,7 +1408,10 @@
     "dealerPlanChoose": "Select this plan",
     "dealerPlanLoadFailed": "Could not load plans. Try again.",
     "dealerPlanComplete": "Plan activated. Welcome!",
-    "dealerPlanSelectFailed": "Could not activate plan. Try again."
+    "dealerPlanSelectFailed": "Could not activate plan. Try again.",
+    "marketingTitle": "Cars, bikes & parts — one account for everything.",
+    "marketingSubtitle": "Save searches, message sellers, manage your listings, and access dealer tools from a single secure dashboard.",
+    "marketingPrivacy": "We never post on your behalf. Google only shares your basic profile when you choose that option."
   },
   "dealerPublic": {
     "loading": "Loading dealer…",

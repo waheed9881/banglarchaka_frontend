@@ -151,7 +151,7 @@ export function CompareSection() {
 
                   <Link
                     to={`/compare?a=${featuredPair[0].id}&b=${featuredPair[1].id}`}
-                    className="mt-8 w-full md:w-auto md:self-center rounded-lg border-2 border-[#233D7B] bg-white px-8 py-3 text-center text-sm font-bold text-[#233D7B] transition hover:bg-blue-50"
+                    className="mt-8 w-full rounded-lg border-2 border-[#233D7B] bg-white px-8 py-3 text-center text-sm font-bold text-[#233D7B] transition hover:bg-slate-50 md:w-auto md:self-center"
                   >
                     View Comparison
                   </Link>

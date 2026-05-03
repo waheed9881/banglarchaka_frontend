@@ -117,8 +117,8 @@ function isKnownListingType(value: string | null): value is (typeof LISTING_TYPE
 
 function Tip({ children }: { children: ReactNode }) {
   return (
-    <div className="flex gap-2 text-xs text-[#233D7B]/90 bg-sky-50/80 border border-sky-100 rounded-lg px-3 py-2.5">
-      <Lightbulb className="w-4 h-4 shrink-0 text-sky-600 mt-0.5" aria-hidden />
+    <div className="flex gap-2 text-xs text-[#233D7B]/90 bg-slate-50/90 border border-slate-200 rounded-lg px-3 py-2.5">
+      <Lightbulb className="w-4 h-4 shrink-0 text-[#233D7B] mt-0.5" aria-hidden />
       <p className="leading-snug">{children}</p>
     </div>
   );
@@ -552,7 +552,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
           onSubmit={submit}
           className="scroll-mt-4 overflow-hidden rounded-2xl border border-gray-200/90 bg-white shadow-xl ring-1 ring-black/[0.04]"
         >
-          <div className="flex flex-wrap items-center gap-3 border-b border-emerald-500/15 bg-gradient-to-r from-emerald-50/95 via-white to-sky-50/40 px-4 py-4 sm:gap-4 sm:px-6">
+          <div className="flex flex-wrap items-center gap-3 border-b border-emerald-500/15 bg-gradient-to-r from-emerald-50/95 via-white to-slate-50/50 px-4 py-4 sm:gap-4 sm:px-6">
             <Car className="hidden h-6 w-6 shrink-0 text-[#233D7B] opacity-90 sm:block" aria-hidden />
             <span className={`${labelClass} text-xs font-bold uppercase tracking-wide text-[#233D7B]`}>
               {t('postAdForm.listingTypeLabel')}
@@ -760,7 +760,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                                   key={chip}
                                   type="button"
                                   onClick={() => appendChip(chip)}
-                                  className="px-3 py-1.5 rounded-full border border-sky-200 bg-white text-xs sm:text-sm text-sky-800 hover:bg-sky-50 hover:border-sky-400 transition"
+                                  className="px-3 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm text-slate-800 hover:bg-slate-100 hover:border-[#233D7B]/35 transition"
                                 >
                                   {chip}
                                 </button>
@@ -823,9 +823,9 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                   <section className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 sm:p-8">
                     <h2 className="text-xl font-bold text-gray-900 mb-2">Upload Media</h2>
                     <p className="text-sm text-gray-500 mb-4">Sharp pictures help buyers trust your ad.</p>
-                    <label className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-sky-300 bg-sky-50/40 px-6 py-14 cursor-pointer hover:bg-sky-50/80 transition">
-                      <div className="w-16 h-16 rounded-full bg-sky-100 flex items-center justify-center mb-4">
-                        <Camera className="w-8 h-8 text-sky-600" />
+                    <label className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/60 px-6 py-14 cursor-pointer hover:bg-slate-50/90 transition">
+                      <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                        <Camera className="w-8 h-8 text-[#233D7B]" />
                       </div>
                       <span className="inline-flex items-center rounded-lg bg-emerald-600 text-white px-5 py-2.5 font-semibold text-sm">
                         + Add Photos
@@ -914,7 +914,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                             role="switch"
                             aria-checked={allowWhatsapp}
                             onClick={() => setAllowWhatsapp((v) => !v)}
-                            className={`relative h-7 w-12 shrink-0 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-500 ${allowWhatsapp ? 'bg-sky-500' : 'bg-gray-300'}`}
+                            className={`relative h-7 w-12 shrink-0 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#233D7B] ${allowWhatsapp ? 'bg-emerald-600' : 'bg-gray-300'}`}
                           >
                             <span
                               className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${allowWhatsapp ? 'translate-x-[22px]' : ''}`}
@@ -922,7 +922,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                           </button>
                         </div>
                       </div>
-                      <div className="flex gap-3 text-sm text-gray-600 bg-sky-50/80 border border-sky-100 rounded-xl p-4 h-fit">
+                      <div className="flex gap-3 text-sm text-gray-600 bg-slate-50/90 border border-slate-200 rounded-xl p-4 h-fit">
                         <Smartphone className="w-6 h-6 text-[#233D7B] shrink-0" />
                         <p>Use your genuine 11-digit Bangladesh mobile (01XXXXXXXXX). Buyer inquiries will come to this number.</p>
                       </div>
@@ -1111,7 +1111,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                               <button
                                 type="button"
                                 onClick={() => setDescription(CAR_AD_DESCRIPTION_TEMPLATE.slice(0, DESC_MAX))}
-                                className="text-sm font-semibold text-sky-600 hover:text-sky-800 hover:underline ml-auto"
+                                className="text-sm font-semibold text-[#233D7B] hover:text-slate-800 hover:underline ml-auto"
                               >
                                 Predefined template
                               </button>
@@ -1131,7 +1131,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                               <button
                                 type="button"
                                 onClick={() => setDescription('')}
-                                className="text-xs text-sky-600 font-semibold hover:underline"
+                                className="text-xs text-[#233D7B] font-semibold hover:underline"
                               >
                                 Reset
                               </button>
@@ -1143,7 +1143,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                                   key={chip}
                                   type="button"
                                   onClick={() => appendChip(chip)}
-                                  className="px-3 py-1.5 rounded-full border border-sky-200 bg-white text-xs sm:text-sm text-sky-800 hover:bg-sky-50 hover:border-sky-400 transition"
+                                  className="px-3 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm text-slate-800 hover:bg-slate-100 hover:border-[#233D7B]/35 transition"
                                 >
                                   {chip}
                                 </button>
@@ -1163,9 +1163,9 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                   <section className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 sm:p-8">
                     <h2 className="text-xl font-bold text-gray-900 mb-2">Upload Media</h2>
                     <p className="text-sm text-gray-500 mb-4">Good photos attract serious buyers faster.</p>
-                    <label className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-sky-300 bg-sky-50/40 px-6 py-14 cursor-pointer hover:bg-sky-50/80 transition">
-                      <div className="w-16 h-16 rounded-full bg-sky-100 flex items-center justify-center mb-4">
-                        <Camera className="w-8 h-8 text-sky-600" />
+                    <label className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/60 px-6 py-14 cursor-pointer hover:bg-slate-50/90 transition">
+                      <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                        <Camera className="w-8 h-8 text-[#233D7B]" />
                       </div>
                       <span className="inline-flex items-center rounded-lg bg-emerald-600 text-white px-5 py-2.5 font-semibold text-sm">
                         + Add Photos
@@ -1254,7 +1254,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                             role="switch"
                             aria-checked={allowWhatsapp}
                             onClick={() => setAllowWhatsapp((v) => !v)}
-                            className={`relative h-7 w-12 shrink-0 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-500 ${allowWhatsapp ? 'bg-sky-500' : 'bg-gray-300'}`}
+                            className={`relative h-7 w-12 shrink-0 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#233D7B] ${allowWhatsapp ? 'bg-emerald-600' : 'bg-gray-300'}`}
                           >
                             <span
                               className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${allowWhatsapp ? 'translate-x-[22px]' : ''}`}
@@ -1262,7 +1262,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                           </button>
                         </div>
                       </div>
-                      <div className="flex gap-3 text-sm text-gray-600 bg-sky-50/80 border border-sky-100 rounded-xl p-4 h-fit">
+                      <div className="flex gap-3 text-sm text-gray-600 bg-slate-50/90 border border-slate-200 rounded-xl p-4 h-fit">
                         <Smartphone className="w-6 h-6 text-[#233D7B] shrink-0" />
                         <p>
                           Enter a genuine 11-digit Bangladesh mobile (01XXXXXXXXX). All inquiries will come on this number.
@@ -1471,9 +1471,9 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                     <p className="text-sm text-gray-500 mt-1">Clear pictures sell faster.</p>
                   </div>
 
-                  <label className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-sky-300 bg-sky-50/40 px-6 py-14 cursor-pointer hover:bg-sky-50/80 transition">
-                    <div className="w-16 h-16 rounded-full bg-sky-100 flex items-center justify-center mb-4">
-                      <Camera className="w-8 h-8 text-sky-600" />
+                  <label className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/60 px-6 py-14 cursor-pointer hover:bg-slate-50/90 transition">
+                    <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                      <Camera className="w-8 h-8 text-[#233D7B]" />
                     </div>
                     <span className="inline-flex items-center rounded-lg bg-emerald-600 text-white px-5 py-2.5 font-semibold text-sm">
                       + Add Photos
@@ -1577,7 +1577,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                               <button
                                 type="button"
                                 onClick={() => setDescription('')}
-                                className="ml-3 text-sky-600 font-semibold hover:underline"
+                                className="ml-3 text-[#233D7B] font-semibold hover:underline"
                               >
                                 Reset
                               </button>
@@ -1601,7 +1601,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                                 key={chip}
                                 type="button"
                                 onClick={() => appendChip(chip)}
-                                className="px-3 py-1.5 rounded-full border border-sky-200 bg-white text-xs sm:text-sm text-sky-800 hover:bg-sky-50 hover:border-sky-400 transition"
+                                className="px-3 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm text-slate-800 hover:bg-slate-100 hover:border-[#233D7B]/35 transition"
                               >
                                 {chip}
                               </button>
@@ -1653,7 +1653,7 @@ export function PostAdPage({ onBack }: { onBack?: () => void }) {
                                 <span className="text-sm font-medium text-gray-800">Allow WhatsApp contact</span>
                               </label>
                             </div>
-                            <div className="flex gap-3 text-sm text-gray-600 bg-sky-50/80 border border-sky-100 rounded-xl p-4 h-fit">
+                            <div className="flex gap-3 text-sm text-gray-600 bg-slate-50/90 border border-slate-200 rounded-xl p-4 h-fit">
                               <Smartphone className="w-6 h-6 text-[#233D7B] shrink-0" />
                               <p>
                                 Enter a genuine 11-digit Bangladesh mobile (01XXXXXXXXX). Buyers will reach you on this

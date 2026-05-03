@@ -39,7 +39,7 @@ import { PromoteListingPanel } from './PromoteListingPanel';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 const GREEN = '#3EB549';
-const BLUE = '#3483D1';
+const BRAND_NAVY = '#233D7B';
 
 function inspectionScoreFromDyn(d: Record<string, unknown> | undefined): string | null {
   if (!d) return null;
@@ -53,11 +53,11 @@ function inspectionScoreFromDyn(d: Record<string, unknown> | undefined): string 
 
 function FeatureSectionIcon({ hint }: { hint: string }) {
   const h = hint.toLowerCase();
-  if (h.includes('exterior')) return <Car className="h-5 w-5 shrink-0 text-[#3483D1]" aria-hidden />;
-  if (h.includes('interior')) return <Armchair className="h-5 w-5 shrink-0 text-[#3483D1]" aria-hidden />;
-  if (h.includes('safety')) return <Shield className="h-5 w-5 shrink-0 text-[#3483D1]" aria-hidden />;
-  if (h.includes('comfort')) return <Sparkles className="h-5 w-5 shrink-0 text-[#3483D1]" aria-hidden />;
-  return <Car className="h-5 w-5 shrink-0 text-[#3483D1]" aria-hidden />;
+  if (h.includes('exterior')) return <Car className="h-5 w-5 shrink-0 text-[#233D7B]" aria-hidden />;
+  if (h.includes('interior')) return <Armchair className="h-5 w-5 shrink-0 text-[#233D7B]" aria-hidden />;
+  if (h.includes('safety')) return <Shield className="h-5 w-5 shrink-0 text-[#233D7B]" aria-hidden />;
+  if (h.includes('comfort')) return <Sparkles className="h-5 w-5 shrink-0 text-[#233D7B]" aria-hidden />;
+  return <Car className="h-5 w-5 shrink-0 text-[#233D7B]" aria-hidden />;
 }
 
 function strAttr(d: Record<string, unknown> | undefined, ...keys: string[]): string {
@@ -595,7 +595,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                           <Link
                             to={`/listings?type=${encodeURIComponent(car.listing_type)}`}
                             className="text-sm font-semibold hover:underline"
-                            style={{ color: BLUE }}
+                            style={{ color: BRAND_NAVY }}
                           >
                             {t('listingDetail.viewAll')}
                           </Link>
@@ -655,7 +655,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                         {formatMoney(car.price, car.currency)}
                       </p>
                       {monthly != null ? (
-                        <p className="mt-2 text-center text-sm font-semibold" style={{ color: BLUE }}>
+                        <p className="mt-2 text-center text-sm font-semibold" style={{ color: BRAND_NAVY }}>
                           {t('listingDetail.financingFrom', {
                             currency: car.currency,
                             amount: monthly.toLocaleString(),
@@ -741,8 +741,8 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                           }
                           navigate(`/messages?listing=${encodeURIComponent(car.id)}`);
                         }}
-                        className="flex w-full items-center justify-center gap-2 rounded-lg border-2 bg-white py-3 text-base font-bold shadow-sm transition hover:bg-blue-50/80"
-                        style={{ borderColor: BLUE, color: BLUE }}
+                        className="flex w-full items-center justify-center gap-2 rounded-lg border-2 bg-white py-3 text-base font-bold shadow-sm transition hover:bg-slate-50/90"
+                        style={{ borderColor: BRAND_NAVY, color: BRAND_NAVY }}
                       >
                         <MessageCircle className="h-5 w-5 shrink-0" aria-hidden />
                         {t('listingDetail.sendMessage')}
@@ -768,7 +768,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                             <a
                               href={`mailto:${car.seller.email}`}
                               className="mt-2 block w-full min-w-0 text-sm font-medium leading-snug break-all hover:underline"
-                              style={{ color: BLUE }}
+                              style={{ color: BRAND_NAVY }}
                             >
                               {car.seller.email}
                             </a>
@@ -789,7 +789,7 @@ export function CarDetailPage({ listingId, onBack }: { listingId?: string; onBac
                         <li>{t('listingDetail.safety2')}</li>
                         <li>{t('listingDetail.safety3')}</li>
                       </ul>
-                      <button type="button" className="mt-3 text-xs font-bold hover:underline" style={{ color: BLUE }}>
+                      <button type="button" className="mt-3 text-xs font-bold hover:underline" style={{ color: BRAND_NAVY }}>
                         {t('listingDetail.learnMore')}
                       </button>
                     </div>

@@ -130,7 +130,7 @@ export function SellCarLandingPage() {
         <div className="grid md:grid-cols-2 gap-6">
           <div className="rounded-2xl bg-white shadow-lg ring-1 ring-gray-200/80 p-8 flex flex-col">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-sky-100 flex items-center justify-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100">
                 <Car className="w-6 h-6 text-[#233D7B]" />
               </div>
               <h3 className="text-xl font-bold text-gray-900">Sell It Myself!</h3>
@@ -158,8 +158,8 @@ export function SellCarLandingPage() {
 
           <div className="rounded-2xl bg-white shadow-lg ring-1 ring-gray-200/80 p-8 flex flex-col border-t-4 border-[#233D7B]">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-indigo-700" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#233D7B]/10">
+                <Sparkles className="h-6 w-6 text-[#233D7B]" />
               </div>
               <h3 className="text-xl font-bold text-gray-900">Sell It For Me</h3>
             </div>
@@ -170,7 +170,7 @@ export function SellCarLandingPage() {
                 'Sales guidance from enquiry to handover (pilot)',
               ].map((t) => (
                 <li key={t} className="flex gap-2 items-start">
-                  <CheckCircle2 className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#233D7B]" />
                   <span>{t}</span>
                 </li>
               ))}

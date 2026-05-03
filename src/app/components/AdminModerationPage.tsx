@@ -359,7 +359,7 @@ export function AdminModerationPage() {
           )}
         </div>
         {message && (
-          <div className="mb-4 px-4 py-2 rounded border border-blue-100 bg-blue-50 text-blue-900 text-sm">
+          <div className="mb-4 rounded border border-[#233D7B]/15 bg-slate-50 px-4 py-2 text-sm text-slate-900">
             {message}
           </div>
         )}

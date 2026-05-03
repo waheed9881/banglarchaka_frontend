@@ -109,7 +109,7 @@ export function ListingReviewsSection({
       </div>
 
       {msg ? (
-        <div className="mb-4 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
+        <div className="mb-4 rounded-md border border-[#233D7B]/20 bg-slate-50 px-3 py-2 text-sm text-slate-900">
           {msg}
         </div>
       ) : null}

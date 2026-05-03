@@ -172,7 +172,7 @@ export function UsedBikesLandingPage() {
       <section className="bg-gradient-to-r from-[#233D7B] to-[#1a2d5a] text-white pb-10 pt-10 sm:pt-14">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 text-center">
           <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">{t('usedBikesLanding.heroTitle')}</h1>
-          <p className="mt-2 text-sm sm:text-base text-blue-100">{t('usedBikesLanding.heroSubtitle')}</p>
+          <p className="mt-2 text-sm text-white/85 sm:text-base">{t('usedBikesLanding.heroSubtitle')}</p>
 
           <div className="mt-8 max-w-5xl mx-auto rounded-xl bg-white p-4 sm:p-5 text-gray-900 shadow-2xl text-left">
             <div className="flex flex-col lg:flex-row gap-3 lg:items-end">

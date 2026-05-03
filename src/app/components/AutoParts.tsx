@@ -266,7 +266,7 @@ function PartTile({ label, to, image }: PartCard) {
   return (
     <Link
       to={to}
-      className="flex flex-col items-stretch rounded-lg sm:rounded-xl border border-gray-200/90 bg-white shadow-sm transition hover:border-[#3483D1]/45 hover:shadow-md overflow-hidden group min-h-[132px] sm:min-h-[156px] active:scale-[0.99]"
+      className="flex flex-col items-stretch rounded-lg sm:rounded-xl border border-gray-200/90 bg-white shadow-sm transition hover:border-[#233D7B]/40 hover:shadow-md overflow-hidden group min-h-[132px] sm:min-h-[156px] active:scale-[0.99]"
     >
       <div className="relative flex min-h-[76px] sm:min-h-[104px] flex-1 w-full items-center justify-center px-1.5 pt-2 pb-1.5 sm:px-2 sm:pt-3 sm:pb-2 bg-gradient-to-b from-slate-50/95 via-white to-white">
         <ImageWithFallback

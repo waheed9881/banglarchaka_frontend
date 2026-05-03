@@ -450,7 +450,7 @@ export function NewCarsLandingPage() {
       return (
         <p className="text-center text-gray-500 py-10 text-sm">
           No showroom listings yet —{' '}
-          <Link to="/post-ad" className="text-[#3483D1] font-semibold underline">
+          <Link to="/post-ad" className="text-[#233D7B] font-semibold underline">
             list a new car
           </Link>{' '}
           or widen search filters.
@@ -541,7 +541,7 @@ export function NewCarsLandingPage() {
               placeholder="Car Make or Model"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              className="flex-1 min-h-[44px] rounded-lg border border-gray-200 px-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3483D1]/40"
+              className="flex-1 min-h-[44px] rounded-lg border border-gray-200 px-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#233D7B]/40"
             />
             <select
               value={priceFrom === '' ? '' : String(priceFrom)}
@@ -607,7 +607,7 @@ export function NewCarsLandingPage() {
         <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 sm:p-8">
           <div className="flex items-center justify-between gap-4 mb-6">
             <h2 className="text-xl font-bold text-gray-900">Popular New Cars</h2>
-            <Link to="/listings?type=new_car&sort=views" className="text-sm font-semibold text-[#3483D1] hover:underline">
+            <Link to="/listings?type=new_car&sort=views" className="text-sm font-semibold text-[#233D7B] hover:underline">
               Show More
             </Link>
           </div>
@@ -618,7 +618,7 @@ export function NewCarsLandingPage() {
         <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 sm:p-8">
           <div className="flex items-center justify-between gap-4 mb-6">
             <h2 className="text-xl font-bold text-gray-900">Newly Launched Cars</h2>
-            <Link to="/listings?type=new_car&sort=newest" className="text-sm font-semibold text-[#3483D1] hover:underline">
+            <Link to="/listings?type=new_car&sort=newest" className="text-sm font-semibold text-[#233D7B] hover:underline">
               Show More
             </Link>
           </div>
@@ -629,7 +629,7 @@ export function NewCarsLandingPage() {
         <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 sm:p-8">
           <div className="flex items-center justify-between gap-4 mb-6">
             <h2 className="text-xl font-bold text-gray-900">Upcoming Cars</h2>
-            <Link to="/listings?type=new_car&sort=newest" className="text-sm font-semibold text-[#3483D1] hover:underline">
+            <Link to="/listings?type=new_car&sort=newest" className="text-sm font-semibold text-[#233D7B] hover:underline">
               Show More
             </Link>
           </div>
@@ -646,7 +646,7 @@ export function NewCarsLandingPage() {
                 to={`/listings?type=new_car&brand_id=${b.id}`}
                 className="flex flex-col items-center w-[76px] sm:w-[88px] group"
               >
-                <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center overflow-hidden shadow-inner group-hover:border-[#3483D1]/50 transition">
+                <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center overflow-hidden shadow-inner group-hover:border-[#233D7B]/50 transition">
                   {b.logo_path ? (
                     <ImageWithFallback
                       src={resolveMediaUrl(b.logo_path) || ''}
@@ -674,7 +674,7 @@ export function NewCarsLandingPage() {
               <Link
                 key={bt.label}
                 to={bt.to}
-                className="rounded-xl border border-gray-100 bg-white p-4 flex flex-col items-center hover:border-[#3483D1]/40 hover:shadow-md transition"
+                className="rounded-xl border border-gray-100 bg-white p-4 flex flex-col items-center hover:border-[#233D7B]/40 hover:shadow-md transition"
               >
                 <GrayCarIcon iconId={bt.iconId} />
                 <span className="mt-3 text-sm font-semibold text-gray-800">{bt.label}</span>
@@ -691,7 +691,7 @@ export function NewCarsLandingPage() {
               <Link
                 key={c.label}
                 to={c.to}
-                className="rounded-xl border border-gray-100 bg-white p-4 flex flex-col items-center hover:border-[#3483D1]/40 hover:shadow-md transition"
+                className="rounded-xl border border-gray-100 bg-white p-4 flex flex-col items-center hover:border-[#233D7B]/40 hover:shadow-md transition"
               >
                 <GrayCarIcon iconId={c.iconId} />
                 <span className="mt-3 text-sm font-semibold text-gray-800 text-center">{c.label}</span>
@@ -704,7 +704,7 @@ export function NewCarsLandingPage() {
         <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <h2 className="text-xl font-bold text-gray-900">Car Reviews</h2>
-            <Link to="/car-reviews" className="text-sm font-semibold text-[#3483D1] hover:underline">
+            <Link to="/car-reviews" className="text-sm font-semibold text-[#233D7B] hover:underline">
               Read All Car Reviews
             </Link>
           </div>
@@ -720,7 +720,7 @@ export function NewCarsLandingPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="font-bold text-gray-900 line-clamp-2">{r.title}</p>
-                  <p className="text-sm text-[#3483D1] font-semibold mt-1 line-clamp-1">{r.model}</p>
+                  <p className="text-sm text-[#233D7B] font-semibold mt-1 line-clamp-1">{r.model}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <StarRow rating={r.rating} />
                   </div>
@@ -742,7 +742,7 @@ export function NewCarsLandingPage() {
         <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <h2 className="text-xl font-bold text-gray-900">Car Comparisons</h2>
-            <Link to="/compare" className="text-sm font-semibold text-[#3483D1] hover:underline">
+            <Link to="/compare" className="text-sm font-semibold text-[#233D7B] hover:underline">
               All Car Comparisons
             </Link>
           </div>
@@ -762,7 +762,7 @@ export function NewCarsLandingPage() {
                   </div>
                   <Link
                     to={`/compare?a=${encodeURIComponent(comparisonPairs[0].left.id)}&b=${encodeURIComponent(comparisonPairs[0].right.id)}`}
-                    className="mt-6 block w-full text-center rounded-lg border-2 border-gray-300 py-3 text-sm font-bold text-gray-800 hover:border-[#3483D1] hover:text-[#3483D1] transition"
+                    className="mt-6 block w-full text-center rounded-lg border-2 border-gray-300 py-3 text-sm font-bold text-gray-800 hover:border-[#233D7B] hover:text-[#233D7B] transition"
                   >
                     View Comparison
                   </Link>
@@ -770,7 +770,7 @@ export function NewCarsLandingPage() {
               ) : (
                 <p className="text-gray-500 text-sm">
                   Pick two showroom listings from inventory, then open{' '}
-                  <Link to="/compare" className="font-semibold text-[#3483D1] underline">
+                  <Link to="/compare" className="font-semibold text-[#233D7B] underline">
                     Compare
                   </Link>{' '}
                   with their IDs.
@@ -802,7 +802,7 @@ export function NewCarsLandingPage() {
         <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <h2 className="text-xl font-bold text-gray-900">Browse Our Videos</h2>
-            <Link to="/videos" className="text-sm font-semibold text-[#3483D1] hover:underline">
+            <Link to="/videos" className="text-sm font-semibold text-[#233D7B] hover:underline">
               View All Videos
             </Link>
           </div>
@@ -821,7 +821,7 @@ export function NewCarsLandingPage() {
                   />
                   <span className="absolute inset-0 flex items-center justify-center">
                     <span className="rounded-full bg-white/95 p-4 shadow-lg">
-                      <Play className="w-8 h-8 text-[#3483D1] fill-[#3483D1]" />
+                      <Play className="w-8 h-8 text-[#233D7B] fill-[#233D7B]" />
                     </span>
                   </span>
                   <span className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
@@ -869,7 +869,7 @@ export function NewCarsLandingPage() {
                   <li key={name}>
                     <Link
                       to={`/listings?type=new_car&q=${encodeURIComponent(name)}`}
-                      className="text-[#3483D1] font-medium hover:underline"
+                      className="text-[#233D7B] font-medium hover:underline"
                     >
                       {name} Car Prices
                     </Link>
@@ -878,7 +878,7 @@ export function NewCarsLandingPage() {
               </ul>
               <Link
                 to="/car-prices"
-                className="inline-flex items-center justify-center rounded-lg border-2 border-[#3483D1] text-[#3483D1] font-bold px-6 py-2 text-sm hover:bg-[#3483D1] hover:text-white transition"
+                className="inline-flex items-center justify-center rounded-lg border-2 border-[#233D7B] text-[#233D7B] font-bold px-6 py-2 text-sm hover:bg-[#233D7B] hover:text-white transition"
               >
                 View All Car Prices
               </Link>
@@ -889,7 +889,7 @@ export function NewCarsLandingPage() {
                   <li key={`d-${name}`}>
                     <Link
                       to={`/used-car-dealers?q=${encodeURIComponent(name)}`}
-                      className="text-[#3483D1] font-medium hover:underline"
+                      className="text-[#233D7B] font-medium hover:underline"
                     >
                       {name} Dealers
                     </Link>
@@ -898,7 +898,7 @@ export function NewCarsLandingPage() {
               </ul>
               <Link
                 to="/used-car-dealers"
-                className="inline-flex items-center justify-center rounded-lg border-2 border-[#3483D1] text-[#3483D1] font-bold px-6 py-2 text-sm hover:bg-[#3483D1] hover:text-white transition"
+                className="inline-flex items-center justify-center rounded-lg border-2 border-[#233D7B] text-[#233D7B] font-bold px-6 py-2 text-sm hover:bg-[#233D7B] hover:text-white transition"
               >
                 View All Dealers
               </Link>
@@ -917,7 +917,7 @@ export function NewCarsLandingPage() {
             </div>
             <Link
               to="/listings?type=new_car"
-              className="inline-flex items-center gap-2 rounded-lg border-2 border-[#3483D1] px-4 py-2 text-sm font-semibold text-[#3483D1] hover:bg-[#3483D1] hover:text-white transition shrink-0"
+              className="inline-flex items-center gap-2 rounded-lg border-2 border-[#233D7B] px-4 py-2 text-sm font-semibold text-[#233D7B] hover:bg-[#233D7B] hover:text-white transition shrink-0"
             >
               <Calculator className="w-4 h-4" aria-hidden />
               Browse financed inventory
@@ -925,8 +925,8 @@ export function NewCarsLandingPage() {
           </div>
 
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-            <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50/90 to-white p-5 shadow-sm ring-1 ring-black/[0.04]">
-              <h3 className="text-sm font-bold uppercase tracking-wide text-[#3483D1] mb-4">Estimated EMI</h3>
+            <div className="rounded-2xl border border-slate-200/90 bg-gradient-to-br from-slate-50/90 to-white p-5 shadow-sm ring-1 ring-black/[0.04]">
+              <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-[#233D7B]">Estimated EMI</h3>
               <div className="grid gap-4 sm:grid-cols-3">
                 <label className="block text-xs font-semibold text-gray-700">
                   Loan amount (BDT)
@@ -992,7 +992,7 @@ export function NewCarsLandingPage() {
         <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <h2 className="text-xl font-bold text-gray-900">Car Insurance Companies</h2>
-            <Link to="/car-prices" className="text-sm font-semibold text-[#3483D1] hover:underline">
+            <Link to="/car-prices" className="text-sm font-semibold text-[#233D7B] hover:underline">
               Car Insurance Calculator
             </Link>
           </div>
@@ -1041,9 +1041,9 @@ export function NewCarsLandingPage() {
         </section>
 
         {/* App promo */}
-        <section className="rounded-xl border border-[#3483D1]/25 bg-gradient-to-r from-sky-50 to-white p-8 flex flex-col lg:flex-row gap-8 items-center">
+        <section className="flex flex-col items-center gap-8 rounded-xl border border-[#233D7B]/25 bg-gradient-to-r from-slate-50 to-white p-8 lg:flex-row">
           <div className="flex-1 text-center lg:text-left">
-            <h2 className="text-2xl font-bold text-[#3483D1]">Get The App</h2>
+            <h2 className="text-2xl font-bold text-[#233D7B]">Get The App</h2>
             <p className="mt-2 text-gray-600">
               Buy and sell cars, bikes, and parts faster — mobile web is fully supported today; native store builds ship next.
             </p>

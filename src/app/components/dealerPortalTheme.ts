@@ -68,7 +68,8 @@ export const dp = {
   tableCellDenseMono: 'px-2.5 py-1.5 align-middle text-[13px] leading-tight text-slate-800 tabular-nums',
   tableDense: 'min-w-full border-collapse',
 
-  alert: 'rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50/80 text-blue-950 text-sm px-4 py-3 shadow-sm',
+  alert:
+    'rounded-xl border border-[#233D7B]/15 bg-gradient-to-r from-slate-50 to-slate-100/90 text-slate-900 text-sm px-4 py-3 shadow-sm',
   alertError: 'rounded-xl border border-rose-100 bg-rose-50 text-rose-900 text-sm px-4 py-3',
 
   listRow: 'flex items-center justify-between gap-4 rounded-xl border border-slate-100 bg-white px-4 py-3 hover:border-slate-200 transition-colors',

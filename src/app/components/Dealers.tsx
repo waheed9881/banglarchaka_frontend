@@ -130,7 +130,7 @@ export function Dealers() {
                 Icon: ShieldCheck,
                 titleKey: 'dealers.trustVerifiedTitle',
                 bodyKey: 'dealers.trustVerifiedBody',
-                wrap: 'bg-blue-50 text-[#00236f]',
+                wrap: 'bg-slate-100 text-[#00236f]',
               },
               {
                 Icon: BadgeCheck,

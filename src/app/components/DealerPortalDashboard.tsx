@@ -229,7 +229,7 @@ export function DealerPortalDashboard() {
   };
 
   const stats = [
-    { label: 'Branches', value: summary.branches, icon: Building2, tint: 'bg-sky-50 text-sky-700 ring-sky-100' },
+    { label: 'Branches', value: summary.branches, icon: Building2, tint: 'bg-slate-100 text-[#233D7B] ring-slate-200' },
     { label: 'Team', value: summary.staff, icon: Users, tint: 'bg-violet-50 text-violet-700 ring-violet-100' },
     { label: 'Ads', value: summary.ads, icon: Megaphone, tint: 'bg-amber-50 text-amber-800 ring-amber-100' },
     { label: 'Warehouses', value: summary.warehouses, icon: Warehouse, tint: 'bg-slate-100 text-slate-800 ring-slate-200' },

@@ -1,7 +1,7 @@
 import { GoogleLogin } from '@react-oauth/google';
 import { Car, Check, ChevronDown, Loader2, Smartphone, ShieldCheck } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router';
+import { Link, NavLink, useNavigate, useSearchParams } from 'react-router';
 import {
   fetchMe,
   loginWithEmailPassword,
@@ -344,47 +344,49 @@ export function LoginPage({ variant }: { variant: Tab }) {
       active ? 'bg-white text-[#233D7B] shadow-sm' : 'text-white/80 hover:text-white'
     }`;
 
+  const loginHref = returnTo ? `/login?next=${encodeURIComponent(returnTo)}` : '/login';
+  const registerHref = returnTo ? `/register?next=${encodeURIComponent(returnTo)}` : '/register';
+
   return (
-    <div className="relative min-h-[calc(100vh-6rem)] overflow-hidden bg-slate-100">
+    <div className="relative min-h-[calc(100dvh-6rem)] min-h-[calc(100vh-6rem)] overflow-x-hidden bg-slate-100">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,#233D7B_0%,transparent_55%)] opacity-20" aria-hidden />
 
-      <div className="relative max-w-5xl mx-auto px-4 py-10 sm:py-16">
-        <div className="flex flex-col lg:flex-row rounded-2xl overflow-hidden border border-slate-200/80 bg-white shadow-2xl shadow-slate-900/10">
-          <div className="hidden lg:flex lg:w-[42%] flex-col justify-between bg-gradient-to-br from-[#233D7B] via-[#1f3770] to-[#152a57] text-white p-10 xl:p-12">
+      <div className="relative mx-auto max-w-5xl px-3 py-8 sm:px-4 sm:py-12 lg:py-16">
+        <div className="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xl shadow-slate-900/10 lg:flex-row">
+          <div className="hidden lg:flex lg:w-[42%] flex-col justify-between bg-gradient-to-br from-[#233D7B] via-[#1f3770] to-[#152a57] p-10 text-white xl:p-12">
             <div>
-              <div className="flex items-center gap-3 mb-8">
+              <div className="mb-8 flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 backdrop-blur">
-                  <Car className="w-6 h-6" />
+                  <Car className="h-6 w-6" />
                 </div>
                 <span className="text-lg font-bold tracking-tight">BanglarChaka</span>
               </div>
-              <h2 className="text-2xl xl:text-3xl font-bold leading-tight tracking-tight">
-                Cars, bikes & parts — one account for everything.
-              </h2>
-              <p className="mt-4 text-sm text-white/85 leading-relaxed max-w-sm">
-                Save searches, message sellers, manage your listings, and access dealer tools from a single secure
-                dashboard.
-              </p>
+              <h2 className="text-2xl font-bold leading-tight tracking-tight xl:text-3xl">{t('auth.marketingTitle')}</h2>
+              <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/85">{t('auth.marketingSubtitle')}</p>
             </div>
-            <div className="flex items-start gap-3 mt-10 text-xs text-white/75">
-              <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
-              <p>We never post on your behalf. Google only shares your basic profile when you choose that option.</p>
+            <div className="mt-10 flex items-start gap-3 text-xs text-white/75">
+              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+              <p>{t('auth.marketingPrivacy')}</p>
             </div>
           </div>
 
-          <div className="flex-1 p-6 sm:p-10 xl:p-12">
+          <div className="min-w-0 flex-1 p-5 sm:p-8 xl:p-12">
             <div className="lg:hidden mb-8 text-center">
               <h2 className="text-xl font-bold text-slate-900">{t('auth.title')} · BanglarChaka</h2>
               <p className="text-sm text-slate-600 mt-1">{t('auth.subtitle')}</p>
             </div>
 
-            <div className="flex p-1 rounded-xl bg-[#233D7B] mb-8 max-w-md mx-auto lg:mx-0">
-              <Link to="/login" className={`${tabBtn(tab === 'login')} text-center block`}>
+            <div className="mx-auto mb-8 flex max-w-md gap-0.5 rounded-xl bg-[#233D7B] p-1 lg:mx-0">
+              <NavLink
+                to={loginHref}
+                className={({ isActive }) => `${tabBtn(isActive)} block text-center`}
+                end
+              >
                 {t('nav.signIn')}
-              </Link>
-              <Link to="/register" className={`${tabBtn(tab === 'register')} text-center block`}>
+              </NavLink>
+              <NavLink to={registerHref} className={({ isActive }) => `${tabBtn(isActive)} block text-center`}>
                 {t('nav.register')}
-              </Link>
+              </NavLink>
             </div>
 
             {tab === 'login' ? (

@@ -256,7 +256,7 @@ export function UsedCarsListingFooter() {
 
   return (
     <div className="mt-12 space-y-10 border-t border-gray-200 pt-10">
-      <div className="rounded-xl border border-[#233D7B]/15 bg-gradient-to-r from-gray-50 to-blue-50/50 px-6 py-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div className="flex flex-col gap-6 rounded-xl border border-[#233D7B]/15 bg-gradient-to-r from-gray-50 to-slate-100/80 px-6 py-8 md:flex-row md:items-center md:justify-between">
         <div>
           <h3 className="text-xl font-bold text-gray-900">{t('listingBrowse.footerSellTitle')}</h3>
           <p className="text-gray-600 mt-1 text-sm">{t('listingBrowse.footerSellSubtitle')}</p>
@@ -274,7 +274,7 @@ export function UsedCarsListingFooter() {
         <p className="text-sm text-gray-600 leading-relaxed max-w-4xl">{t('listingBrowse.footerSectionBody')}</p>
       </div>
 
-      <div className="rounded-xl bg-[#eef5fb] border border-blue-100 px-4 py-8">
+      <div className="rounded-xl border border-slate-200/90 bg-slate-50/90 px-4 py-8">
         <h3 className="text-center text-lg font-bold text-[#233D7B] mb-6">{t('listingBrowse.browseMoreTitle')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {cols.map((col) => (
@@ -283,7 +283,7 @@ export function UsedCarsListingFooter() {
               <ul className="space-y-2">
                 {col.links.map((l) => (
                   <li key={l.to}>
-                    <Link to={l.to} className="text-sm text-[#1565C0] hover:underline">
+                    <Link to={l.to} className="text-sm text-[#233D7B] hover:underline">
                       {l.label}
                     </Link>
                   </li>
@@ -294,7 +294,7 @@ export function UsedCarsListingFooter() {
         </div>
       </div>
 
-      <div className="rounded-lg bg-blue-50 border border-blue-100 px-4 py-4 text-center text-sm text-gray-700">
+      <div className="rounded-lg border border-slate-200/90 bg-slate-50 px-4 py-4 text-center text-sm text-gray-700">
         <strong className="text-[#233D7B]">{t('listingBrowse.notifyLead')}</strong> {t('listingBrowse.notifyTrail')}{' '}
         <Link to="/login" className="underline font-semibold">
           {t('listingBrowse.notifySignIn')}

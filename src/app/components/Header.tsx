@@ -426,7 +426,7 @@ export function Header({
               <div className="relative group/more">
                 <button type="button" className={`${navBtnCls} items-center gap-1.5`} aria-haspopup="menu">
                   {t('nav.more')} <ChevronDown className="w-3.5 h-3.5 opacity-70" />
-                  <span className="text-[10px] font-bold uppercase tracking-wide bg-sky-500 text-white px-1 py-px rounded leading-none">
+                  <span className="rounded px-1 py-px text-[10px] font-bold uppercase tracking-wide bg-[#C4161C] leading-none text-white">
                     {t('common.new')}
                   </span>
                 </button>
@@ -692,14 +692,14 @@ export function Header({
                   >
                     <span className="flex items-center gap-2">
                       {t('nav.more')}
-                      <span className="text-[10px] font-bold uppercase tracking-wide bg-sky-500 text-white px-1 py-px rounded leading-none">
+                      <span className="rounded px-1 py-px text-[10px] font-bold uppercase tracking-wide bg-[#C4161C] leading-none text-white">
                         {t('common.new')}
                       </span>
                     </span>
                     <ChevronDown className={`w-4 h-4 shrink-0 opacity-80 ${moreMobileOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {moreMobileOpen ? (
-                    <div className="pl-3 pr-2 pb-3 border-l-2 border-sky-500/80 ml-3 space-y-3">
+                    <div className="ml-3 space-y-3 border-l-2 border-[#C4161C]/80 pb-3 pl-3 pr-2">
                       {MORE_NAV_SECTIONS.map((section) => (
                         <div key={section.titleKey}>
                           <div className="text-[10px] font-bold uppercase tracking-wide text-white/50 px-2 pt-1">{t(section.titleKey)}</div>

@@ -21,15 +21,23 @@
   }
 }
 
+/** Brand-neutral skeleton (no blue cast); respects reduced motion */
 .bc-skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
   background: linear-gradient(
     110deg,
-    #e2e8f0 0%,
-    #e2e8f0 40%,
-    #f1f5f9 50%,
-    #e2e8f0 60%,
-    #e2e8f0 100%
+    #e8e8ec 0%,
+    #e8e8ec 38%,
+    #f4f4f6 50%,
+    #e8e8ec 62%,
+    #e8e8ec 100%
   );
   background-size: 200% 100%;
-  animation: bc-shimmer 1.35s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bc-skeleton-shimmer {
+    animation: bc-shimmer 1.25s ease-in-out infinite;
+  }
 }

@@ -216,7 +216,7 @@ export function AuctionDetailPage({ auctionId, onBack }: { auctionId: string | u
                   {auction.dealer.business_name}
                 </Link>
               ) : null}
-              <Link className="inline-flex items-center gap-1 font-medium text-[#3483D1] hover:underline" to={listingHref}>
+              <Link className="inline-flex items-center gap-1 font-medium text-[#233D7B] hover:underline" to={listingHref}>
                 Full listing <ExternalLink className="h-3.5 w-3.5" aria-hidden />
               </Link>
             </div>

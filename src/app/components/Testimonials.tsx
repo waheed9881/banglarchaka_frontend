@@ -7,7 +7,7 @@ import { fetchEditorialTestimonials, type EditorialTestimonialDto } from '@/lib/
 
 function TestimonialCardSkeleton() {
   return (
-    <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-6 animate-pulse flex flex-col">
+    <div className="flex animate-pulse flex-col rounded-xl border border-slate-200/90 bg-gradient-to-br from-slate-50 to-white p-6">
       <div className="flex gap-1 mb-4">
         {Array.from({ length: 5 }, (_, i) => (
           <div key={i} className="w-5 h-5 rounded-sm bg-gray-200" />
@@ -18,7 +18,7 @@ function TestimonialCardSkeleton() {
         <div className="h-3 bg-gray-200 rounded-md w-[94%]" />
         <div className="h-3 bg-gray-200 rounded-md w-[78%]" />
       </div>
-      <div className="flex gap-3 pt-4 border-t border-blue-100">
+      <div className="flex gap-3 border-t border-slate-200/90 pt-4">
         <div className="w-12 h-12 rounded-full bg-gray-200 shrink-0" />
         <div className="flex-1 space-y-2">
           <div className="h-4 bg-gray-200 rounded-md w-[55%]" />
@@ -94,9 +94,9 @@ export function Testimonials() {
               return (
                 <div
                   key={testimonial.id}
-                  className="bg-gradient-to-br from-blue-50 to-white rounded-xl shadow-lg hover:shadow-2xl transition p-6 relative border border-blue-100"
+                  className="relative rounded-xl border border-slate-200/90 bg-gradient-to-br from-slate-50 to-white p-6 shadow-lg transition hover:shadow-2xl"
                 >
-                  <Quote className="absolute top-4 right-4 w-10 h-10 text-blue-200" />
+                  <Quote className="absolute top-4 right-4 h-10 w-10 text-slate-200" />
 
                   <div className="relative z-10">
                     <div className="flex items-center mb-4">
@@ -112,7 +112,7 @@ export function Testimonials() {
 
                     <p className="text-gray-700 mb-6 italic">&ldquo;{text}&rdquo;</p>
 
-                    <div className="border-t border-blue-100 pt-4">
+                    <div className="border-t border-slate-200/90 pt-4">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-gradient-to-br from-[#233D7B] to-[#1a2d5a] rounded-full flex items-center justify-center text-white font-bold text-lg">
                           {(testimonial.reviewer?.name || 'U').charAt(0)}
@@ -141,7 +141,7 @@ export function Testimonials() {
         <div className="mt-12 bg-gradient-to-r from-[#233D7B] to-[#1a2d5a] rounded-2xl p-8 text-white text-center">
           <div className="max-w-3xl mx-auto">
             <h3 className="text-3xl font-bold mb-4">Ready when you are</h3>
-            <p className="text-blue-100 mb-6 text-lg">
+            <p className="mb-6 text-lg text-white/85">
               List your vehicle or browse verified inventory backed by real dealer profiles.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

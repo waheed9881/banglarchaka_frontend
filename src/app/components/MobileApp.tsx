@@ -77,7 +77,7 @@ export function MobileApp() {
           <div className="relative">
             <div className="relative z-10 flex justify-center">
               <div className="w-64 h-[500px] bg-white rounded-[3rem] shadow-2xl p-4 border-8 border-gray-800">
-                <div className="w-full h-full bg-gradient-to-b from-blue-50 to-white rounded-[2rem] overflow-hidden">
+                <div className="h-full w-full overflow-hidden rounded-[2rem] bg-gradient-to-b from-slate-50 to-white">
                   <div className="bg-[#233D7B] text-white p-4 text-center">
                     <Smartphone className="w-8 h-8 mx-auto mb-2" />
                     <div className="font-bold">BanglarChaka</div>

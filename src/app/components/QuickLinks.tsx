@@ -83,7 +83,7 @@ export function QuickLinks() {
           </div>
         </div>
 
-        <div className="mt-12 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-8 border border-gray-100">
+        <div className="mt-12 rounded-xl border border-gray-100 bg-gradient-to-r from-gray-50 to-slate-50 p-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {promos.map((item) => (
               <Link key={item.titleKey} to={item.to} className="group rounded-lg p-2 hover:bg-white/60 transition">

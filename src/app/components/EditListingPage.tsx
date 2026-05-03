@@ -363,7 +363,7 @@ export function EditListingPage({ listingPublicId }: { listingPublicId?: string 
       <div className="bg-gradient-to-r from-[#233D7B] to-[#1a2d5a] py-10 text-white">
         <div className="mx-auto max-w-4xl px-4">
           <h1 className="text-3xl font-bold">Edit listing</h1>
-          <p className="mt-1 text-blue-100">{listing.title}</p>
+          <p className="mt-1 text-white/85">{listing.title}</p>
         </div>
       </div>
 
@@ -456,7 +456,7 @@ export function EditListingPage({ listingPublicId }: { listingPublicId?: string 
               </div>
 
               {listingStatus === 'sold' || listing.status === 'sold' ? (
-                <div className="md:col-span-2 rounded-lg border-2 border-sky-100 bg-sky-50/90 px-4 py-4">
+                <div className="md:col-span-2 rounded-lg border-2 border-slate-200/90 bg-slate-50/90 px-4 py-4">
                   <label className="block text-sm font-semibold text-gray-800">Buyer email (site account)</label>
                   <p className="mt-1 text-xs text-gray-600">
                     Use the email the buyer registered with. After you save as sold, only that account can post a verified

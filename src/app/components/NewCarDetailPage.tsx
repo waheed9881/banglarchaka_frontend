@@ -93,7 +93,7 @@ export function NewCarDetailPage({ listingId, onBack }: { listingId?: string; on
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">{car?.title || 'New Car'}</h1>
-              <p className="text-blue-100">
+              <p className="text-white/85">
                 Real photos and buyer reviews load from your listing — scroll down for the reviews section.
               </p>
             </div>
@@ -125,7 +125,7 @@ export function NewCarDetailPage({ listingId, onBack }: { listingId?: string; on
                     onClick={() => setSelectedVariant(idx)}
                     className={`p-4 border-2 rounded-lg cursor-pointer transition ${
                       selectedVariant === idx
-                        ? 'border-[#233D7B] bg-blue-50'
+                        ? 'border-[#233D7B] bg-slate-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
@@ -360,7 +360,7 @@ export function NewCarDetailPage({ listingId, onBack }: { listingId?: string; on
                   <div className="w-10 h-10 rounded-full bg-black border-2 border-gray-300 cursor-pointer hover:border-[#233D7B]"></div>
                   <div className="w-10 h-10 rounded-full bg-gray-400 border-2 border-gray-300 cursor-pointer hover:border-[#233D7B]"></div>
                   <div className="w-10 h-10 rounded-full bg-red-600 border-2 border-gray-300 cursor-pointer hover:border-[#233D7B]"></div>
-                  <div className="w-10 h-10 rounded-full bg-blue-600 border-2 border-gray-300 cursor-pointer hover:border-[#233D7B]"></div>
+                  <div className="h-10 w-10 cursor-pointer rounded-full border-2 border-gray-300 bg-[#233D7B] hover:border-[#233D7B]" />
                 </div>
               </div>
             </div>

@@ -57,7 +57,7 @@ export function InnerPageHero({ title, subtitle }: { title: string; subtitle: st
         }}
       />
       <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#C4161C]/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-16 left-1/4 h-48 w-48 rounded-full bg-sky-400/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-16 left-1/4 h-48 w-48 rounded-full bg-[#233D7B]/10 blur-3xl" />
       <div className="relative max-w-6xl mx-auto px-4 pt-12 pb-14 border-b-4 border-[#C4161C]">
         <div className="text-sm text-white/75 mb-4 flex flex-wrap items-center gap-x-1 gap-y-1">
           <Link to="/" className="hover:text-white transition-colors font-medium">

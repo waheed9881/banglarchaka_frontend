@@ -18,7 +18,7 @@ import { PremiumSectionHeading } from '@/app/components/PremiumSectionHeading';
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1705747401901-28363172fe7e?auto=format&fit=crop&w=1080&q=80';
 
-const ACCENT = '#3483D1';
+const ACCENT = '#233D7B';
 
 type TabKey = 'popular' | 'upcoming' | 'newly_launched';
 
@@ -383,10 +383,10 @@ export function NewCars() {
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="snap-start shrink-0 w-[calc(50%-8px)] sm:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)] min-w-[158px] bg-white rounded-lg border border-indigo-100/90 shadow-sm hover:shadow-md hover:border-indigo-200 transition flex flex-col overflow-hidden"
+                      className="flex min-w-[158px] shrink-0 snap-start flex-col overflow-hidden rounded-lg border border-slate-200/90 bg-white shadow-sm transition hover:border-slate-300 hover:shadow-md sm:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)] w-[calc(50%-8px)]"
                     >
-                      <div className="relative flex items-center justify-center bg-gradient-to-b from-indigo-50/80 to-white px-3 pt-4 pb-2 min-h-[132px]">
-                        <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded bg-white/95 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-indigo-700 shadow-sm ring-1 ring-indigo-100">
+                      <div className="relative flex min-h-[132px] items-center justify-center bg-gradient-to-b from-slate-50/90 to-white px-3 pt-4 pb-2">
+                        <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded bg-white/95 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#233D7B] shadow-sm ring-1 ring-slate-200/90">
                           <Globe2 className="h-3 w-3" aria-hidden />
                           BD news
                         </span>

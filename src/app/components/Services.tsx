@@ -37,7 +37,7 @@ const TILES: ServiceTile[] = [
     description:
       'Browse used cars with mileage, fuel, transmission, and registration-friendly filters — then open full detail pages.',
     to: '/listings?type=used_car&sort=newest',
-    iconWrap: 'bg-gradient-to-br from-sky-500 to-blue-600 shadow-inner shadow-blue-900/20',
+    iconWrap: 'bg-gradient-to-br from-[#233D7B] to-[#152a57] shadow-inner shadow-black/25',
     chip: 'Live inventory',
   },
   {
