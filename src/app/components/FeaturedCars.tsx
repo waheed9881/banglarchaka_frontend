@@ -12,11 +12,11 @@ import {
 } from '@/lib/marketplace';
 
 const FALLBACK_IMAGE =
-  'https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=1080&q=80';
+  'https://images.unsplash.com/photo-1617535233968-6cb46e09db36?auto=format&fit=crop&w=1200&q=85';
 
 function FeaturedCarCardSkeleton() {
   return (
-    <div className="animate-pulse rounded-lg bg-white shadow overflow-hidden ring-1 ring-gray-100">
+    <div className="animate-pulse overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
       <div className="h-48 bg-gray-200" />
       <div className="p-4 space-y-3">
         <div className="h-5 bg-gray-200 rounded-md w-[85%]" />
@@ -61,19 +61,22 @@ export function FeaturedCars() {
   }, [t]);
 
   return (
-    <section className="py-12 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8">
+    <section className="border-t border-neutral-200 bg-white py-12 sm:py-14">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mb-8 flex flex-col gap-3 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">{t('homeFeatured.title')}</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">{t('homeFeatured.title')}</h2>
             {feedHint ? <p className="text-sm text-gray-600 mt-2">{feedHint}</p> : null}
           </div>
-          <Link to="/listings?type=used_car" className="text-[#233D7B] hover:underline font-semibold shrink-0">
+          <Link
+            to="/listings?type=used_car"
+            className="shrink-0 text-sm font-semibold text-brand-red underline-offset-4 transition hover:underline"
+          >
             {t('homeFeatured.viewAll')}
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-4 lg:gap-7">
           {loading ? (
             Array.from({ length: 8 }, (_, i) => <FeaturedCarCardSkeleton key={i} />)
           ) : null}
@@ -82,7 +85,7 @@ export function FeaturedCars() {
             <Link
               key={car.id}
               to={`${listingPublicHref(car)}${car.has_live_auction ? '#detail-auction' : ''}`}
-              className="bg-white rounded-lg shadow hover:shadow-xl transition overflow-hidden block ring-1 ring-transparent hover:ring-[#233D7B]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#233D7B]"
+              className="block overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition hover:border-neutral-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-red/40"
             >
               <div className="relative">
                 <ImageWithFallback
@@ -91,12 +94,12 @@ export function FeaturedCars() {
                   className="w-full h-48 object-cover"
                 />
                 {car.featured ? (
-                  <div className="absolute top-3 left-3 bg-[#C4161C] text-white px-3 py-1 rounded text-xs font-semibold">
+                  <div className="absolute top-3 left-3 bg-brand-red text-white px-3 py-1 rounded text-xs font-semibold">
                     {t('homeFeatured.badge')}
                   </div>
                 ) : null}
                 {car.has_live_auction ? (
-                  <div className="absolute bottom-3 left-3 bg-[#233D7B] text-white px-2.5 py-1 rounded text-[11px] font-bold shadow">
+                  <div className="absolute bottom-3 left-3 bg-brand-red text-white px-2.5 py-1 rounded text-[11px] font-bold shadow">
                     {t('listingBrowse.auctionBadge')}
                   </div>
                 ) : null}
@@ -104,7 +107,7 @@ export function FeaturedCars() {
 
               <div className="p-4">
                 <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">{car.title}</h3>
-                <div className="text-[#3EB549] font-bold text-xl mb-3">{formatMoney(car.price, car.currency)}</div>
+                <div className="text-brand-green font-bold text-xl mb-3">{formatMoney(car.price, car.currency)}</div>
 
                 <div className="space-y-2 text-sm text-gray-600 mb-3">
                   <div className="flex items-center gap-2">

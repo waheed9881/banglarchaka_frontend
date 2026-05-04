@@ -16,11 +16,11 @@ import logoUrl from '@/assets/logo_3.webp';
 import { MarketRegionSwitcher } from '@/app/components/MarketRegionSwitcher';
 
 const navBtn =
-  'flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white rounded-md transition-colors';
+  'flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium text-neutral-800 hover:bg-neutral-100 rounded-md transition-colors';
 
-/** Plain nav links with solid white hover on blue header (no dropdown) */
+/** Plain nav links — light header */
 const navLinkElevated =
-  'px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-md text-white/95 transition-colors duration-150 hover:bg-white hover:text-gray-900';
+  'px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-md text-neutral-800 transition-colors duration-150 hover:bg-neutral-100';
 
 export function Header({
   onNavigate,
@@ -134,34 +134,36 @@ export function Header({
   }, [accountMenuOpen]);
 
   const mobileAccordionBtn =
-    'text-left px-3 py-3 rounded-md hover:bg-white/10 flex items-center justify-between gap-2 w-full text-white';
+    'text-left px-3 py-3 rounded-md hover:bg-neutral-100 flex items-center justify-between gap-2 w-full text-neutral-900';
 
   return (
-    <header className={`w-full shadow-md bg-[#233D7B] ${mobileNavOpen ? 'z-[200]' : 'z-50'}`}>
+    <header
+      className={`w-full bg-white border-b border-neutral-200/90 shadow-[0_1px_0_rgba(0,0,0,0.04)] ${mobileNavOpen ? 'z-[200]' : 'z-50'}`}
+    >
       {/* Utility strip */}
-      <div className="border-b border-white/10 text-white/95">
-        <div className="max-w-7xl mx-auto px-4 flex justify-between items-center py-1.5 text-[12px] sm:text-[13px]">
-          <div className="flex gap-4 sm:gap-6 min-w-0 items-center">
+      <div className="border-b border-neutral-200/90 bg-white text-neutral-700">
+        <div className="max-w-7xl mx-auto px-4 flex min-h-[40px] items-center justify-between py-1 text-[12px] sm:text-[13px]">
+          <div className="flex min-w-0 items-center gap-4 sm:gap-6">
             {/* <span className="hover:text-white cursor-default truncate transition"></span> */}
             <MarketRegionSwitcher />
             <LanguageSwitcher />
           </div>
-          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+          <div className="flex shrink-0 items-center gap-3 sm:gap-4">
             {tokenWhileLoading ? (
-              <span className="text-white/70 text-[11px] sm:text-xs whitespace-nowrap" aria-live="polite">
+              <span className="text-neutral-500 text-[11px] sm:text-xs whitespace-nowrap" aria-live="polite">
                 {t('common.loading')}
               </span>
             ) : !me ? (
-              <div className="flex items-center gap-2 sm:gap-3">
-                <Link to="/login" className="hover:text-white transition font-medium whitespace-nowrap">
+              <div className="flex items-center gap-2 sm:gap-2.5">
+                <Link
+                  to="/login"
+                  className="inline-flex h-8 items-center justify-center whitespace-nowrap rounded-md px-2.5 text-[11px] font-semibold text-neutral-800 transition hover:bg-neutral-100 hover:text-brand-red sm:px-3 sm:text-xs"
+                >
                   {t('nav.signIn')}
                 </Link>
-                <span className="text-white/30 hidden sm:inline" aria-hidden>
-                  |
-                </span>
                 <Link
                   to="/register"
-                  className="rounded-md border border-white/35 bg-white/10 px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold hover:bg-white/20 transition whitespace-nowrap"
+                  className="inline-flex h-8 items-center justify-center whitespace-nowrap rounded-md border border-neutral-300 bg-white px-2.5 text-[11px] font-semibold text-neutral-900 shadow-sm transition hover:border-brand-red/40 hover:text-brand-red sm:px-3 sm:text-xs"
                 >
                   {t('nav.register')}
                 </Link>
@@ -171,12 +173,12 @@ export function Header({
                 <button
                   type="button"
                   onClick={() => setAccountMenuOpen((o) => !o)}
-                  className="flex items-center gap-1 sm:gap-1.5 rounded-md px-1.5 sm:px-2 py-1 text-white/95 hover:bg-white/10 hover:text-white transition max-w-[min(52vw,14rem)] sm:max-w-[16rem]"
+                  className="flex h-8 max-w-[min(52vw,14rem)] items-center gap-1 rounded-md px-2 text-[11px] font-semibold text-neutral-800 transition hover:bg-neutral-100 sm:max-w-[16rem] sm:gap-1.5 sm:px-2.5 sm:text-xs"
                   aria-expanded={accountMenuOpen}
                   aria-haspopup="menu"
                 >
-                  <User className="w-3.5 h-3.5 shrink-0 opacity-95" aria-hidden />
-                  <span className="truncate text-left text-[11px] sm:text-xs font-medium">{me.name}</span>
+                  <User className="w-3.5 h-3.5 shrink-0 text-neutral-600" aria-hidden />
+                  <span className="truncate text-left">{me.name}</span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 shrink-0 opacity-80 transition ${accountMenuOpen ? 'rotate-180' : ''}`}
                     aria-hidden
@@ -241,9 +243,9 @@ export function Header({
         </div>
       </div>
 
-      {msg ? <div className="bg-amber-50 text-amber-900 text-xs px-4 py-2 border-b border-amber-200">{msg}</div> : null}
+      {/* {msg ? <div className="bg-amber-50 text-amber-900 text-xs px-4 py-2 border-b border-amber-200">{msg}</div> : null} */}
 
-      {/* Main dark nav — relative so mega menus align to full content width (no horizontal overflow) */}
+      {/* Main nav — relative so mega menus align to full content width (no horizontal overflow) */}
       <div className="relative max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between gap-3 min-h-[52px] py-1">
           <div className="flex items-center gap-4 lg:gap-6 min-w-0 flex-1">
@@ -262,7 +264,7 @@ export function Header({
               <div className="group/used">
                 <Link
                   to="/listings?type=used_car"
-                  className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/used:bg-white group-hover/used:text-gray-900 group-hover/used:border-white group-hover/used:border-b-white group-hover/used:shadow-[0_1px_0_0_white]"
+                  className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-neutral-800 transition-colors duration-150 group-hover/used:bg-neutral-50 group-hover/used:text-neutral-900 group-hover/used:border-neutral-200 group-hover/used:border-b-neutral-50 group-hover/used:shadow-sm"
                   title={t('nav.tooltipUsedCars')}
                 >
                   {t('nav.usedCars')} <ChevronDown className="w-3.5 h-3.5 opacity-80" />
@@ -281,11 +283,11 @@ export function Header({
               <div className="group/new">
                 <Link
                   to="/new-cars"
-                  className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/new:bg-white group-hover/new:text-gray-900 group-hover/new:border-white group-hover/new:border-b-white group-hover/new:shadow-[0_1px_0_0_white]"
+                  className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-neutral-800 transition-colors duration-150 group-hover/new:bg-neutral-50 group-hover/new:text-neutral-900 group-hover/new:border-neutral-200 group-hover/new:border-b-neutral-50 group-hover/new:shadow-sm"
                   title={t('mega.newCars.banner')}
                 >
                   {t('nav.newCars')}{' '}
-                  <ChevronDown className="w-3.5 h-3.5 opacity-80 transition-colors group-hover/new:text-[#C4161C]" />
+                  <ChevronDown className="w-3.5 h-3.5 opacity-80 transition-colors group-hover/new:text-brand-red" />
                 </Link>
                 <div className="pointer-events-none invisible opacity-0 group-hover/new:pointer-events-auto group-hover/new:visible group-hover/new:opacity-100 transition-opacity duration-150 absolute left-0 right-0 top-full z-50 pt-1">
                   <div className="w-full min-w-0">
@@ -296,11 +298,11 @@ export function Header({
               <div className="group/bikes">
                 <Link
                   to="/used-bikes"
-                  className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/bikes:bg-white group-hover/bikes:text-gray-900 group-hover/bikes:border-white group-hover/bikes:border-b-white group-hover/bikes:shadow-[0_1px_0_0_white]"
+                  className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-neutral-800 transition-colors duration-150 group-hover/bikes:bg-neutral-50 group-hover/bikes:text-neutral-900 group-hover/bikes:border-neutral-200 group-hover/bikes:border-b-neutral-50 group-hover/bikes:shadow-sm"
                   title={t('mega.bikes.banner')}
                 >
                   {t('nav.bikes')}{' '}
-                  <ChevronDown className="w-3.5 h-3.5 opacity-80 transition-colors group-hover/bikes:text-[#C4161C]" />
+                  <ChevronDown className="w-3.5 h-3.5 opacity-80 transition-colors group-hover/bikes:text-brand-red" />
                 </Link>
                 <div className="pointer-events-none invisible opacity-0 group-hover/bikes:pointer-events-auto group-hover/bikes:visible group-hover/bikes:opacity-100 transition-opacity duration-150 absolute left-0 right-0 top-full z-50 pt-1">
                   <div className="w-full min-w-0 max-w-full overflow-x-auto">
@@ -311,11 +313,11 @@ export function Header({
               <div className="relative group/autostore">
                 <Link
                   to="/listings?type=auto_part"
-                  className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-white/95 transition-colors duration-150 group-hover/autostore:bg-white group-hover/autostore:text-gray-900 group-hover/autostore:border-white group-hover/autostore:border-b-white group-hover/autostore:shadow-[0_1px_0_0_white]"
+                  className="relative z-[60] flex items-center gap-1 px-2.5 xl:px-3 py-2.5 text-[13px] xl:text-sm font-medium rounded-t-md border border-transparent text-neutral-800 transition-colors duration-150 group-hover/autostore:bg-neutral-50 group-hover/autostore:text-neutral-900 group-hover/autostore:border-neutral-200 group-hover/autostore:border-b-neutral-50 group-hover/autostore:shadow-sm"
                   title={t('nav.tooltipAutoStore')}
                 >
                   {t('nav.autoStore')}{' '}
-                  <ChevronDown className="w-3.5 h-3.5 opacity-80 transition-colors group-hover/autostore:text-[#C4161C]" />
+                  <ChevronDown className="w-3.5 h-3.5 opacity-80 transition-colors group-hover/autostore:text-brand-red" />
                 </Link>
                 <div className="pointer-events-none invisible opacity-0 group-hover/autostore:pointer-events-auto group-hover/autostore:visible group-hover/autostore:opacity-100 transition-opacity duration-150 absolute left-0 top-full z-50 pt-1 w-max max-w-[min(22rem,calc(100vw-2rem))]">
                   <AutoStoreMegaMenuPanel />
@@ -343,7 +345,7 @@ export function Header({
               <div className="relative group/more">
                 <button type="button" className={`${navBtn} items-center gap-1.5`} aria-haspopup="menu">
                   {t('nav.more')} <ChevronDown className="w-3.5 h-3.5 opacity-70" />
-                  <span className="text-[10px] font-bold uppercase tracking-wide bg-sky-500 text-white px-1 py-px rounded leading-none">
+                  <span className="text-[10px] font-bold uppercase tracking-wide bg-brand-green text-white px-1 py-px rounded leading-none">
                     {t('common.new')}
                   </span>
                 </button>
@@ -359,7 +361,7 @@ export function Header({
               <button
                 type="button"
                 onClick={() => onNavigate('/post-ad')}
-                className="flex items-center gap-1.5 bg-[#C4161C] text-white px-4 sm:px-6 py-2 rounded-md hover:bg-red-700 transition font-semibold shadow-sm text-[13px] sm:text-sm whitespace-nowrap"
+                className="flex items-center gap-1.5 bg-brand-red text-white px-4 sm:px-6 py-2 rounded-md hover:bg-brand-red-hover transition font-semibold shadow-sm text-[13px] sm:text-sm whitespace-nowrap"
                 title={t('nav.tooltipPostAd')}
               >
                 {t('nav.postAd')}
@@ -371,7 +373,7 @@ export function Header({
             </div>
             <button
               type="button"
-              className="lg:hidden p-2.5 rounded-lg hover:bg-white/10 text-white -mr-1"
+              className="lg:hidden p-2.5 rounded-lg hover:bg-neutral-100 text-neutral-800 -mr-1"
               aria-expanded={mobileNavOpen}
               aria-label={mobileNavOpen ? t('nav.closeMenu') : t('nav.openMenu')}
               onClick={() => setMobileNavOpen((o) => !o)}
@@ -383,16 +385,16 @@ export function Header({
 
         {mobileNavOpen ? (
             <div
-              className="lg:hidden w-full border-t border-white/15 max-h-[min(78vh,calc(100dvh-10rem))] flex flex-col -mx-4 px-4"
+              className="lg:hidden w-full border-t border-neutral-200 max-h-[min(78vh,calc(100dvh-10rem))] flex flex-col -mx-4 px-4 bg-neutral-50/70"
               role="dialog"
               aria-modal="true"
               aria-label={t('nav.openMenu')}
             >
               <div
-                className="overflow-y-auto overscroll-contain py-2 flex flex-col gap-0.5 text-[15px] font-medium text-white/95 min-h-0 flex-1"
+                className="overflow-y-auto overscroll-contain py-2 flex flex-col gap-0.5 text-[15px] font-medium text-neutral-900 min-h-0 flex-1"
                 style={{ fontWeight: 500 }}
               >
-                <div className="flex flex-col rounded-lg bg-white/[0.06] px-1 py-1">
+                <div className="flex flex-col rounded-lg bg-white border border-neutral-200/80 px-1 py-1 shadow-sm">
                   <button
                     type="button"
                     onClick={() => setUsedCarsMobileOpen((o) => !o)}
@@ -403,38 +405,38 @@ export function Header({
                     <ChevronDown className={`w-4 h-4 shrink-0 opacity-80 ${usedCarsMobileOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {usedCarsMobileOpen ? (
-                    <div className="pl-3 pr-2 pb-3 border-l-2 border-[#C4161C]/90 ml-3 space-y-0.5">
+                    <div className="pl-3 pr-2 pb-3 border-l-2 border-brand-red/90 ml-3 space-y-0.5">
                       <Link
                         to="/listings?type=used_car"
-                        className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                        className="block py-2.5 px-2 text-sm text-neutral-700 hover:text-brand-red hover:bg-red-50/60 rounded-md"
                         onClick={closeMobileNav}
                       >
                         {t('nav.browseAllUsedCars')}
                       </Link>
                       <Link
                         to="/used-cars/featured"
-                        className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                        className="block py-2.5 px-2 text-sm text-neutral-700 hover:text-brand-red hover:bg-red-50/60 rounded-md"
                         onClick={closeMobileNav}
                       >
                         {t('nav.featuredUsedCars')}
                       </Link>
                       <Link
                         to="/used-cars/sell"
-                        className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                        className="block py-2.5 px-2 text-sm text-neutral-700 hover:text-brand-red hover:bg-red-50/60 rounded-md"
                         onClick={closeMobileNav}
                       >
                         {t('nav.sellYourCar')}
                       </Link>
                       <Link
                         to="/used-car-dealers"
-                        className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                        className="block py-2.5 px-2 text-sm text-neutral-700 hover:text-brand-red hover:bg-red-50/60 rounded-md"
                         onClick={closeMobileNav}
                       >
                         {t('nav.usedCarDealers')}
                       </Link>
                       <Link
                         to="/car-prices"
-                        className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                        className="block py-2.5 px-2 text-sm text-neutral-700 hover:text-brand-red hover:bg-red-50/60 rounded-md"
                         onClick={closeMobileNav}
                       >
                         {t('nav.carPrices')}
@@ -445,13 +447,13 @@ export function Header({
 
                 <Link
                   to="/auctions"
-                  className="block py-3 px-3 rounded-lg hover:bg-white/10 text-white font-medium"
+                  className="block py-3 px-3 rounded-lg hover:bg-neutral-100 text-neutral-900 font-medium"
                   onClick={closeMobileNav}
                 >
                   {t('nav.auctions')}
                 </Link>
 
-                <div className="flex flex-col rounded-lg bg-white/[0.06] px-1 py-1">
+                <div className="flex flex-col rounded-lg bg-white border border-neutral-200/80 px-1 py-1 shadow-sm">
                   <button
                     type="button"
                     onClick={() => setNewCarsMobileOpen((o) => !o)}
@@ -462,12 +464,12 @@ export function Header({
                     <ChevronDown className={`w-4 h-4 shrink-0 opacity-80 ${newCarsMobileOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {newCarsMobileOpen ? (
-                    <div className="pl-3 pr-2 pb-3 border-l-2 border-[#C4161C]/90 ml-3 space-y-0.5">
+                    <div className="pl-3 pr-2 pb-3 border-l-2 border-brand-red/90 ml-3 space-y-0.5">
                       {NEW_CARS_MOBILE_LINKS.map((l) => (
                         <Link
                           key={l.to}
                           to={l.to}
-                          className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                          className="block py-2.5 px-2 text-sm text-neutral-700 hover:text-brand-red hover:bg-red-50/60 rounded-md"
                           onClick={closeMobileNav}
                         >
                           {t(l.labelKey)}
@@ -477,7 +479,7 @@ export function Header({
                   ) : null}
                 </div>
 
-                <div className="flex flex-col rounded-lg bg-white/[0.06] px-1 py-1">
+                <div className="flex flex-col rounded-lg bg-white border border-neutral-200/80 px-1 py-1 shadow-sm">
                   <button
                     type="button"
                     onClick={() => setBikesMobileOpen((o) => !o)}
@@ -488,12 +490,12 @@ export function Header({
                     <ChevronDown className={`w-4 h-4 shrink-0 opacity-80 ${bikesMobileOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {bikesMobileOpen ? (
-                    <div className="pl-3 pr-2 pb-3 border-l-2 border-[#C4161C]/90 ml-3 space-y-0.5">
+                    <div className="pl-3 pr-2 pb-3 border-l-2 border-brand-red/90 ml-3 space-y-0.5">
                       {BIKES_MOBILE_LINKS.map((l) => (
                         <Link
                           key={l.to}
                           to={l.to}
-                          className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                          className="block py-2.5 px-2 text-sm text-neutral-700 hover:text-brand-red hover:bg-red-50/60 rounded-md"
                           onClick={closeMobileNav}
                         >
                           {t(l.labelKey)}
@@ -503,7 +505,7 @@ export function Header({
                   ) : null}
                 </div>
 
-                <div className="flex flex-col rounded-lg bg-white/[0.06] px-1 py-1">
+                <div className="flex flex-col rounded-lg bg-white border border-neutral-200/80 px-1 py-1 shadow-sm">
                   <button
                     type="button"
                     onClick={() => setAutoStoreMobileOpen((o) => !o)}
@@ -514,12 +516,12 @@ export function Header({
                     <ChevronDown className={`w-4 h-4 shrink-0 opacity-80 ${autoStoreMobileOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {autoStoreMobileOpen ? (
-                    <div className="pl-3 pr-2 pb-3 border-l-2 border-[#C4161C]/90 ml-3 space-y-0.5">
+                    <div className="pl-3 pr-2 pb-3 border-l-2 border-brand-red/90 ml-3 space-y-0.5">
                       {AUTO_STORE_MOBILE_LINKS.map((l) => (
                         <Link
                           key={l.to}
                           to={l.to}
-                          className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                          className="block py-2.5 px-2 text-sm text-neutral-700 hover:text-brand-red hover:bg-red-50/60 rounded-md"
                           onClick={closeMobileNav}
                         >
                           {t(l.labelKey)}
@@ -529,27 +531,27 @@ export function Header({
                   ) : null}
                 </div>
 
-                <Link to="/videos" className="block px-3 py-3 rounded-lg hover:bg-white/10" onClick={closeMobileNav}>
+                <Link to="/videos" className="block px-3 py-3 rounded-lg hover:bg-neutral-100 text-neutral-900" onClick={closeMobileNav}>
                   {t('nav.videos')}
                 </Link>
-                <Link to="/forums" className="block px-3 py-3 rounded-lg hover:bg-white/10" onClick={closeMobileNav}>
+                <Link to="/forums" className="block px-3 py-3 rounded-lg hover:bg-neutral-100 text-neutral-900" onClick={closeMobileNav}>
                   {t('nav.forums')}
                 </Link>
-                <Link to="/blog" className="block px-3 py-3 rounded-lg hover:bg-white/10" onClick={closeMobileNav}>
+                <Link to="/blog" className="block px-3 py-3 rounded-lg hover:bg-neutral-100 text-neutral-900" onClick={closeMobileNav}>
                   {t('nav.blog')}
                 </Link>
                 {canAccessStaffPortal ? (
-                  <button type="button" onClick={() => go('/admin')} className="text-left px-3 py-3 rounded-lg hover:bg-white/10 w-full">
+                  <button type="button" onClick={() => go('/admin')} className="text-left px-3 py-3 rounded-lg hover:bg-neutral-100 w-full text-neutral-900">
                     {t('nav.admin')}
                   </button>
                 ) : null}
                 {canAccessDealer ? (
-                  <button type="button" onClick={() => go('/dealer/portal')} className="text-left px-3 py-3 rounded-lg hover:bg-white/10 w-full">
+                  <button type="button" onClick={() => go('/dealer/portal')} className="text-left px-3 py-3 rounded-lg hover:bg-neutral-100 w-full text-neutral-900">
                     {t('nav.dealerPortal')}
                   </button>
                 ) : null}
 
-                <div className="flex flex-col rounded-lg bg-white/[0.06] px-1 py-1">
+                <div className="flex flex-col rounded-lg bg-white border border-neutral-200/80 px-1 py-1 shadow-sm">
                   <button
                     type="button"
                     onClick={() => setMoreMobileOpen((o) => !o)}
@@ -558,23 +560,23 @@ export function Header({
                   >
                     <span className="flex items-center gap-2">
                       {t('nav.more')}
-                      <span className="text-[10px] font-bold uppercase tracking-wide bg-sky-500 text-white px-1 py-px rounded leading-none">
+                      <span className="text-[10px] font-bold uppercase tracking-wide bg-brand-green text-white px-1 py-px rounded leading-none">
                         {t('common.new')}
                       </span>
                     </span>
                     <ChevronDown className={`w-4 h-4 shrink-0 opacity-80 ${moreMobileOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {moreMobileOpen ? (
-                    <div className="pl-3 pr-2 pb-3 border-l-2 border-sky-500/80 ml-3 space-y-3">
+                    <div className="pl-3 pr-2 pb-3 border-l-2 border-brand-green/80 ml-3 space-y-3">
                       {MORE_NAV_SECTIONS.map((section) => (
                         <div key={section.titleKey}>
-                          <div className="text-[10px] font-bold uppercase tracking-wide text-white/50 px-2 pt-1">{t(section.titleKey)}</div>
+                          <div className="text-[10px] font-bold uppercase tracking-wide text-neutral-500 px-2 pt-1">{t(section.titleKey)}</div>
                           <div className="flex flex-col">
                             {section.links.map((l) => (
                               <Link
                                 key={l.to}
                                 to={l.to}
-                                className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                                className="block py-2.5 px-2 text-sm text-neutral-700 hover:text-brand-red hover:bg-red-50/60 rounded-md"
                                 onClick={closeMobileNav}
                               >
                                 {t(l.labelKey)}
@@ -587,23 +589,23 @@ export function Header({
                   ) : null}
                 </div>
 
-                <div className="flex flex-col rounded-lg bg-[#C4161C]/20 ring-1 ring-[#C4161C]/40 px-1 py-1 mt-1">
+                <div className="flex flex-col rounded-lg bg-red-50 ring-1 ring-brand-red/35 px-1 py-1 mt-1">
                   <button
                     type="button"
                     onClick={() => setPostAdMobileOpen((o) => !o)}
-                    className="text-left px-3 py-3 rounded-md text-white font-semibold hover:bg-white/10 flex items-center justify-between gap-2 w-full"
+                    className="text-left px-3 py-3 rounded-md text-brand-red font-semibold hover:bg-white flex items-center justify-between gap-2 w-full"
                     aria-expanded={postAdMobileOpen}
                   >
                     {t('nav.postAd')}
                     <ChevronDown className={`w-4 h-4 shrink-0 opacity-90 ${postAdMobileOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {postAdMobileOpen ? (
-                    <div className="pl-3 pr-2 pb-3 border-l-2 border-white/30 ml-3 space-y-0.5">
+                    <div className="pl-3 pr-2 pb-3 border-l-2 border-brand-red/40 ml-3 space-y-0.5">
                       {POST_AD_MENU_LINKS.map((l) => (
                         <Link
                           key={l.to}
                           to={l.to}
-                          className="block py-2.5 px-2 text-sm text-white/90 hover:text-white hover:bg-white/5 rounded-md"
+                          className="block py-2.5 px-2 text-sm text-neutral-700 hover:text-brand-red hover:bg-red-50/60 rounded-md"
                           onClick={closeMobileNav}
                         >
                           {t(l.labelKey)}
@@ -611,7 +613,7 @@ export function Header({
                       ))}
                       <Link
                         to="/post-ad"
-                        className="block py-2.5 px-2 text-sm text-white/75 hover:text-white hover:bg-white/5 rounded-md border-t border-white/15 mt-2 pt-3"
+                        className="block py-2.5 px-2 text-sm text-neutral-600 hover:text-brand-red hover:bg-white rounded-md border-t border-red-100 mt-2 pt-3"
                         onClick={closeMobileNav}
                       >
                         {t('nav.otherListingTypes')}
@@ -621,21 +623,21 @@ export function Header({
                 </div>
               </div>
 
-              <div className="shrink-0 border-t border-white/10 pt-4 pb-3 mt-1">
+              <div className="shrink-0 border-t border-neutral-200 pt-4 pb-3 mt-1 bg-white rounded-b-lg">
                 {tokenWhileLoading ? (
-                  <span className="block px-3 py-2 text-white/70 text-sm">{t('common.loading')}</span>
+                  <span className="block px-3 py-2 text-neutral-500 text-sm">{t('common.loading')}</span>
                 ) : !me ? (
                   <div className="grid grid-cols-2 gap-2 px-1">
                     <Link
                       to="/login"
-                      className="block px-3 py-3 rounded-lg bg-white text-[#233D7B] font-semibold text-center shadow-sm text-sm"
+                      className="block px-3 py-3 rounded-lg bg-brand-red text-white font-semibold text-center shadow-sm text-sm hover:bg-brand-red-hover"
                       onClick={closeMobileNav}
                     >
                       {t('nav.signIn')}
                     </Link>
                     <Link
                       to="/register"
-                      className="block px-3 py-3 rounded-lg border border-white/40 text-white font-semibold text-center text-sm hover:bg-white/10"
+                      className="block px-3 py-3 rounded-lg border border-neutral-300 text-neutral-900 font-semibold text-center text-sm hover:border-brand-red/40 hover:text-brand-red bg-white"
                       onClick={closeMobileNav}
                     >
                       {t('nav.register')}
@@ -643,17 +645,17 @@ export function Header({
                   </div>
                 ) : (
                   <div className="space-y-1 px-1">
-                    <div className="px-2 py-2 text-xs text-white/60 truncate">{me.name}</div>
-                    <button type="button" onClick={() => go('/wishlist')} className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10 text-sm">
+                    <div className="px-2 py-2 text-xs text-neutral-500 truncate">{me.name}</div>
+                    <button type="button" onClick={() => go('/wishlist')} className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-neutral-100 text-sm text-neutral-800">
                       {t('nav.wishlist')}
                     </button>
-                    <button type="button" onClick={() => go('/my-listings')} className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10 text-sm">
+                    <button type="button" onClick={() => go('/my-listings')} className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-neutral-100 text-sm text-neutral-800">
                       {t('nav.myListings')}
                     </button>
-                    <button type="button" onClick={() => go('/messages')} className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10 text-sm">
+                    <button type="button" onClick={() => go('/messages')} className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-neutral-100 text-sm text-neutral-800">
                       {t('nav.messages')}
                     </button>
-                    <button type="button" onClick={doLogout} className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10 text-sm text-white/80">
+                    <button type="button" onClick={doLogout} className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-neutral-100 text-sm text-neutral-600">
                       {t('nav.logout')}
                     </button>
                   </div>

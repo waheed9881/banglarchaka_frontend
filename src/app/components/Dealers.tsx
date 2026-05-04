@@ -94,13 +94,8 @@ export function Dealers() {
   };
 
   return (
-    <section className="relative overflow-hidden py-14 md:py-16 bg-white border-y border-gray-100">
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-30%,rgba(35,61,123,0.06),transparent)]"
-        aria-hidden
-      />
-
-      <div className="relative max-w-7xl mx-auto px-4">
+    <section className="relative overflow-hidden border-y border-neutral-200 bg-white py-14 md:py-16">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-[#233D7B]/[0.08] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#233D7B] mb-3">

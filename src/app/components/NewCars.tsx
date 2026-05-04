@@ -379,10 +379,10 @@ export function NewCars() {
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="snap-start shrink-0 w-[calc(50%-8px)] sm:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)] min-w-[158px] bg-white rounded-lg border border-indigo-100/90 shadow-sm hover:shadow-md hover:border-indigo-200 transition flex flex-col overflow-hidden"
+                      className="flex min-w-[158px] w-[calc(50%-8px)] shrink-0 snap-start flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm transition hover:border-neutral-300 hover:shadow-md sm:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)]"
                     >
-                      <div className="relative flex items-center justify-center bg-gradient-to-b from-indigo-50/80 to-white px-3 pt-4 pb-2 min-h-[132px]">
-                        <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded bg-white/95 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-indigo-700 shadow-sm ring-1 ring-indigo-100">
+                      <div className="relative flex min-h-[132px] items-center justify-center bg-neutral-50 px-3 pb-2 pt-4">
+                        <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded border border-neutral-200 bg-white px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-neutral-700 shadow-sm">
                           <Globe2 className="h-3 w-3" aria-hidden />
                           BD news
                         </span>

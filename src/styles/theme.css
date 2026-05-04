@@ -1,6 +1,11 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* Banglar Chaka logo-inspired palette (white / red / green) */
+  --brand-red: #e30613;
+  --brand-red-hover: #b9050f;
+  --brand-green: #009639;
+  --brand-green-hover: #007a2e;
   --font-size: 16px;
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
@@ -8,7 +13,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: #030213;
+  --primary: var(--brand-red);
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.95 0.0058 264.53);
   --secondary-foreground: #030213;
@@ -79,6 +84,10 @@
 }
 
 @theme inline {
+  --color-brand-red: var(--brand-red);
+  --color-brand-red-hover: var(--brand-red-hover);
+  --color-brand-green: var(--brand-green);
+  --color-brand-green-hover: var(--brand-green-hover);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

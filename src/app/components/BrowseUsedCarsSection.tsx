@@ -48,7 +48,7 @@ function chunk<T>(arr: T[], size: number): T[][] {
 
 function BrowseTileSkeleton() {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg sm:rounded-xl border border-gray-200 bg-white px-2 py-3.5 sm:px-3 sm:py-5 min-h-[100px] sm:min-h-[118px] animate-pulse">
+    <div className="flex min-h-[108px] animate-pulse flex-col items-center justify-center rounded-xl border border-neutral-200 bg-white px-2 py-3.5 shadow-sm sm:min-h-[120px] sm:rounded-2xl sm:px-3 sm:py-5">
       <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 mb-2 shrink-0" />
       <div className="h-3 w-[72%] rounded-md bg-gray-200 max-w-full" />
       <div className="h-3 w-[48%] rounded-md bg-gray-200 mt-2 max-w-full" />
@@ -60,10 +60,14 @@ function BrowseTile({ label, to, Icon }: CardDef) {
   return (
     <Link
       to={to}
-      className="flex flex-col items-center justify-center rounded-lg sm:rounded-xl border border-gray-200 bg-white px-2 py-3.5 sm:px-3 sm:py-5 shadow-sm transition hover:border-[#233D7B]/60 hover:shadow-md text-center min-h-[100px] sm:min-h-[118px] group active:scale-[0.99]"
+      className="group flex min-h-[108px] flex-col items-center justify-center rounded-xl border border-neutral-200 bg-white px-2 py-3.5 text-center shadow-sm transition hover:border-neutral-400 hover:shadow-md active:scale-[0.99] sm:min-h-[120px] sm:rounded-2xl sm:px-3 sm:py-5"
     >
-      <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400 group-hover:text-[#233D7B] mb-1.5 sm:mb-2 shrink-0" strokeWidth={1.35} aria-hidden />
-      <span className="text-[11px] sm:text-xs md:text-sm font-semibold text-gray-800 leading-snug line-clamp-2">{label}</span>
+      <Icon
+        className="mb-1.5 h-8 w-8 shrink-0 text-neutral-400 transition-colors group-hover:text-brand-red sm:mb-2 sm:h-10 sm:w-10"
+        strokeWidth={1.1}
+        aria-hidden
+      />
+      <span className="line-clamp-2 text-[11px] font-semibold leading-snug text-neutral-800 sm:text-xs md:text-sm">{label}</span>
     </Link>
   );
 }
@@ -247,29 +251,43 @@ export function BrowseUsedCarsSection() {
   const canNext = safePage < pageCount - 1;
 
   return (
-    <section className="py-8 sm:py-12 bg-[#f5f6f8] border-y border-gray-100">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4">
-        <h2 className="text-xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">{t('browseUsed.title')}</h2>
-
-        <div className="flex gap-1 overflow-x-auto overscroll-x-contain border-b border-gray-200 mb-6 sm:mb-8 pb-px [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory">
-          {TAB_DEFS.map(({ key, labelKey }) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setTab(key)}
-              className={`shrink-0 snap-start px-3 sm:px-4 py-2.5 sm:py-3 text-[13px] sm:text-sm font-semibold transition-colors relative whitespace-nowrap ${
-                tab === key ? 'text-[#233D7B]' : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              {t(labelKey)}
-              {tab === key ? (
-                <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#233D7B] rounded-full" aria-hidden />
-              ) : null}
-            </button>
-          ))}
+    <section className="border-y border-neutral-200 bg-white py-9 sm:py-12">
+      <div className="mx-auto max-w-7xl px-3 sm:px-4">
+        <div className="mb-6 text-center sm:mb-8 sm:text-left">
+          <h2 className="text-balance text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl md:text-3xl">
+            {t('browseUsed.title')}
+          </h2>
+          <p className="mx-auto mt-1.5 max-w-2xl text-[13px] text-neutral-600 sm:mx-0 sm:text-sm">
+            {t('browseUsed.subtitle')}
+          </p>
         </div>
 
-        <div className="relative">
+        <div className="rounded-2xl border border-neutral-200 bg-neutral-50/50 p-1 sm:p-1.5">
+          <div
+            className="flex gap-0.5 overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory sm:gap-1"
+            role="tablist"
+            aria-label={t('browseUsed.title')}
+          >
+            {TAB_DEFS.map(({ key, labelKey }) => (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={tab === key}
+                onClick={() => setTab(key)}
+                className={`shrink-0 snap-start rounded-xl px-3 py-2.5 text-[12px] font-semibold transition-colors sm:px-4 sm:py-3 sm:text-sm ${
+                  tab === key
+                    ? 'bg-brand-red/12 text-brand-red shadow-[inset_0_0_0_1px_rgba(185,28,28,0.12)]'
+                    : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
+                } `}
+              >
+                {t(labelKey)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative mt-6 sm:mt-8">
           <button
             type="button"
             aria-label={t('browseUsed.ariaPrev')}
@@ -357,7 +375,7 @@ export function BrowseUsedCarsSection() {
               aria-current={i === safePage ? 'true' : undefined}
               onClick={() => setPage(i)}
               className={`h-2 rounded-full transition-all ${
-                i === safePage ? 'w-8 bg-[#233D7B]' : 'w-2 bg-gray-300 hover:bg-gray-400'
+                i === safePage ? 'w-8 bg-brand-red' : 'w-2 bg-gray-300 hover:bg-gray-400'
               }`}
             />
           ))}

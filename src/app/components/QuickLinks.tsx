@@ -50,7 +50,7 @@ export function QuickLinks() {
                 <Link
                   key={`${item.listingType}-${item.q}`}
                   to={`/listings?type=${item.listingType}&q=${encodeURIComponent(item.q)}`}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-[#233D7B] hover:text-white transition"
+                  className="px-4 py-2 border border-gray-200 bg-white text-gray-700 rounded-full text-sm shadow-sm hover:border-brand-red/40 hover:bg-brand-red hover:text-white transition"
                 >
                   {item.label}
                 </Link>
@@ -65,7 +65,7 @@ export function QuickLinks() {
                 <Link
                   key={param}
                   to={`/listings?type=used_car&city=${encodeURIComponent(param)}`}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-[#233D7B] hover:text-white transition"
+                  className="px-4 py-2 border border-gray-200 bg-white text-gray-700 rounded-full text-sm shadow-sm hover:border-brand-red/40 hover:bg-brand-red hover:text-white transition"
                 >
                   {t(labelKey)}
                 </Link>
@@ -74,11 +74,11 @@ export function QuickLinks() {
           </div>
         </div>
 
-        <div className="mt-12 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-8 border border-gray-100">
+        <div className="mt-12 rounded-xl border border-gray-200/90 bg-white p-8 shadow-[0_12px_40px_-24px_rgba(0,0,0,0.08)]">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {promos.map((item) => (
               <Link key={item.titleKey} to={item.to} className="group rounded-lg p-2 hover:bg-white/60 transition">
-                <div className="text-lg font-bold text-[#233D7B] group-hover:underline">{t(item.titleKey)}</div>
+                <div className="text-lg font-bold text-brand-red group-hover:underline">{t(item.titleKey)}</div>
                 <div className="text-sm text-gray-600 mt-1 leading-snug">{t(item.bodyKey)}</div>
               </Link>
             ))}

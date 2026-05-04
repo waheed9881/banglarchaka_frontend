@@ -6,7 +6,6 @@ import { fetchAuctionsPaged, type AuctionSummaryDto } from '@/lib/auctions';
 import { formatMoney, listingPaginationPages, resolveMediaUrl, type ListingsPageMeta } from '@/lib/marketplace';
 import { setPageSeo } from '@/lib/seo';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { ApiConnectionHint } from './ApiConnectionHint';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1542282088-fe8426682b8f?auto=format&fit=crop&w=960&q=75';
@@ -68,7 +67,6 @@ export function AuctionsPage() {
 
   return (
     <div className="min-h-screen bg-[#f6f7fb]">
-      <ApiConnectionHint />
       <div className="border-b border-slate-200/80 bg-gradient-to-r from-[#233D7B] via-[#2d4a8f] to-[#1a2d5a] text-white">
         <div className="max-w-7xl mx-auto px-4 py-10 sm:py-12">
           <div className="flex flex-wrap items-start gap-4 justify-between">

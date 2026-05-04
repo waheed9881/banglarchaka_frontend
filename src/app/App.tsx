@@ -1,6 +1,7 @@
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { FeaturedCars } from './components/FeaturedCars';
+import { HomeStatsStrip } from './components/HomeStatsStrip';
 import { BrowseUsedCarsSection } from './components/BrowseUsedCarsSection';
 import { BrowseByBrand } from './components/BrowseByBrand';
 import { NewCars } from './components/NewCars';
@@ -15,7 +16,6 @@ import { Testimonials } from './components/Testimonials';
 import { BlogNews } from './components/BlogNews';
 import { QuickLinks } from './components/QuickLinks';
 import { Footer } from './components/Footer';
-import { ApiConnectionHint } from './components/ApiConnectionHint';
 import { CarDetailPage } from './components/CarDetailPage';
 import { ListingPage } from './components/ListingPage';
 import { PostAdPage } from './components/PostAdPage';
@@ -138,9 +138,9 @@ function HomePage() {
 
   return (
     <>
-      <ApiConnectionHint />
       <Hero />
       <FeaturedCars />
+      <HomeStatsStrip />
       <div id="browse-used-cars">
         <BrowseUsedCarsSection />
       </div>

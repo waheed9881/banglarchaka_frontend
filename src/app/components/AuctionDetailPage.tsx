@@ -9,7 +9,6 @@ import { formatMoney, listingPublicHref, resolveMediaUrl } from '@/lib/marketpla
 import { setPageSeo } from '@/lib/seo';
 import { ListingMediaGallery } from './ListingMediaGallery';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { ApiConnectionHint } from './ApiConnectionHint';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1542282088-fe8426682b8f?auto=format&fit=crop&w=1200&q=75';
@@ -147,7 +146,6 @@ export function AuctionDetailPage({ auctionId, onBack }: { auctionId: string | u
   if (err || !auction) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16">
-        <ApiConnectionHint />
         <button type="button" onClick={onBack} className="text-sm font-semibold text-[#233D7B] hover:underline mb-6 inline-flex items-center gap-1">
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Back
@@ -162,7 +160,6 @@ export function AuctionDetailPage({ auctionId, onBack }: { auctionId: string | u
 
   return (
     <div className="min-h-screen bg-[#f6f7fb] pb-16">
-      <ApiConnectionHint />
       <div className="border-b border-slate-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center gap-3 justify-between">
           <button

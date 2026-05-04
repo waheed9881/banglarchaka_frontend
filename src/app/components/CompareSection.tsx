@@ -84,10 +84,8 @@ export function CompareSection() {
     'w-full appearance-none px-4 py-3.5 pr-10 rounded-xl border border-gray-200 bg-white text-gray-900 text-sm font-medium shadow-sm transition focus:outline-none focus:ring-2 focus:ring-[#233D7B]/25 focus:border-[#233D7B] hover:border-gray-300';
 
   return (
-    <section id="compare" className="relative overflow-hidden py-14 md:py-16 bg-[#eef1f6] border-y border-gray-200/80">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(35,61,123,0.09),transparent)]" aria-hidden />
-
-      <div className="relative max-w-7xl mx-auto px-4">
+    <section id="compare" className="relative overflow-hidden border-y border-neutral-200 bg-neutral-100 py-14 md:py-16">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         {featuredPair ? (
           <div className="mb-12 md:mb-14">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">

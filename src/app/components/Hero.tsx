@@ -1,9 +1,114 @@
 import { Search, X } from 'lucide-react';
 import { useEffect, useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
+import {
+  type CarouselApi,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/app/components/ui/carousel';
+import { cn } from '@/app/components/ui/utils';
+import { HERO_CAROUSEL_SLIDES } from '@/app/constants/heroCarouselSlides';
 import { BD_CITIES, CITY_LABEL_KEYS } from '@/i18n/bdCities';
 import { fetchBrands, type BrandDto } from '@/lib/marketplace';
+
+/** Tall hero — larger banner strip (viewport-filling) */
+const HERO_MIN_HEIGHT_CLASS = 'min-h-[min(92vh,1024px)]';
+
+function HeroAutoBanner() {
+  const { t } = useTranslation();
+  const [api, setApi] = useState<CarouselApi>();
+  const [paused, setPaused] = useState(false);
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (!api) return;
+    const onSelect = () => setCurrent(api.selectedScrollSnap());
+    setCurrent(api.selectedScrollSnap());
+    api.on('select', onSelect);
+    return () => {
+      api.off('select', onSelect);
+    };
+  }, [api]);
+
+  useEffect(() => {
+    if (!api || paused) return;
+    const id = window.setInterval(() => {
+      api.scrollNext();
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [api, paused]);
+
+  return (
+    <div
+      className="relative h-full w-full min-h-0"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <Carousel
+        opts={{ loop: true }}
+        setApi={setApi}
+        className="h-full"
+        aria-label={t('hero.bannerCarouselAria')}
+      >
+        <CarouselContent className={cn('-ml-0', HERO_MIN_HEIGHT_CLASS)}>
+          {HERO_CAROUSEL_SLIDES.map((slide, i) => (
+            <CarouselItem key={slide.id} className={cn('basis-full pl-0', HERO_MIN_HEIGHT_CLASS)}>
+              <Link
+                to="/post-ad"
+                className={cn(
+                  'group relative block h-full w-full overflow-hidden',
+                  HERO_MIN_HEIGHT_CLASS,
+                )}
+              >
+                <img
+                  src={slide.src}
+                  alt=""
+                  className={cn(
+                    'absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.015]',
+                    slide.objectClass,
+                  )}
+                  width={2400}
+                  height={1350}
+                  sizes="100vw"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  fetchPriority={i === 0 ? 'high' : undefined}
+                />
+              </Link>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious
+          variant="outline"
+          className="absolute left-3 top-[40%] z-10 size-10 -translate-y-1/2 border border-white/25 bg-white/92 text-neutral-900 shadow-lg backdrop-blur-sm hover:bg-white disabled:opacity-35 sm:left-5"
+        />
+        <CarouselNext
+          variant="outline"
+          className="absolute right-3 top-[40%] z-10 size-10 -translate-y-1/2 border border-white/25 bg-white/92 text-neutral-900 shadow-lg backdrop-blur-sm hover:bg-white disabled:opacity-35 sm:right-5"
+        />
+      </Carousel>
+      <div className="pointer-events-none absolute inset-x-0 bottom-24 z-10 flex justify-center gap-2 sm:bottom-28">
+        {HERO_CAROUSEL_SLIDES.map((slide, i) => (
+          <button
+            key={slide.id}
+            type="button"
+            aria-label={t('hero.bannerSlideDotAria', { n: slide.id })}
+            aria-current={i === current ? 'true' : undefined}
+            className={cn(
+              'pointer-events-auto h-2 rounded-full transition-[width,background-color] duration-300',
+              i === current ? 'w-8 bg-white shadow-md' : 'w-2 bg-white/50 hover:bg-white/80',
+            )}
+            onClick={() => api?.scrollTo(i)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 type ListingType = 'used_car' | 'new_car' | 'used_bike' | 'auto_part';
 
@@ -195,17 +300,45 @@ export function Hero() {
   ];
 
   return (
-    <div className="relative bg-gradient-to-r from-[#233D7B] to-[#1a2d5a] text-white py-12">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold mb-2" style={{ letterSpacing: '-0.5px' }}>
-            {t('hero.headline')}
-          </h2>
-          <p className="text-base text-blue-100">{t('hero.subhead')}</p>
+    <section className="relative bg-white text-gray-900">
+      {/* Full-bleed tall hero: carousel background + copy overlay (search card overlaps below) */}
+      <div className={cn('relative z-0 w-full overflow-hidden bg-neutral-950', HERO_MIN_HEIGHT_CLASS)}>
+        <div className="absolute inset-0 z-0 [&_[data-slot=carousel-content]]:h-full">
+          <HeroAutoBanner />
         </div>
+        <div className="pointer-events-none absolute inset-0 z-[1] bg-neutral-950/[0.42]" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-4 pb-32 pt-16 sm:pb-40 sm:pt-20 md:pb-44 lg:pb-48">
+          <div className="pointer-events-auto mx-auto w-full max-w-3xl text-center">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/85 sm:text-xs">
+              {t('hero.brandEyebrow')}
+            </p>
+            <h1 className="text-balance text-3xl font-bold tracking-tight text-white drop-shadow-lg sm:text-4xl lg:text-5xl lg:leading-[1.12]">
+              {t('hero.headline')}
+            </h1>
+            <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-white/92 sm:mt-4 sm:text-lg">
+              {t('hero.subhead')}
+            </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3 sm:mt-8">
+              <Link
+                to="/post-ad"
+                className="inline-flex items-center justify-center rounded-full border-2 border-white/90 bg-white/12 px-6 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/22"
+              >
+                {t('nav.postAd')}
+              </Link>
+              <Link
+                to="/auctions"
+                className="inline-flex items-center justify-center rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-neutral-900 shadow-lg shadow-black/30 transition hover:bg-neutral-100"
+              >
+                {t('nav.auctions')}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <div className="max-w-5xl mx-auto">
-          <div className="bg-white rounded-lg shadow-2xl p-5 text-gray-900">
+      {/* Filter: pulled up — sits on lower part of hero + white area */}
+      <div className="relative z-20 mx-auto -mt-[7.5rem] mb-8 max-w-5xl px-4 sm:-mt-[8.75rem] sm:mb-10 lg:-mt-[9.5rem]">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-[0_16px_48px_-28px_rgba(15,23,42,0.22)] sm:p-6">
             <div className="flex gap-2 mb-5 border-b border-gray-200 overflow-x-auto">
               {(
                 [
@@ -219,8 +352,8 @@ export function Hero() {
                   key={value}
                   type="button"
                   onClick={() => submitSearch({ listingType: value })}
-                  className={`px-5 py-2.5 rounded-t-md font-semibold shrink-0 ${
-                    type === value ? 'bg-[#C4161C] text-white' : 'text-gray-600 hover:bg-gray-50'
+                  className={`px-5 py-2.5 rounded-t-md font-semibold shrink-0 transition-colors ${
+                    type === value ? 'bg-brand-red text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50'
                   }`}
                   style={{ fontSize: '13px' }}
                 >
@@ -283,7 +416,7 @@ export function Hero() {
               </select>
               <button
                 type="submit"
-                className="px-6 py-2.5 bg-[#3EB549] text-white rounded hover:bg-green-600 transition flex items-center justify-center gap-2 font-semibold shadow-sm"
+                className="px-6 py-2.5 bg-brand-green text-white rounded-lg hover:bg-brand-green-hover transition flex items-center justify-center gap-2 font-semibold shadow-sm"
                 style={{ fontSize: '14px' }}
               >
                 <Search className="w-4 h-4" aria-hidden />
@@ -297,7 +430,7 @@ export function Hero() {
                   key={chip.chipKey}
                   type="button"
                   onClick={() => submitSearch(chip.patch)}
-                  className="px-3 py-1.5 rounded-full border border-gray-300 text-xs text-gray-700 hover:border-[#233D7B] hover:text-[#233D7B] hover:bg-blue-50/50 transition"
+                  className="px-3 py-1.5 rounded-full border border-gray-300 text-xs text-gray-700 hover:border-brand-red/50 hover:text-brand-red hover:bg-red-50/80 transition"
                 >
                   {chip.label}
                 </button>
@@ -308,16 +441,16 @@ export function Hero() {
               <button
                 type="button"
                 onClick={() => setShowAdvanced((v) => !v)}
-                className="text-[#233D7B] hover:underline font-medium"
+                className="text-brand-red hover:underline font-medium"
                 style={{ fontSize: '13px' }}
               >
                 {showAdvanced ? t('hero.advancedFiltersHide') : t('hero.advancedFiltersShow')}
               </button>
               <div className="flex items-center gap-3">
-                <button type="button" onClick={clearFilters} className="text-[13px] text-[#233D7B] font-semibold hover:underline">
+                <button type="button" onClick={clearFilters} className="text-[13px] text-neutral-600 font-semibold hover:text-brand-red hover:underline">
                   {t('hero.clearShort')}
                 </button>
-                <button type="button" onClick={saveCurrentSearch} className="text-[13px] text-[#233D7B] font-semibold hover:underline">
+                <button type="button" onClick={saveCurrentSearch} className="text-[13px] text-neutral-600 font-semibold hover:text-brand-red hover:underline">
                   {t('hero.saveSearch')}
                 </button>
               </div>
@@ -390,80 +523,48 @@ export function Hero() {
                 <button
                   type="button"
                   onClick={() => submitSearch()}
-                  className="md:col-span-3 rounded-lg bg-[#233D7B] text-white text-sm font-bold py-2.5 hover:bg-[#1a2d5a] transition"
+                  className="md:col-span-3 rounded-lg bg-brand-red text-white text-sm font-bold py-2.5 hover:bg-brand-red-hover transition"
                 >
                   {t('hero.applyAdvancedFilters')}
                 </button>
               </div>
             )}
-          </div>
-        </div>
-
-        {savedSearches.length > 0 && (
-          <div className="max-w-5xl mx-auto mt-5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 px-4 py-3">
-            <div className="text-xs font-semibold text-blue-100 mb-2">{t('hero.savedSearches')}</div>
-            <div className="flex flex-wrap gap-2">
-              {savedSearches.map((s) => (
-                <div
-                  key={s.query}
-                  className="inline-flex items-center max-w-full gap-0.5 rounded-full bg-white/15 text-white text-xs hover:bg-white/25 transition pl-3 pr-1 py-1"
-                >
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/listings?${s.query}`)}
-                    className="min-w-0 truncate py-0.5 text-left hover:underline"
-                  >
-                    {s.label}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => removeSavedSearch(s.query, e)}
-                    className="shrink-0 rounded-full p-1 hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-white/80"
-                    aria-label={t('hero.removeSavedSearch')}
-                  >
-                    <X className="w-3.5 h-3.5" strokeWidth={2.5} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8 max-w-5xl mx-auto">
-          <button
-            type="button"
-            onClick={() => navigate('/listings?type=used_car')}
-            className="bg-white/10 backdrop-blur-sm rounded-md p-3 text-center hover:bg-white/20 transition cursor-pointer border border-transparent hover:border-white/20"
-          >
-            <div className="text-xl font-bold">200K+</div>
-            <div className="text-xs text-blue-100">{t('hero.statCarsForSale')}</div>
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/listings?type=used_bike')}
-            className="bg-white/10 backdrop-blur-sm rounded-md p-3 text-center hover:bg-white/20 transition cursor-pointer border border-transparent hover:border-white/20"
-          >
-            <div className="text-xl font-bold">50K+</div>
-            <div className="text-xs text-blue-100">{t('hero.statBikesForSale')}</div>
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/used-car-dealers')}
-            className="bg-white/10 backdrop-blur-sm rounded-md p-3 text-center hover:bg-white/20 transition cursor-pointer border border-transparent hover:border-white/20"
-          >
-            <div className="text-xl font-bold">5K+</div>
-            <div className="text-xs text-blue-100">{t('hero.statDealers')}</div>
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/listings?type=auto_part')}
-            className="bg-white/10 backdrop-blur-sm rounded-md p-3 text-center hover:bg-white/20 transition cursor-pointer border border-transparent hover:border-white/20"
-          >
-            <div className="text-xl font-bold">100K+</div>
-            <div className="text-xs text-blue-100">{t('hero.statAutoPartsShort')}</div>
-          </button>
         </div>
       </div>
-    </div>
+
+      {savedSearches.length > 0 ? (
+        <div className="border-t border-neutral-100 bg-white">
+          <div className="mx-auto max-w-7xl px-4 py-8 sm:py-10">
+            <div className="mx-auto max-w-5xl rounded-xl border border-neutral-200/90 bg-white px-4 py-3 shadow-sm">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('hero.savedSearches')}</div>
+              <div className="flex flex-wrap gap-2">
+                {savedSearches.map((s) => (
+                  <div
+                    key={s.query}
+                    className="inline-flex max-w-full items-center gap-0.5 rounded-full border border-neutral-200 bg-white py-1 pl-3 pr-1 text-xs text-neutral-800 shadow-sm transition hover:border-brand-red/30"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/listings?${s.query}`)}
+                      className="min-w-0 truncate py-0.5 text-left hover:text-brand-red hover:underline"
+                    >
+                      {s.label}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => removeSavedSearch(s.query, e)}
+                      className="shrink-0 rounded-full p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-red/40"
+                      aria-label={t('hero.removeSavedSearch')}
+                    >
+                      <X className="w-3.5 h-3.5" strokeWidth={2.5} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </section>
   );
 }

@@ -29,7 +29,6 @@ import {
   type ListingsPageMeta,
 } from '@/lib/marketplace';
 import { setPageSeo } from '@/lib/seo';
-import { ApiConnectionHint } from './ApiConnectionHint';
 import {
   mergeListingParams,
   PakFiltersSidebar,
@@ -488,8 +487,6 @@ export function ListingPage({ onOpenDetail }: { onOpenDetail?: (id: string) => v
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6 pb-44 lg:pb-6">
-        <ApiConnectionHint />
-
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 flex flex-col gap-1.5 border-t border-gray-200 bg-white/95 px-3 pt-2 shadow-[0_-4px_14px_rgba(0,0,0,0.07)] backdrop-blur-sm pb-[max(0.5rem,env(safe-area-inset-bottom))]">
           <div className="flex items-center gap-2">
             <button

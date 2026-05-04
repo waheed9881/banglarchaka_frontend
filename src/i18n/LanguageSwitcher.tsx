@@ -9,17 +9,19 @@ export function LanguageSwitcher() {
         type="button"
         onClick={() => void i18n.changeLanguage('en')}
         className={`rounded px-1.5 py-0.5 font-semibold transition ${
-          i18n.language === 'en' ? 'bg-white/20 text-white' : 'text-white/75 hover:text-white'
+          i18n.language === 'en' ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-600 hover:text-neutral-900'
         }`}
       >
         EN
       </button>
-      <span className="text-white/35 select-none">|</span>
+      <span className="text-neutral-300 select-none" aria-hidden>
+        |
+      </span>
       <button
         type="button"
         onClick={() => void i18n.changeLanguage('bn')}
         className={`rounded px-1.5 py-0.5 font-semibold transition ${
-          i18n.language === 'bn' ? 'bg-white/20 text-white' : 'text-white/75 hover:text-white'
+          i18n.language === 'bn' ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-600 hover:text-neutral-900'
         }`}
       >
         {t('lang.bn')}

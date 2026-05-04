@@ -5,9 +5,8 @@ import { Link } from 'react-router';
 import { toast } from 'sonner';
 import logoUrl from '@/assets/logo_3.webp';
 
-const BG = '#23292d';
-const LINK = 'text-gray-400 hover:text-white transition-colors';
-const HEADING = 'text-white font-bold text-[13px] uppercase tracking-wide mb-4';
+const LINK = 'text-neutral-600 hover:text-brand-red transition-colors text-[11px] leading-snug';
+const HEADING = 'text-neutral-900 font-bold text-[10px] uppercase tracking-wider mb-1.5';
 
 function carListings(extra: Record<string, string>) {
   const p = new URLSearchParams({ type: 'used_car', ...extra });
@@ -137,23 +136,23 @@ function LinkColumn({ col }: { col: FootCol }) {
   return (
     <div>
       <h3 className={HEADING}>{t(col.titleKey)}</h3>
-      <ul className="space-y-2.5">
+      <ul className="space-y-1">
         {col.links.map((item) => (
           <li key={item.labelKey}>
             {'kind' in item && item.kind === 'careers' ? (
               <button
                 type="button"
-                className={`text-[13px] ${LINK} text-left`}
+                className={`${LINK} text-left`}
                 onClick={() => toast.message(t('footer.careersToast'))}
               >
                 {t(item.labelKey)}
               </button>
             ) : item.to.startsWith('http') || item.to.startsWith('mailto:') ? (
-              <a href={item.to} className={`text-[13px] ${LINK}`}>
+              <a href={item.to} className={LINK}>
                 {t(item.labelKey)}
               </a>
             ) : (
-              <Link to={item.to} className={`text-[13px] ${LINK}`}>
+              <Link to={item.to} className={LINK}>
                 {t(item.labelKey)}
               </Link>
             )}
@@ -188,50 +187,57 @@ export function Footer() {
   ];
 
   return (
-    <footer className="text-white" style={{ backgroundColor: BG }}>
-      <div className="max-w-7xl mx-auto px-4 pt-14 pb-8">
-        <div className="pb-10 mb-2 border-b border-gray-700/80">
-          <Link to="/" className="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3EB549]/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[#23292d] rounded">
+    <footer className="relative border-t border-neutral-200 bg-neutral-50 text-neutral-800">
+      <div
+        className="h-1 w-full bg-gradient-to-r from-brand-red via-neutral-100 to-brand-green"
+        aria-hidden
+      />
+      <div className="mx-auto max-w-7xl px-4 pb-4 pt-6">
+        <div className="mb-3 border-b border-neutral-200 pb-4">
+          <Link
+            to="/"
+            className="inline-block rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/70 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-50"
+          >
             <img
               src={logoUrl}
               alt="Banglar Chaka — বাংলার চাকা"
-              className="h-12 sm:h-14 w-auto max-w-full object-contain object-left"
+              className="h-9 w-auto max-w-full object-contain object-left sm:h-10"
               width={240}
               height={56}
               decoding="async"
             />
           </Link>
         </div>
-        <div className="flex flex-col xl:flex-row gap-12 xl:gap-16">
-          <div className="flex-1 min-w-0 space-y-12">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10">
+        <div className="flex flex-col gap-5 xl:flex-row xl:gap-8">
+          <div className="min-w-0 flex-1 space-y-5">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-4 md:grid-cols-4 md:gap-x-5">
               {COLS_TOP.map((col) => (
                 <LinkColumn key={col.titleKey} col={col} />
               ))}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10 pt-2 border-t border-gray-700/80">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-4 border-t border-neutral-200 pt-4 md:grid-cols-4 md:gap-x-5">
               {COLS_BOTTOM.map((col) => (
                 <LinkColumn key={col.titleKey} col={col} />
               ))}
             </div>
           </div>
 
-          <aside className="w-full xl:w-[280px] shrink-0 space-y-8 xl:border-l xl:border-gray-700/80 xl:pl-10">
+          <aside className="w-full shrink-0 space-y-4 xl:w-[240px] xl:border-l xl:border-neutral-200 xl:pl-6">
             <div>
               <h3 className={HEADING}>{t('footer.sellOnTitle')}</h3>
-              <ul className="space-y-2.5">
+              <ul className="space-y-1">
                 <li>
-                  <Link to="/used-cars/sell" className={`text-[13px] ${LINK}`}>
+                  <Link to="/used-cars/sell" className={LINK}>
                     {t('postAd.sellYourCar')}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/used-bikes/sell" className={`text-[13px] ${LINK}`}>
+                  <Link to="/used-bikes/sell" className={LINK}>
                     {t('postAd.sellYourBike')}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/post-ad?type=accessory" className={`text-[13px] ${LINK}`}>
+                  <Link to="/post-ad?type=accessory" className={LINK}>
                     {t('postAd.sellAccessory')}
                   </Link>
                 </li>
@@ -246,12 +252,12 @@ export function Footer() {
                   value={newsletter}
                   onChange={(e) => setNewsletter(e.target.value)}
                   placeholder={t('footer.subscribePlaceholder')}
-                  className="flex-1 min-w-0 rounded-md border border-gray-600 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3EB549]/60"
+                  className="min-w-0 flex-1 rounded-md border border-neutral-300 bg-white px-2.5 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-brand-green/45"
                   aria-label={t('footer.subscribePlaceholder')}
                 />
                 <button
                   type="submit"
-                  className="shrink-0 rounded-md bg-[#3EB549] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#36a340] transition"
+                  className="shrink-0 rounded-md bg-brand-green px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-green-hover"
                 >
                   {t('footer.subscribeButton')}
                 </button>
@@ -268,9 +274,9 @@ export function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={t(labelKey)}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-700/90 text-gray-200 hover:bg-gray-600 hover:text-white transition"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-600 shadow-sm transition hover:border-brand-red/40 hover:bg-brand-red hover:text-white"
                   >
-                    <Icon className="w-[18px] h-[18px]" strokeWidth={2} />
+                    <Icon className="h-[16px] w-[16px]" strokeWidth={2} />
                   </a>
                 ))}
               </div>
@@ -281,7 +287,7 @@ export function Footer() {
               <div className="flex flex-col gap-2">
                 <a
                   href="#"
-                  className="flex items-center justify-center rounded-md bg-black px-4 py-2.5 text-left text-xs font-semibold text-white ring-1 ring-gray-700 hover:ring-gray-500 transition"
+                  className="flex items-center justify-center rounded-md border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 text-left text-[10px] font-semibold text-white shadow-sm transition hover:bg-neutral-800"
                   onClick={(e) => {
                     e.preventDefault();
                     toast.message(t('footer.appComingSoon'));
@@ -291,7 +297,7 @@ export function Footer() {
                 </a>
                 <a
                   href="#"
-                  className="flex items-center justify-center rounded-md bg-black px-4 py-2.5 text-xs font-semibold text-white ring-1 ring-gray-700 hover:ring-gray-500 transition"
+                  className="flex items-center justify-center rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-[11px] font-semibold text-white shadow-sm transition hover:bg-neutral-800"
                   onClick={(e) => {
                     e.preventDefault();
                     toast.message(t('footer.appComingSoon'));
@@ -304,18 +310,18 @@ export function Footer() {
           </aside>
         </div>
 
-        <div className="mt-14 pt-8 border-t border-gray-700 text-center space-y-3">
-          <p className="text-xs text-gray-500">{t('footer.copyrightLine', { year: new Date().getFullYear() })}</p>
-          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs">
-            <Link to="/terms" className={`${LINK} text-gray-400`}>
+        <div className="mt-5 space-y-1.5 border-t border-neutral-200 pt-4 text-center">
+          <p className="text-[11px] text-neutral-500">{t('footer.copyrightLine', { year: new Date().getFullYear() })}</p>
+          <div className="flex flex-wrap justify-center gap-x-3 gap-y-0.5 text-[11px]">
+            <Link to="/terms" className={`${LINK}`}>
               {t('footer.termsOfService')}
             </Link>
-            <span className="text-gray-600">|</span>
-            <Link to="/privacy" className={`${LINK} text-gray-400`}>
+            <span className="text-neutral-300">|</span>
+            <Link to="/privacy" className={`${LINK}`}>
               {t('footer.privacyPolicyLink')}
             </Link>
           </div>
-          <p className="text-[11px] text-gray-600 max-w-3xl mx-auto leading-relaxed px-2">{t('footer.reproductionNote')}</p>
+          <p className="mx-auto max-w-3xl px-2 text-[10px] leading-snug text-neutral-500">{t('footer.reproductionNote')}</p>
         </div>
       </div>
     </footer>
